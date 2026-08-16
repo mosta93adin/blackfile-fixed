@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "14062810654",
+    "project_id": "lamp-1edaa",
+    "storage_bucket": "lamp-1edaa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:14062810654:android:f28d24189ebb3db61c600f",
+        "android_client_info": {
+          "package_name": "com.othmaneettoumi.blackfile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "14062810654-3r843mh3vv05bk0spfaaijovot400uo0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.othmaneettoumi.blackfile",
+            "certificate_hash": "8d47ac0b1a6cc7a2ae2649310c295b3d3a07ea81"
+          }
+        },
+        {
+          "client_id": "14062810654-efe99unc3dah6hs0e9km3vhcbd3a90r3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBujf7fvvpQt2QFY_uwd6xvb0BpNk397I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "14062810654-efe99unc3dah6hs0e9km3vhcbd3a90r3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

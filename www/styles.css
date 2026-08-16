@@ -178,9 +178,9 @@
     .ach-toast-icon { font-size: 18px; }
     @keyframes achToastIn { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes achToastOut { to { opacity: 0; transform: translateY(-15px); } }
-    .chat-disclaimer { font-size: 10px; color: var(--paper-dim); text-align: center; padding: 4px 8px; background: var(--ink); border-bottom: 1px solid var(--line); }
     #loading-overlay { display: none; position: fixed; inset: 0; background: rgba(14,16,21,0.55); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
     #loading-overlay.active { display: flex; }
+    .chat-disclaimer { font-size: 10px; color: var(--paper-dim); text-align: center; padding: 4px 8px; background: var(--ink); border-bottom: 1px solid var(--line); }
     .spinner { width: 42px; height: 42px; border: 4px solid var(--line); border-top: 4px solid var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 /* ===== New feature styles: accessibility, stats, story, race ===== */
@@ -208,3 +208,334 @@ body[dir="rtl"] .story-frag { border-left: none; border-right: 3px solid var(--g
 .report-card-canvas { max-width:100%; border-radius:10px; border:1px solid var(--line); margin-top:10px; }
 .seg-btn-row { display:flex; gap:6px; flex-wrap:wrap; }
 .seg-btn-row .btn-sm.active { background: var(--gold); color:#000; }
+#lamp-wrapper.lamp-login-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #080808;
+  transition: background-color 0.6s ease, background-image 0.6s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #ffffff;
+  z-index: 999999;
+  overflow-y: auto;
+  padding: 20px;
+  user-select: none;
+}
+
+#lamp-wrapper.lamp-login-wrapper.on {
+  background-color: #1c1813;
+  background-image: radial-gradient(ellipse at 32% 40%, rgba(212, 163, 89, 0.25) 0%, rgba(120, 85, 40, 0.1) 45%, rgba(12, 10, 8, 0.98) 85%);
+}
+
+#lamp-wrapper .hint {
+  position: absolute;
+  top: 35px;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #222222;
+  transition: color 0.5s ease;
+  margin: 0;
+}
+
+#lamp-wrapper.lamp-login-wrapper.on .hint {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+#lamp-wrapper .main-wrap {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 50px;
+  width: 100%;
+  max-width: 920px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+#lamp-wrapper .lamp {
+  position: relative;
+  width: 380px;
+  height: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+#lamp-wrapper .glow-halo, #lamp-wrapper .light-cone {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+#lamp-wrapper .glow-halo {
+  top: 0px;
+  width: 220px;
+  height: 100px;
+  border-radius: 50%;
+  background: rgba(255, 215, 130, 0.35);
+  filter: blur(40px);
+  z-index: 1;
+}
+
+#lamp-wrapper .light-cone {
+  top: 22px;
+  width: 380px;
+  height: 330px;
+  transform-origin: top center;
+  transform: scaleY(0);
+  background: linear-gradient(to bottom, rgba(255, 225, 150, 0.65) 0%, rgba(230, 170, 80, 0.35) 45%, rgba(180, 120, 40, 0.12) 80%, transparent 100%);
+  clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+  z-index: 2;
+  transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+}
+
+#lamp-wrapper.lamp-login-wrapper.on .glow-halo, 
+#lamp-wrapper.lamp-login-wrapper.on .light-cone {
+  opacity: 1;
+}
+
+#lamp-wrapper.lamp-login-wrapper.on .light-cone {
+  transform: scaleY(1);
+}
+
+#lamp-wrapper .fixture {
+  position: absolute;
+  top: 12px;
+  width: 150px;
+  height: 10px;
+  background-color: #161618;
+  border-radius: 5px;
+  border: 1px solid #28282b;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+#lamp-wrapper .bulb {
+  width: 90px;
+  height: 14px;
+  margin-bottom: -6px;
+  background-color: #111113;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+#lamp-wrapper.lamp-login-wrapper.on .bulb {
+  background-color: #ffffff;
+  box-shadow: 0 0 35px 12px rgba(255, 230, 160, 0.95), 0 0 10px 2px #ffffff;
+}
+
+#lamp-wrapper .string-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 14;
+}
+
+#lamp-wrapper .pull-handle {
+  position: absolute;
+  top: 80px;
+  left: 220px;
+  width: 10px;
+  height: 16px;
+  background-color: #d97706;
+  border-radius: 3px;
+  cursor: grab;
+  z-index: 20;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  touch-action: none;
+}
+
+#lamp-wrapper .pull-handle:active {
+  cursor: grabbing;
+}
+
+#lamp-wrapper.lamp-login-wrapper.on .pull-handle {
+  background-color: #fbbf24;
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.95);
+}
+
+#lamp-wrapper .cord {
+  width: 4px;
+  height: 330px;
+  background-color: #161618;
+  z-index: 5;
+}
+
+#lamp-wrapper .base {
+  width: 120px;
+  height: 7px;
+  background-color: #161618;
+  border-radius: 4px;
+  border: 1px solid #28282b;
+  z-index: 5;
+}
+
+#lamp-wrapper .form-container {
+  width: 340px;
+  min-height: 450px;
+}
+
+#lamp-wrapper form {
+  width: 100%;
+  padding: 36px 28px;
+  background-color: rgba(22, 22, 28, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  opacity: 0;
+  transform: scale(0.96) translateY(10px);
+  pointer-events: none;
+  transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+  position: relative;
+}
+
+#lamp-wrapper.lamp-login-wrapper.on form {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  pointer-events: auto;
+}
+
+#lamp-wrapper h2.title {
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  margin: 0 0 28px 0;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+}
+
+#lamp-wrapper .fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+#lamp-wrapper input.field {
+  width: 100%;
+  padding: 14px 16px;
+  background-color: rgba(10, 10, 14, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  font-size: 13px;
+  color: #ffffff;
+  outline: none;
+  box-sizing: border-box;
+  direction: ltr;
+  text-align: left;
+  font-family: inherit;
+}
+
+#lamp-wrapper input.field::placeholder {
+  color: #71717a;
+}
+
+#lamp-wrapper .password-wrap {
+  position: relative;
+  width: 100%;
+}
+
+#lamp-wrapper .password-wrap input.field {
+  padding-right: 16px;
+  padding-left: 42px;
+}
+
+#lamp-wrapper .eye-btn {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#lamp-wrapper .forgot-row {
+  text-align: left;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+#lamp-wrapper .forgot-row a {
+  color: #a855f7;
+  font-size: 12px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+#lamp-wrapper .submit-btn {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(168, 85, 247, 0.35);
+  transition: transform 0.1s ease, opacity 0.2s ease;
+}
+
+#lamp-wrapper .submit-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+#lamp-wrapper .divider {
+  display: flex;
+  align-items: center;
+  margin: 22px 0;
+}
+
+#lamp-wrapper .divider .line {
+  flex: 1;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+#lamp-wrapper .divider span {
+  padding: 0 10px;
+  font-size: 11px;
+  color: #666666;
+}
+
+#lamp-wrapper .google-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}

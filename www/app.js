@@ -1,3 +1,5 @@
+import { auth as firebaseAuth, checkRedirectResult, initializeAuthPersistence, loginWithGoogle as loginWithGoogleRedirect, onAuthStateChanged } from './firebase.js';
+
 // The Black File — app logic (UI, game state, achievements, multiplayer, accessibility, etc.)
 // Depends on translations.js being loaded first (uses the global TRANSLATIONS).
 
@@ -1513,7 +1515,7 @@
         playClickSound();
     }
 
-    let isDragging = false, startX = 0, startY = 0, widgetLeft = 0, widgetTop = 0;
+    let isDragging = false, widgetStartX = 0, widgetStartY = 0, widgetLeft = 0, widgetTop = 0;
     window.addEventListener('DOMContentLoaded', () => {
         loadUserData();
         updateUITexts();
@@ -1545,8 +1547,8 @@
         const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
         const widget = document.getElementById('chat-widget');
         const rect = widget.getBoundingClientRect();
-        startX = clientX - rect.left;
-        startY = clientY - rect.top;
+        widgetStartX = clientX - rect.left;
+        widgetStartY = clientY - rect.top;
     }
 
     function drag(e) {
@@ -1557,8 +1559,8 @@
         if (widget) {
             widget.style.right = 'auto';
             widget.style.bottom = 'auto';
-            widgetLeft = clientX - startX;
-            widgetTop = clientY - startY;
+            widgetLeft = clientX - widgetStartX;
+            widgetTop = clientY - widgetStartY;
             clampWidgetPosition(widget);
             widget.style.left = widgetLeft + 'px';
             widget.style.top = widgetTop + 'px';
@@ -1961,14 +1963,34 @@
     function openSettingsModal() { document.getElementById('modal-settings').classList.add('active'); playClickSound(); }
     function closeSettingsModal() { document.getElementById('modal-settings').classList.remove('active'); playClickSound(); }
     function setFontSize(size) { accessSettings.fontSize = size; saveAccessSettings(); applyAccessSettings(); playClickSound(); }
-    function toggleHighContrast(v) { accessSettings.highContrast = v; saveAccessSettings(); applyAccessSettings(); }
-    function toggleColorBlind(v) { accessSettings.colorBlind = v; saveAccessSettings(); applyAccessSettings(); }
-    function toggleTTS(v) {
-        accessSettings.ttsEnabled = v; saveAccessSettings();
-        const b1 = document.getElementById('brief-tts-btn'); if (b1) b1.style.display = v ? 'inline-flex' : 'none';
-        const b2 = document.getElementById('sus-tts-btn'); if (b2) b2.style.display = v ? 'inline-flex' : 'none';
+    function toggleHighContrast(v) {
+        const enabled = typeof v === 'boolean' ? v : (document.getElementById('access-contrast-toggle')?.checked ?? false);
+        accessSettings.highContrast = enabled;
+        saveAccessSettings();
+        applyAccessSettings();
+        playClickSound();
     }
-    function toggleEnergyMode(v) { accessSettings.energyMode = v; saveAccessSettings(); applyAccessSettings(); }
+    function toggleColorBlind(v) {
+        const enabled = typeof v === 'boolean' ? v : (document.getElementById('access-cb-toggle')?.checked ?? false);
+        accessSettings.colorBlind = enabled;
+        saveAccessSettings();
+        applyAccessSettings();
+        playClickSound();
+    }
+    function toggleTTS(v) {
+        const enabled = typeof v === 'boolean' ? v : (document.getElementById('access-tts-toggle')?.checked ?? false);
+        accessSettings.ttsEnabled = enabled; saveAccessSettings();
+        const b1 = document.getElementById('brief-tts-btn'); if (b1) b1.style.display = enabled ? 'inline-flex' : 'none';
+        const b2 = document.getElementById('sus-tts-btn'); if (b2) b2.style.display = enabled ? 'inline-flex' : 'none';
+        playClickSound();
+    }
+    function toggleEnergyMode(v) {
+        const enabled = typeof v === 'boolean' ? v : (document.getElementById('access-energy-toggle')?.checked ?? false);
+        accessSettings.energyMode = enabled;
+        saveAccessSettings();
+        applyAccessSettings();
+        playClickSound();
+    }
     function setEnergyLimit(v) { accessSettings.energyLimit = parseInt(v, 10) || 5; saveAccessSettings(); renderEnergyRemaining(); }
 
     // ---- optional daily "energy" / attempt limit ----
@@ -2355,7 +2377,9 @@
         catch (e) { console.log('Notification cancel error:', e); }
     }
     async function toggleDailyReminder(v) {
-        if (v) {
+        const enabled = typeof v === 'boolean' ? v : (document.getElementById('access-reminder-toggle')?.checked ?? false);
+        playClickSound();
+        if (enabled) {
             const ok = await scheduleDailyReminder();
             accessSettings.reminderEnabled = ok;
             saveAccessSettings();
@@ -2426,3 +2450,262 @@
             navigator.serviceWorker.register('sw.js').catch(() => { /* ignore in file:// preview */ });
         });
     }
+
+// --- تفاعل المصباح وسحب الخيط ---
+const wrapper = document.getElementById('lamp-wrapper');
+const handle = document.getElementById('pull-handle');
+const stringLine = document.getElementById('string-line');
+let isOn = false;
+let dragging = false;
+let moved = false;
+let startX = 0, startY = 0;
+let offsetX = 0, offsetY = 0;
+const constraints = { top: 0, bottom: 60, left: -50, right: 50 };
+
+function clamp(val, min, max) {
+  return Math.max(min, Math.min(max, val));
+}
+
+function toggleLampState() {
+  isOn = !isOn;
+  wrapper?.classList.toggle('on', isOn);
+}
+
+function updateHandlePosition(dx, dy) {
+  if (!handle || !stringLine) return;
+  handle.style.transform = `translate(${dx}px, ${dy}px)`;
+  stringLine.setAttribute('x2', 225 + dx);
+  stringLine.setAttribute('y2', 80 + dy);
+}
+
+function resetHandlePosition() {
+  if (!handle) return;
+  offsetX = 0;
+  offsetY = 0;
+  handle.style.transition = 'transform 0.25s ease-out';
+  updateHandlePosition(0, 0);
+  setTimeout(() => {
+    handle.style.transition = '';
+  }, 250);
+}
+
+if (handle && wrapper) {
+  function onPointerDown(e) {
+    dragging = true;
+    moved = false;
+    handle.style.cursor = 'grabbing';
+    const point = e.touches ? e.touches[0] : e;
+    startX = point.clientX;
+    startY = point.clientY;
+    e.preventDefault();
+  }
+
+  function onPointerMove(e) {
+    if (!dragging) return;
+    const point = e.touches ? e.touches[0] : e;
+    let dx = clamp(point.clientX - startX, constraints.left, constraints.right);
+    let dy = clamp(point.clientY - startY, constraints.top, constraints.bottom);
+    offsetX = dx;
+    offsetY = dy;
+    moved = moved || Math.abs(dx) > 1 || Math.abs(dy) > 1;
+    updateHandlePosition(dx, dy);
+  }
+
+  function onPointerUp() {
+    if (!dragging) return;
+    dragging = false;
+    handle.style.cursor = 'grab';
+    const distance = Math.sqrt(offsetX ** 2 + offsetY ** 2);
+    if (distance > 3 || !moved) {
+      toggleLampState();
+    }
+    resetHandlePosition();
+  }
+
+  handle.addEventListener('mousedown', onPointerDown);
+  window.addEventListener('mousemove', onPointerMove);
+  window.addEventListener('mouseup', onPointerUp);
+  handle.addEventListener('touchstart', onPointerDown, { passive: false });
+  window.addEventListener('touchmove', onPointerMove, { passive: false });
+  window.addEventListener('touchend', onPointerUp);
+}
+
+// --- إظهار وإخفاء كلمات المرور ---
+function setupEyeToggle(buttonId, inputId) {
+  const btn = document.getElementById(buttonId);
+  const input = document.getElementById(inputId);
+  if (!btn || !input) return;
+  const slash = btn.querySelector('.slash');
+  let show = false;
+  btn.addEventListener('click', () => {
+    show = !show;
+    input.type = show ? 'text' : 'password';
+    if (slash) slash.style.display = show ? 'none' : 'block';
+  });
+}
+
+setupEyeToggle('toggle-password', 'password');
+setupEyeToggle('toggle-confirm-password', 'confirm-password');
+
+function showLoginUI() {
+  const wrapper = document.getElementById('lamp-wrapper');
+  const appRoot = document.querySelector('.app');
+  if (wrapper) {
+    wrapper.style.display = 'flex';
+    wrapper.setAttribute('aria-hidden', 'false');
+  }
+  if (appRoot) {
+    appRoot.style.display = 'none';
+  }
+}
+
+function showGameUI() {
+  const wrapper = document.getElementById('lamp-wrapper');
+  const appRoot = document.querySelector('.app');
+  if (wrapper) {
+    wrapper.style.display = 'none';
+    wrapper.setAttribute('aria-hidden', 'true');
+  }
+  if (appRoot) {
+    appRoot.style.display = 'block';
+  }
+  if (typeof show === 'function') {
+    try {
+      show('scr-menu');
+    } catch (error) {
+      console.error('Unable to show the game menu:', error);
+    }
+  }
+}
+
+function syncAuthUI(user) {
+  if (user) {
+    showGameUI();
+  } else {
+    showLoginUI();
+  }
+}
+
+async function bootstrapAuthFlow() {
+  try {
+    await initializeAuthPersistence();
+  } catch (error) {
+    console.error('Firebase persistence setup failed:', error);
+  }
+
+  try {
+    const result = await checkRedirectResult();
+    syncAuthUI(result?.user || null);
+  } catch (error) {
+    console.error('Redirect auth handling failed:', error);
+    syncAuthUI(null);
+  }
+}
+
+showLoginUI();
+onAuthStateChanged(firebaseAuth, (user) => {
+  syncAuthUI(user);
+});
+
+void bootstrapAuthFlow();
+
+// --- ربط النموذج بـ Firebase (الذي أنشأناه مسبقاً) ---
+const loginForm = document.getElementById('login-form');
+if (loginForm) {
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+
+    if (!email || !password) {
+      alert("Please enter your email and password.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("كلمتا السر غير متطابقتين!");
+      return;
+    }
+
+    try {
+      if (typeof window.signupWithEmail === 'function') {
+        await window.signupWithEmail(email, password);
+      } else {
+        alert("جاري تسجيل الدخول...");
+      }
+    } catch (err) {
+      alert(err?.message || "Authentication failed. Please try again.");
+    }
+  });
+}
+
+const googleBtn = document.getElementById('google-btn');
+if (googleBtn) {
+  googleBtn.addEventListener('click', async () => {
+    try {
+      showLoginUI();
+      if (typeof loginWithGoogleRedirect === 'function') {
+        await loginWithGoogleRedirect();
+      } else if (typeof window.loginWithGoogle === 'function') {
+        await window.loginWithGoogle();
+      } else {
+        alert("جاري الاتصال بـ Google...");
+      }
+    } catch (err) {
+      showLoginUI();
+      alert(err?.message || "Google sign-in failed.");
+    }
+  });
+}
+
+const GLOBAL_UI_HANDLERS = {
+  changeLang,
+  show,
+  resumeLastCase,
+  exportProgress,
+  importProgress,
+  toggleMute,
+  filterCases,
+  startInvestigation,
+  closeModal,
+  submitAccusation,
+  openNotesModal,
+  saveNotes,
+  openHintsModal,
+  restartCase,
+  openProfileModal,
+  closeProfileModal,
+  saveProfile,
+  openMultiplayerModal,
+  closeMultiplayerModal,
+  toggleVoiceInput,
+  toggleChatWidget,
+  sendChatMessage,
+  toggleVoiceCall,
+  createMultiplayerRoom,
+  leaveMultiplayerRoom,
+  joinMultiplayerRoom,
+  closeOnboarding,
+  openAccessModal,
+  closeAccessModal,
+  openSettingsModal,
+  closeSettingsModal,
+  setFontSize,
+  toggleHighContrast,
+  toggleColorBlind,
+  toggleTTS,
+  toggleEnergyMode,
+  setEnergyLimit,
+  toggleDailyReminder,
+  openStatsScreen,
+  openStoryScreen,
+  startQuickRace,
+  speakBrief,
+  speakSuspect,
+  downloadReportCard,
+  shareReportCard,
+  openAccusationModal
+};
+
+Object.assign(window, GLOBAL_UI_HANDLERS);
