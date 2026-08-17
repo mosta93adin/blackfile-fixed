@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="The Black File">
 <link rel="stylesheet" href="styles.css">
-<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js" defer></script>
 
 </head>
 <body id="body-tag">
@@ -84,6 +84,7 @@
           </svg>
           Continue with Google
         </button>
+        <button type="button" class="offline-btn" id="offline-btn">Play Offline</button>
       </form>
     </div>
   </div>
@@ -100,7 +101,7 @@
         <div class="controls-bar">
             <button class="btn-sm" onclick="openProfileModal()" id="txt-profile-btn">👤 Detective Profile</button>
             <button class="btn-sm" onclick="toggleChatWidget()" id="txt-chat-btn">💬 Friends Chat</button>
-            <button class="btn-sm" onclick="openMultiplayerModal()" id="txt-mp-btn">🌐 *6 Challenge</button>
+            <button class="btn-sm" onclick="openMultiplayerModal()" id="txt-mp-btn">🌍 *6 Challenge</button>
         </div>
     </div>
 
@@ -368,7 +369,7 @@
 
 <div id="modal-mp" class="modal-bg">
     <div class="modal">
-        <h3 style="margin-top:0; color:var(--gold);" id="txt-mp-title">🌐 *6 Challenge Room</h3>
+        <h3 style="margin-top:0; color:var(--gold);" id="txt-mp-title">🌍 *6 Challenge Room</h3>
         <p style="font-size:13px; color:var(--paper-dim);" id="txt-mp-desc">Connect with detective friends over local network or *6 data plans to compete in solving cases.</p>
         <div style="margin-bottom:12px;">
             <input type="text" id="mp-roomcode" placeholder="" style="width:100%; background:var(--ink); border:1px solid var(--line); padding:8px; border-radius:6px; color:var(--paper); font-size:13px; outline:none;">
@@ -450,7 +451,7 @@
 
 <div id="modal-onboard" class="modal-bg">
     <div class="modal" style="text-align:center;">
-        <div style="font-size:40px; margin-bottom:8px;">🕵️‍♂️📁🔍</div>
+        <div style="font-size:40px; margin-bottom:8px;">🕵️‍♂️📝🔍</div>
         <h3 style="margin-top:0; color:var(--gold);" id="txt-onboard-title">Welcome, Detective</h3>
         <p style="font-size:13.5px; text-align:start; color:var(--paper-dim); line-height:1.7;" id="txt-onboard-body"></p>
         <button class="btn" onclick="closeOnboarding()" id="txt-onboard-btn" style="margin-top:10px;">Let's Investigate →</button>

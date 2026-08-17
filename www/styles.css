@@ -258,6 +258,9 @@ body[dir="rtl"] .story-frag { border-left: none; border-right: 3px solid var(--g
   max-width: 920px;
   margin-top: 10px;
   flex-wrap: wrap;
+  overflow: hidden; /* the lamp graphic below is scaled down on small screens via
+                        transform, which would otherwise leave reserved blank
+                        space; this keeps that space from being visible/scrollable */
 }
 
 #lamp-wrapper .lamp {
@@ -523,6 +526,21 @@ body[dir="rtl"] .story-frag { border-left: none; border-right: 3px solid var(--g
   font-size: 11px;
   color: #666666;
 }
+#lamp-wrapper .offline-btn {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  color: #a1a1aa;
+  border: none;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  margin-top: 14px;
+}
+#lamp-wrapper .offline-btn:hover {
+  color: #ffffff;
+}
 
 #lamp-wrapper .google-btn {
   width: 100%;
@@ -539,3 +557,77 @@ body[dir="rtl"] .story-frag { border-left: none; border-right: 3px solid var(--g
   justify-content: center;
   gap: 10px;
 }
+
+/* =========================================================================
+   Mobile responsiveness
+   The lamp illustration and its pull-string are built with fixed-pixel,
+   absolutely-positioned children (fixture, bulb, string endpoints, handle)
+   that only line up correctly at their original 380px size. Rather than
+   letting flexbox squash/clip that box on narrow screens (which cut off
+   parts of the lamp and pushed the form off-screen), we scale the whole
+   lamp uniformly with transform: scale() so every child moves together and
+   stays visually correct, then pull the leftover reserved space back up
+   with a negative margin so no big empty gap is left behind.
+   ========================================================================= */
+@media (max-width: 900px) {
+  #lamp-wrapper .main-wrap { gap: 20px; }
+}
+
+@media (max-width: 620px) {
+  #lamp-wrapper .lamp {
+    transform: scale(0.78);
+    transform-origin: top center;
+    margin-bottom: -84px; /* ~380px * (1 - 0.78) */
+  }
+  #lamp-wrapper .form-container {
+    width: 100%;
+    max-width: 360px;
+  }
+}
+
+@media (max-width: 420px) {
+  #lamp-wrapper { padding: 14px; }
+  #lamp-wrapper .lamp {
+    transform: scale(0.6);
+    transform-origin: top center;
+    margin-bottom: -152px; /* ~380px * (1 - 0.6) */
+  }
+  #lamp-wrapper .form-container {
+    width: 100%;
+    max-width: 320px;
+    min-height: auto;
+  }
+  #lamp-wrapper form {
+    padding: 26px 18px;
+  }
+  #lamp-wrapper h2.title {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 340px) {
+  #lamp-wrapper .lamp {
+    transform: scale(0.5);
+    transform-origin: top center;
+    margin-bottom: -190px; /* ~380px * (1 - 0.5) */
+  }
+}
+
+/* Chat widget: fixed 320px width overflowed very narrow phones */
+@media (max-width: 380px) {
+  #chat-widget {
+    width: calc(100vw - 24px);
+    max-width: 320px;
+  }
+  body[dir="ltr"] #chat-widget { right: 12px; }
+  body[dir="rtl"] #chat-widget { left: 12px; }
+}
+
+/* Modals: a little less padding so content has more breathing room on phones */
+@media (max-width: 420px) {
+  .modal { padding: 16px; border-radius: 10px; }
+}
+
+/* Prevent any residual horizontal overflow on small screens */
+html, body { overflow-x: hidden; }

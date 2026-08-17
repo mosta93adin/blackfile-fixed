@@ -7,6 +7,7 @@ import {
   signInWithRedirect, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
+  sendPasswordResetEmail, 
   getRedirectResult, 
   onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -36,15 +37,24 @@ export async function initializeAuthPersistence() {
   }
 }
 
-export async function signupWithEmail(email, password) {
+// Tries to sign an existing user in first (matches the "SIGN IN" button label).
+// Only falls back to creating a brand-new account when Firebase reports that
+// no account exists yet for this email, so returning users are never forced
+// through the "create account" path just to log back in.
+export async function loginOrSignupWithEmail(email, password) {
   try {
-    return await createUserWithEmailAndPassword(auth, email, password);
+    return await signInWithEmailAndPassword(auth, email, password);
   } catch (error) {
-    if (error?.code === 'auth/email-already-in-use') {
-      return signInWithEmailAndPassword(auth, email, password);
+    const noAccountYet = error?.code === 'auth/user-not-found' || error?.code === 'auth/invalid-credential';
+    if (noAccountYet) {
+      return createUserWithEmailAndPassword(auth, email, password);
     }
     throw error;
   }
+}
+
+export async function resetPassword(email) {
+  return sendPasswordResetEmail(auth, email);
 }
 
 export async function loginWithGoogle() {
@@ -81,7 +91,8 @@ export {
 };
 
 if (typeof window !== 'undefined') {
-  window.signupWithEmail = signupWithEmail;
+  window.loginOrSignupWithEmail = loginOrSignupWithEmail;
+  window.resetPassword = resetPassword;
   window.loginWithGoogle = loginWithGoogle;
   window.checkRedirectResult = checkRedirectResult;
 }

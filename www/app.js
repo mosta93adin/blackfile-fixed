@@ -1,4 +1,4 @@
-import { auth as firebaseAuth, checkRedirectResult, initializeAuthPersistence, loginWithGoogle as loginWithGoogleRedirect, onAuthStateChanged } from './firebase.js';
+import { auth as firebaseAuth, checkRedirectResult, initializeAuthPersistence, loginWithGoogle as loginWithGoogleRedirect, loginOrSignupWithEmail, resetPassword, onAuthStateChanged } from './firebase.js';
 
 // The Black File — app logic (UI, game state, achievements, multiplayer, accessibility, etc.)
 // Depends on translations.js being loaded first (uses the global TRANSLATIONS).
@@ -22,6 +22,14 @@ import { auth as firebaseAuth, checkRedirectResult, initializeAuthPersistence, l
         de: 'de-DE', 
         pt: 'pt-PT' 
     };
+    // ملاحظة: منطق تسجيل الدخول الفعلي (إظهار/إخفاء شاشة المصباح مقابل شاشة
+    // اللعبة، والاستماع لتغييرات حالة المصادقة، وربط النموذج بزر Google) موجود
+    // في كتلة واحدة موحدة بالأسفل (showLoginUI / showGameUI / syncAuthUI) التي
+    // تستخدم العناصر الصحيحة الموجودة فعلاً في index.html: #lamp-wrapper و.app.
+    // كانت هناك سابقاً كتلة مكررة هنا تبحث عن عناصر غير موجودة (#login-screen,
+    // .login-container, #main-game, .game-container, #app بصيغة id) مما كان
+    // يمنع اختفاء شاشة تسجيل الدخول بعد نجاح الدخول، وكان يسجّل كل مستمع حدث
+    // مرتين. تم حذفها لصالح الكتلة الصحيحة الوحيدة بالأسفل.
 
     function readUserProfile() {
         try {
@@ -2547,6 +2555,27 @@ function setupEyeToggle(buttonId, inputId) {
 setupEyeToggle('toggle-password', 'password');
 setupEyeToggle('toggle-confirm-password', 'confirm-password');
 
+// --- إدارة وضع "اللعب بدون إنترنت" (Offline / Guest Mode) ---
+const OFFLINE_MODE_KEY = 'tf_offlineMode';
+
+function isOfflineMode() {
+  try {
+    return localStorage.getItem(OFFLINE_MODE_KEY) === 'true';
+  } catch (e) {
+    return false;
+  }
+}
+
+function setOfflineMode(value) {
+  try {
+    if (value) {
+      localStorage.setItem(OFFLINE_MODE_KEY, 'true');
+    } else {
+      localStorage.removeItem(OFFLINE_MODE_KEY);
+    }
+  } catch (e) { /* ignore: storage may be blocked */ }
+}
+
 function showLoginUI() {
   const wrapper = document.getElementById('lamp-wrapper');
   const appRoot = document.querySelector('.app');
@@ -2578,12 +2607,26 @@ function showGameUI() {
   }
 }
 
+// نقطة الدخول الوحيدة الموثوقة لحالة الواجهة (تسجيل دخول أو لعب داخل التطبيق).
+// عمداً لا تُعاد شاشة تسجيل الدخول إذا كان المستخدم في وضع "بدون إنترنت"،
+// لتفادي مشكلة إعادته لشاشة الدخول بعد نجاح التسجيل (سباق مع onAuthStateChanged).
 function syncAuthUI(user) {
   if (user) {
+    setOfflineMode(false); // مستخدم حقيقي مسجّل الدخول يلغي وضع الضيف تلقائياً
+    showGameUI();
+  } else if (isOfflineMode()) {
     showGameUI();
   } else {
     showLoginUI();
   }
+}
+
+// يتيح للمستخدم تجاوز تسجيل الدخول بالكامل والدخول مباشرة للأرشيف/القائمة،
+// سواء لعدم وجود إنترنت أو لعدم رغبته بإنشاء حساب.
+function playOffline() {
+  setOfflineMode(true);
+  showGameUI();
+  playClickSound();
 }
 
 async function bootstrapAuthFlow() {
@@ -2595,14 +2638,36 @@ async function bootstrapAuthFlow() {
 
   try {
     const result = await checkRedirectResult();
-    syncAuthUI(result?.user || null);
+    if (result && result.user) {
+      // نتيجة إعادة توجيه Google ناجحة: أدخل المستخدم للعبة فوراً.
+      syncAuthUI(result.user);
+    } else if (firebaseAuth.currentUser) {
+      // onAuthStateChanged قد يكون أظهر واجهة اللعبة بالفعل قبل وصولنا هنا
+      // (خصوصاً بعد إعادة تحميل الصفحة إثر Redirect من Google).
+      // لا نستدعي syncAuthUI(null) هنا أبداً في هذه الحالة، تفادياً لإعادة
+      // المستخدم لشاشة تسجيل الدخول رغم نجاح الدخول (هذا كان سبب الخلل).
+      syncAuthUI(firebaseAuth.currentUser);
+    }
+    // إن لم توجد نتيجة Redirect ولا مستخدم حالي، نترك onAuthStateChanged
+    // (المسجَّل بالفعل) هو من يقرر الحالة الصحيحة للواجهة.
   } catch (error) {
     console.error('Redirect auth handling failed:', error);
-    syncAuthUI(null);
+    // فقط في حال عدم وجود مستخدم حالي بالفعل ولسنا في وضع "بدون إنترنت"،
+    // نعرض شاشة تسجيل الدخول كحالة افتراضية آمنة.
+    if (!firebaseAuth.currentUser && !isOfflineMode()) {
+      syncAuthUI(null);
+    }
   }
 }
 
-showLoginUI();
+// الحالة الابتدائية قبل تهيئة Firebase: أعطِ الأولوية لوضع "بدون إنترنت"
+// المحفوظ مسبقاً حتى لا يظهر وميض شاشة تسجيل الدخول لمن اختاره سابقاً.
+if (isOfflineMode()) {
+  showGameUI();
+} else {
+  showLoginUI();
+}
+
 onAuthStateChanged(firebaseAuth, (user) => {
   syncAuthUI(user);
 });
@@ -2617,25 +2682,59 @@ if (loginForm) {
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirm-password').value;
+    const submitBtn = document.getElementById('submit-btn');
 
     if (!email || !password) {
       alert("Please enter your email and password.");
       return;
     }
 
-    if (password !== confirmPassword) {
-      alert("كلمتا السر غير متطابقتين!");
-      return;
-    }
-
+    // نحاول تسجيل الدخول أولاً (يطابق تسمية الزر "SIGN IN"). حقل "Confirm
+    // Password" لا يُفرض إلا عند إنشاء حساب جديد فعلياً (أي عندما لا يوجد
+    // حساب بهذا البريد أصلاً)، بدل إجبار المستخدم العائد على تكراره في كل مرة.
+    if (submitBtn) submitBtn.disabled = true;
     try {
-      if (typeof window.signupWithEmail === 'function') {
-        await window.signupWithEmail(email, password);
+      if (typeof loginOrSignupWithEmail === 'function') {
+        try {
+          await loginOrSignupWithEmail(email, password);
+        } catch (err) {
+          const accountMissing = err?.code === 'auth/user-not-found' || err?.code === 'auth/invalid-credential';
+          if (accountMissing && password !== confirmPassword) {
+            alert("كلمتا السر غير متطابقتين!");
+            return;
+          }
+          throw err;
+        }
       } else {
         alert("جاري تسجيل الدخول...");
       }
     } catch (err) {
       alert(err?.message || "Authentication failed. Please try again.");
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
+}
+
+// --- استعادة كلمة المرور ---
+const forgotLink = document.getElementById('forgot-link');
+if (forgotLink) {
+  forgotLink.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const emailInput = document.getElementById('email');
+    const email = emailInput ? emailInput.value.trim() : '';
+    if (!email) {
+      alert('Please enter your email address first, then tap "Forgot Password?" again.');
+      if (emailInput) emailInput.focus();
+      return;
+    }
+    try {
+      if (typeof resetPassword === 'function') {
+        await resetPassword(email);
+        alert('A password reset link has been sent to ' + email + '.');
+      }
+    } catch (err) {
+      alert(err?.message || 'Could not send the reset email. Please try again.');
     }
   });
 }
@@ -2656,6 +2755,13 @@ if (googleBtn) {
       showLoginUI();
       alert(err?.message || "Google sign-in failed.");
     }
+  });
+}
+
+const offlineBtn = document.getElementById('offline-btn');
+if (offlineBtn) {
+  offlineBtn.addEventListener('click', () => {
+    playOffline();
   });
 }
 

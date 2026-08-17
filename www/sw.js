@@ -1,9 +1,10 @@
-const CACHE_NAME = 'black-file-cache-v3'; // bumped: v2 pointed at a non-existent './game.html' and never cached the app shell
+const CACHE_NAME = 'black-file-cache-v4'; // bumped: now also caches firebase CDN modules and offline-mode fix
 const APP_SHELL = [
   './index.html',
   './styles.css',
   './translations.js',
   './app.js',
+  './firebase.js',
   './manifest.json',
   './assets/icon-192.png',
   './assets/icon-512.png',
@@ -13,7 +14,9 @@ const APP_SHELL = [
 // Cached separately with no-cors since it's cross-origin (opaque response,
 // but still lets it load while offline after the first successful fetch).
 const EXTERNAL = [
-  'https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js'
+  'https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js',
+  'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js',
+  'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js'
 ];
 
 self.addEventListener('install', (event) => {
