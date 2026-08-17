@@ -1,15 +1,14 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { 
-  getAuth, 
-  GoogleAuthProvider, 
-  setPersistence, 
-  browserLocalPersistence, 
-  signInWithRedirect, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  sendPasswordResetEmail, 
-  getRedirectResult, 
-  onAuthStateChanged 
+import {
+  getAuth,
+  GoogleAuthProvider,
+  setPersistence,
+  browserLocalPersistence,
+  signInWithCredential,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -57,37 +56,47 @@ export async function resetPassword(email) {
   return sendPasswordResetEmail(auth, email);
 }
 
+// تسجيل الدخول بـ Google الأصلي (native) عبر @capacitor-firebase/authentication.
+// هاد الطريقة كتبدل signInWithRedirect اللي ماخدامش داخل WebView ديال Capacitor
+// (كانت كتحاول ترجع لـ localhost فالهاتف وما لقاتش سيرفر → ERR_CONNECTION_REFUSED).
 export async function loginWithGoogle() {
   try {
     await initializeAuthPersistence();
-    await signInWithRedirect(auth, googleProvider);
+
+    const FirebaseAuthentication = window?.Capacitor?.Plugins?.FirebaseAuthentication;
+    if (!FirebaseAuthentication) {
+      throw new Error('FirebaseAuthentication plugin غير موجود. تأكد من npm install @capacitor-firebase/authentication ثم npx cap sync android.');
+    }
+
+    // يفتح نافذة تسجيل دخول Google الأصلية ديال أندرويد (مو WebView)
+    const result = await FirebaseAuthentication.signInWithGoogle();
+
+    const idToken = result?.credential?.idToken;
+    if (!idToken) {
+      throw new Error('لم يتم استلام idToken من Google.');
+    }
+
+    // نربط النتيجة الأصلية مع Firebase JS SDK باش يبان المستخدم فـ onAuthStateChanged
+    const credential = GoogleAuthProvider.credential(idToken);
+    await signInWithCredential(auth, credential);
   } catch (error) {
     console.error('Google sign-in failed:', error);
     alert('حدث خطأ أثناء تسجيل الدخول: ' + error.message);
   }
 }
 
+// أُبقيت عليها بلا فعل حتى لا ينكسر app.js اللي كيستدعيها عند الإقلاع.
+// ماعادش ضرورية مع الطريقة الأصلية (native) لأن signInWithGoogle كيرجع النتيجة مباشرة.
 export async function checkRedirectResult() {
-  try {
-    const result = await getRedirectResult(auth);
-    return result || null;
-  } catch (error) {
-    console.error('Google redirect sign-in failed:', error);
-    if (typeof window !== 'undefined' && error?.message) {
-      alert('خطأ أثناء العودة من جوجل: ' + error.message);
-    }
-    return null;
-  }
+  return null;
 }
 
-export { 
-  setPersistence, 
-  browserLocalPersistence, 
-  onAuthStateChanged, 
-  signInWithRedirect, 
-  getRedirectResult, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword 
+export {
+  setPersistence,
+  browserLocalPersistence,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword
 };
 
 if (typeof window !== 'undefined') {
