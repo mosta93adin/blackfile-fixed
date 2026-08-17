@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "14062810654-vc1v5jsdrud96fpbvag80vvud7rjjrmk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.othmaneettoumi.blackfile",
+            "certificate_hash": "68c6a2ba64bfec542bd404fe3502e2e6b4a30331"
+          }
+        },
+        {
           "client_id": "14062810654-efe99unc3dah6hs0e9km3vhcbd3a90r3.apps.googleusercontent.com",
           "client_type": 3
         }

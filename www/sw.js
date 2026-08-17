@@ -1,4 +1,4 @@
-const CACHE_NAME = 'black-file-cache-v4'; // bumped: now also caches firebase CDN modules and offline-mode fix
+const CACHE_NAME = 'black-file-cache-v5'; // bumped: forces the service worker + all cached files (incl. firebase.js) to refresh
 const APP_SHELL = [
   './index.html',
   './styles.css',
