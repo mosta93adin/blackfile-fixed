@@ -37,6 +37,10 @@ jobs:
           fi
           npx @capacitor/cli sync android
 
+      - name: Decode Debug Keystore
+        run: |
+          echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | base64 --decode > android/app/debug.keystore
+
       - name: Build APK with Gradle
         run: |
           cd android
@@ -46,5 +50,5 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-apk
+          name: app-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk

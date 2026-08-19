@@ -14,14 +14,6 @@
       },
       "oauth_client": [
         {
-          "client_id": "14062810654-3r843mh3vv05bk0spfaaijovot400uo0.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.othmaneettoumi.blackfile",
-            "certificate_hash": "8d47ac0b1a6cc7a2ae2649310c295b3d3a07ea81"
-          }
-        },
-        {
           "client_id": "14062810654-vc1v5jsdrud96fpbvag80vvud7rjjrmk.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
