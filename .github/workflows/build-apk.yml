@@ -37,9 +37,10 @@ jobs:
           fi
           npx @capacitor/cli sync android
 
-      - name: Decode Debug Keystore
+      - name: Restore Fixed Debug Keystore
         run: |
-          echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | base64 --decode > android/app/debug.keystore
+          mkdir -p ~/.android
+          echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | base64 --decode > ~/.android/debug.keystore
 
       - name: Build APK with Gradle
         run: |
