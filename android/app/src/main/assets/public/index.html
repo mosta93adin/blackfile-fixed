@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Black File | Smart Detective Game - Othmane Ettoumi</title>
+
+<!-- PWA / installable app support -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0e1015">
+<meta name="background-color" content="#0e1015">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="The Black File">
+<link rel="stylesheet" href="styles.css">
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js" defer></script>
+
+</head>
+<body id="body-tag">
+<div id="lamp-wrapper" class="lamp-login-wrapper">
+  <p class="hint">PULL THE STRING TO TOGGLE LOGIN</p>
+  <div class="main-wrap">
+    <!-- Lamp -->
+    <div class="lamp">
+      <div class="glow-halo"></div>
+      <div class="light-cone"></div>
+      <div class="fixture">
+        <div class="bulb"></div>
+      </div>
+      <svg class="string-svg">
+        <line id="string-line" x1="225" y1="22" x2="225" y2="80" stroke="#999999" stroke-width="1.5" />
+      </svg>
+      <div class="pull-handle" id="pull-handle"></div>
+      <div class="cord"></div>
+      <div class="base"></div>
+    </div>
+
+    <!-- Form -->
+    <div class="form-container">
+      <form id="login-form">
+        <h2 class="title">Welcome Back</h2>
+        <div class="fields">
+          <input type="email" class="field" id="email" placeholder="Email address" required />
+          <div class="password-wrap">
+            <input type="password" class="field" id="password" placeholder="Password" required />
+            <button type="button" class="eye-btn" id="toggle-password">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+                <line class="slash" x1="3" y1="3" x2="21" y2="21" stroke="#71717a" stroke-width="2" />
+              </svg>
+            </button>
+          </div>
+          <div class="password-wrap">
+            <input type="password" class="field" id="confirm-password" placeholder="Confirm Password" required />
+            <button type="button" class="eye-btn" id="toggle-confirm-password">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+                <line class="slash" x1="3" y1="3" x2="21" y2="21" stroke="#71717a" stroke-width="2" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="forgot-row">
+          <a href="#forgot" id="forgot-link">Forgot Password?</a>
+        </div>
+        <button type="submit" class="submit-btn" id="submit-btn">SIGN IN</button>
+        <div class="divider">
+          <div class="line"></div>
+          <span>or</span>
+          <div class="line"></div>
+        </div>
+        <button type="button" class="google-btn" id="google-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+          </svg>
+          Continue with Google
+        </button>
+        <button type="button" class="offline-btn" id="offline-btn">Play Offline</button>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="app">
+    <div class="header">
+        <div class="brand">
+            <div class="badge">🕵️</div>
+            <div>
+                <h3 style="margin:0;" id="txt-app-title">The Black File | Othmane Ettoumi</h3>
+                <small style="color:var(--paper-dim);" id="txt-app-sub">Smart Detective Game – 20 Criminal Cases</small>
+            </div>
+        </div>
+        <div class="controls-bar">
+            <button class="btn-sm" onclick="openProfileModal()" id="txt-profile-btn">👤 Detective Profile</button>
+            <button class="btn-sm" onclick="toggleChatWidget()" id="txt-chat-btn">💬 Friends Chat</button>
+            <button class="btn-sm" onclick="openMultiplayerModal()" id="txt-mp-btn">🌍 *6 Challenge</button>
+        </div>
+    </div>
+
+    <!-- FLOATING SETTINGS BUTTON -->
+    <button id="settings-fab" onclick="openSettingsModal()" title="Settings" aria-label="Settings">
+        <span id="settings-fab-icon">⚙️</span>
+    </button>
+
+    <!-- SETTINGS MODAL: houses everything moved out of the header bar -->
+    <div id="modal-settings" class="modal-bg">
+        <div class="modal settings-modal">
+            <button class="settings-modal-x" onclick="closeSettingsModal()" aria-label="Close">✕</button>
+            <div class="settings-modal-head">
+                <div class="settings-modal-head-icon">⚙️</div>
+                <div>
+                    <h3 id="txt-settings-title">Settings</h3>
+                    <small id="status-tag">Ready for Duty</small>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <div class="settings-group-label">Display</div>
+                <button class="settings-row" onclick="toggleMute()" id="mute-btn">
+                    <span class="settings-row-icon">🔊</span>
+                    <span class="settings-row-text">Sound</span>
+                    <span class="settings-row-arrow">›</span>
+                </button>
+                <button class="settings-row" onclick="closeSettingsModal(); openAccessModal();">
+                    <span class="settings-row-icon">🧩</span>
+                    <span class="settings-row-text" id="txt-access-btn">Accessibility</span>
+                    <span class="settings-row-arrow">›</span>
+                </button>
+            </div>
+
+            <div class="settings-group">
+                <div class="settings-group-label">Progress</div>
+                <button class="settings-row" onclick="closeSettingsModal(); openStatsScreen();">
+                    <span class="settings-row-icon">📊</span>
+                    <span class="settings-row-text" id="txt-stats-btn">Stats</span>
+                    <span class="settings-row-arrow">›</span>
+                </button>
+                <button class="settings-row" onclick="closeSettingsModal(); openStoryScreen();">
+                    <span class="settings-row-icon">📖</span>
+                    <span class="settings-row-text" id="txt-story-btn">Secret File</span>
+                    <span class="settings-row-arrow">›</span>
+                </button>
+            </div>
+
+            <div class="settings-group">
+                <div class="settings-group-label">Language & Region</div>
+                <select id="lang-select" onchange="changeLang(this.value)" class="settings-select">
+                    <option value="en" selected>English</option>
+                    <option value="ar">العربية</option>
+                    <option value="ary">الدارجة</option>
+                    <option value="fr">Français</option>
+                    <option value="es">Español</option>
+                    <option value="it">Italiano</option>
+                    <option value="de">Deutsch</option>
+                    <option value="pt">Português</option>
+                </select>
+            </div>
+
+            <div style="text-align:end; margin-top:18px;">
+                <button class="btn" onclick="closeSettingsModal()" id="txt-settings-close">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MENU SCREEN -->
+    <div id="scr-menu" class="screen active">
+        <h3 id="txt-archive-title">📁 Case Archives (20 Crimes)</h3>
+        <p style="font-size:13px; color:var(--paper-dim); margin-top:0;" id="txt-archive-desc">Choose from 20 progressive difficulty cases to start your investigation.</p>
+        <div id="dashboard-stats" style="display:flex; gap:14px; flex-wrap:wrap; font-size:12.5px; color:var(--paper-dim); margin-bottom:10px;"></div>
+        <div id="resume-banner" style="display:none; margin-bottom:12px; padding:10px 14px; background:var(--card); border:1px solid var(--gold); border-radius:8px; cursor:pointer;" onclick="resumeLastCase()">
+            <span id="resume-banner-text"></span>
+        </div>
+        <div id="difficulty-filter-bar" style="margin-bottom: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn-sm active" onclick="filterCases('all', this)" id="f-all">All</button>
+            <button class="btn-sm" onclick="filterCases('easy', this)" id="f-easy">Easy</button>
+            <button class="btn-sm" onclick="filterCases('medium', this)" id="f-med">Medium</button>
+            <button class="btn-sm" onclick="filterCases('hard', this)" id="f-hard">Hard</button>
+            <button class="btn-sm" onclick="filterCases('extreme', this)" id="f-ext">Extreme</button>
+        </div>
+        <div id="case-list" class="grid"></div>
+        <div class="footer-note" id="txt-footer">The Black File © 2026 - Designed by: Othmane Ettoumi | 100% Offline</div>
+    </div>
+
+    <!-- BRIEF SCREEN -->
+    <div id="scr-brief" class="screen">
+        <a class="back-link" onclick="show('scr-menu')" id="txt-back-archive">← Back to Archives</a>
+        <div class="card">
+            <div id="brief-tag" class="tag"></div>
+            <h2 id="brief-title" style="margin-top:0; color:var(--gold);"></h2>
+            <div class="visual-banner" id="brief-visual-banner">
+                <span id="brief-banner-icon">🔍</span>
+                <p id="txt-crime-scene">CRIME SCENE INVESTIGATION</p>
+            </div>
+            <p id="brief-desc" style="font-size:14px;"></p>
+            <p id="brief-victim" style="font-size:13px; color:var(--paper-dim); font-weight:bold;"></p>
+            <button class="tts-btn" id="brief-tts-btn" style="display:none; margin-bottom:10px;" onclick="speakBrief()">🔊 <span id="txt-tts-listen">Listen</span></button>
+            <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--paper-dim); margin:10px 0; cursor:pointer;">
+                <input type="checkbox" id="brief-timed-toggle"> ⏱ Timed Challenge (10 min)
+            </label>
+            <button class="btn" onclick="startInvestigation()" id="txt-start-inv">Proceed to Crime Scene →</button>
+        </div>
+    </div>
+
+    <!-- INVESTIGATION SCREEN -->
+    <div id="scr-investigation" class="screen">
+        <a class="back-link" onclick="show('scr-brief')" id="txt-back-brief">← Back to Case Brief</a>
+        <div id="race-bar" class="race-bar">
+            <span id="race-bar-text">🏁 Race in progress...</span>
+            <span id="race-bar-timer" style="font-weight:bold; color:var(--gold);">00:00</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+            <h3 id="inv-case-title" style="margin:0; color:var(--gold);"></h3>
+            <span id="inv-timer" style="font-size:13px; color:var(--teal); display:none; font-weight:bold;"></span>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <button class="btn-sm ghost" onclick="openNotesModal()" id="txt-notes-btn">📝 Detective Notes</button>
+                <button class="btn-sm ghost" onclick="openHintsModal()" id="txt-hint-btn">💡 Request Hint</button>
+                <span id="hint-counter" style="font-size:11px; color:var(--paper-dim);"></span>
+            </div>
+        </div>
+        <div class="inv-grid">
+            <div class="card" style="margin-bottom:0;">
+                <h4 style="margin-top:0; color:var(--teal);" id="txt-evidence-header">🔍 Physical Evidence</h4>
+                <div id="evidence-list"></div>
+            </div>
+            <div class="card" style="margin-bottom:0;">
+                <h4 style="margin-top:0; color:var(--teal);" id="txt-suspects-header">👥 Suspects Interrogation</h4>
+                <div id="suspects-list"></div>
+            </div>
+        </div>
+        <div style="margin-top:15px; text-align:center;">
+            <button class="btn" onclick="openAccusationModal()" id="txt-accuse-btn" style="width:100%; max-width:400px; padding:14px; font-size:16px;">⚖️ Accuse Suspect & Solve Case</button>
+        </div>
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div id="scr-result" class="screen">
+        <div class="card" style="text-align:center; padding:30px;">
+            <div id="res-icon" style="font-size:48px; margin-bottom:10px;">🏆</div>
+            <h2 id="res-title" style="margin-top:0;"></h2>
+            <p id="res-desc" style="font-size:15px; max-width:600px; margin:0 auto 20px auto; color:var(--paper-dim);"></p>
+            <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+                <button class="btn" onclick="show('scr-menu')" id="txt-back-menu">Return to Archives</button>
+                <button class="btn ghost" onclick="restartCase()" id="txt-retry-case">Reinvestigate Case</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DETAILED STATS SCREEN -->
+    <div id="scr-stats" class="screen">
+        <a class="back-link" onclick="show('scr-menu')" id="txt-stats-back">← Back to Archives</a>
+        <h3 id="txt-stats-title">📊 Detailed Detective Statistics</h3>
+        <div class="stats-grid" id="stats-cards"></div>
+        <div class="card">
+            <h4 style="margin-top:0; color:var(--teal);" id="txt-stats-chart-title">Accuracy Trend (recent attempts)</h4>
+            <div id="stats-chart" style="width:100%; overflow-x:auto;"></div>
+        </div>
+        <div class="card">
+            <h4 style="margin-top:0; color:var(--teal);" id="txt-report-title">🗞️ Weekly Detective Report Card</h4>
+            <p style="font-size:12.5px; color:var(--paper-dim);" id="txt-report-desc">A shareable summary of your last 7 days of investigation.</p>
+            <canvas id="report-card-canvas" class="report-card-canvas" width="640" height="360"></canvas>
+            <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
+                <button class="btn-sm" onclick="downloadReportCard()" id="txt-report-download">⬇ Download Image</button>
+                <button class="btn-sm" onclick="shareReportCard()" id="txt-report-share">📤 Share</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECRET FILE / STORY SCREEN -->
+    <div id="scr-story" class="screen">
+        <a class="back-link" onclick="show('scr-menu')" id="txt-story-back">← Back to Archives</a>
+        <h3 id="txt-story-title">📖 The Secret File</h3>
+        <p style="font-size:13px; color:var(--paper-dim);" id="txt-story-desc">A hidden thread runs beneath these 20 cases. Solve more cases to uncover it.</p>
+        <div id="story-timeline"></div>
+    </div>
+</div>
+
+<!-- MODALS -->
+<div id="modal-evidence" class="modal-bg">
+    <div class="modal">
+        <h3 id="modal-ev-name" style="margin-top:0; color:var(--gold);"></h3>
+        <p id="modal-ev-desc" style="font-size:14px;"></p>
+        <div style="text-align:right; margin-top:20px;"><button class="btn" onclick="closeModal('modal-evidence')" id="txt-close-1">Close</button></div>
+    </div>
+</div>
+
+<div id="modal-suspect" class="modal-bg">
+    <div class="modal">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 id="modal-sus-name" style="margin:0; color:var(--gold);"></h3>
+            <span id="modal-sus-role" style="font-size:12px; background:var(--card-2); padding:3px 8px; border-radius:6px; border:1px solid var(--line);"></span>
+        </div>
+        <p style="font-size:13px; color:var(--paper-dim); margin:8px 0 15px 0;"><b>Alibi:</b> <span id="modal-sus-alibi"></span></p>
+        <button class="tts-btn" id="sus-tts-btn" style="display:none; margin-bottom:10px;" onclick="speakSuspect()">🔊 <span id="txt-tts-listen-2">Listen</span></button>
+        <hr style="border:0; border-top:1px solid var(--line); margin:12px 0;">
+        <h4 style="margin:0 0 10px 0; font-size:13px; color:var(--teal);" id="txt-interrogate-q">Interrogation Questions:</h4>
+        <div id="modal-sus-questions"></div>
+        <div style="text-align:right; margin-top:20px;"><button class="btn" onclick="closeModal('modal-suspect')" id="txt-close-2">Close</button></div>
+    </div>
+</div>
+
+<div id="modal-accuse" class="modal-bg">
+    <div class="modal">
+        <h3 style="margin-top:0; color:var(--blood);" id="txt-accuse-modal-title">⚖️ Final Accusation</h3>
+        <p style="font-size:13px; color:var(--paper-dim);" id="txt-accuse-modal-desc">Select the true culprit carefully. Wrong accusation will damage your detective rank!</p>
+        <div id="accuse-suspects-list"></div>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:20px;">
+            <button class="btn ghost" onclick="closeModal('modal-accuse')" id="txt-cancel">Cancel</button>
+            <button class="btn danger" onclick="submitAccusation()" id="txt-confirm-accuse">Confirm Accusation</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-notes" class="modal-bg">
+    <div class="modal">
+        <h3 style="margin-top:0; color:var(--gold);" id="txt-notes-title">📝 Detective Notes</h3>
+        <p style="font-size:12px; color:var(--paper-dim);" id="txt-notes-desc">Write down your observations and theories:</p>
+        <textarea id="notes-text" style="width:100%; height:150px; background:var(--ink); color:var(--paper); border:1px solid var(--line); border-radius:8px; padding:10px; font-size:13px; outline:none; resize:vertical;" placeholder=""></textarea>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:15px;">
+            <button class="btn ghost" onclick="closeModal('modal-notes')" id="txt-notes-close">Close</button>
+            <button class="btn" onclick="saveNotes()" id="txt-notes-save">Save Notes</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-hint" class="modal-bg">
+    <div class="modal">
+        <h3 style="margin-top:0; color:var(--gold);" id="txt-hint-title">💡 Detective Hint</h3>
+        <p id="hint-content" style="font-size:14px;"></p>
+        <div style="text-align:right; margin-top:20px;"><button class="btn" onclick="closeModal('modal-hint')" id="txt-hint-close">Got it</button></div>
+    </div>
+</div>
+
+<div id="modal-profile" class="modal-bg">
+    <div class="modal">
+        <h3 style="margin-top:0; color:var(--gold);" id="txt-profile-title">👤 Detective Profile</h3>
+        <div style="margin-bottom:12px;">
+            <label style="font-size:12px; color:var(--paper-dim); display:block; margin-bottom:4px;" id="txt-pro-name-label">Detective Name:</label>
+            <input type="text" id="pro-username" style="width:100%; background:var(--ink); border:1px solid var(--line); padding:8px; border-radius:6px; color:var(--paper); font-size:13px; outline:none;">
+        </div>
+        <div style="margin-bottom:12px;">
+            <label style="font-size:12px; color:var(--paper-dim); display:block; margin-bottom:4px;" id="txt-pro-rank-label">Rank:</label>
+            <div id="pro-rank" style="width:100%; background:var(--ink); border:1px solid var(--line); padding:8px; border-radius:6px; color:var(--gold); font-size:13px; box-sizing:border-box;">Detective Trainee</div>
+        </div>
+        <div style="font-size:13px; background:var(--card); padding:10px; border-radius:8px; margin-bottom:15px; border:1px solid var(--line);">
+            <p style="margin:0 0 5px 0;"><b>Cases Solved:</b> <span id="pro-solved">0</span> / 20</p>
+            <p style="margin:0;"><b>Accuracy Rate:</b> <span id="pro-acc">100%</span></p>
+        </div>
+        <div style="margin-bottom:15px;">
+            <label style="font-size:12px; color:var(--paper-dim); display:block; margin-bottom:6px;" id="txt-pro-ach-label">🎖️ Achievements</label>
+            <div id="pro-achievements" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(80px,1fr)); gap:8px;"></div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap;">
+            <button class="btn ghost" onclick="closeProfileModal()" id="txt-pro-close">Cancel</button>
+            <button class="btn ghost" onclick="exportProgress()" title="Export Progress">⬇ Export</button>
+            <button class="btn ghost" onclick="document.getElementById('import-file-input').click()" title="Import Progress">⬆ Import</button>
+            <input type="file" id="import-file-input" accept="application/json" style="display:none;" onchange="importProgress(event)">
+            <button class="btn" onclick="saveProfile()" id="txt-pro-save">Save Profile</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-mp" class="modal-bg">
+    <div class="modal">
+        <h3 style="margin-top:0; color:var(--gold);" id="txt-mp-title">🌍 *6 Challenge Room</h3>
+        <p style="font-size:13px; color:var(--paper-dim);" id="txt-mp-desc">Connect with detective friends over local network or *6 data plans to compete in solving cases.</p>
+        <div style="margin-bottom:12px;">
+            <input type="text" id="mp-roomcode" placeholder="" style="width:100%; background:var(--ink); border:1px solid var(--line); padding:8px; border-radius:6px; color:var(--paper); font-size:13px; outline:none;">
+        </div>
+        <div id="mp-status-box" style="font-size:13px; color:var(--teal); margin-bottom:15px; min-height:20px;"></div>
+        <div style="display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap;">
+            <button class="btn ghost" onclick="closeMultiplayerModal()" id="txt-mp-close">Close</button>
+            <button class="btn ghost" onclick="leaveMultiplayerRoom()" id="txt-mp-leave">Leave Room</button>
+            <button class="btn ghost" onclick="createMultiplayerRoom()" id="txt-mp-create">Create Room</button>
+            <button class="btn" onclick="joinMultiplayerRoom()" id="txt-mp-join">Connect Room</button>
+        </div>
+        <hr style="border:0; border-top:1px solid var(--line); margin:16px 0;">
+        <div>
+            <h4 style="margin:0 0 6px 0; color:var(--gold); font-size:14px;" id="txt-race-title">🏁 Quick Challenge (Race)</h4>
+            <p style="font-size:12px; color:var(--paper-dim); margin:0 0 10px 0;" id="txt-race-desc">Once connected, race your friend to solve the same case first — over the same connection above.</p>
+            <div id="race-status-box" style="font-size:12.5px; color:var(--paper-dim); margin-bottom:10px; min-height:18px;"></div>
+            <button class="btn" onclick="startQuickRace()" id="txt-race-start" style="width:100%;">🏁 Start Quick Challenge</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-access" class="modal-bg">
+    <div class="modal">
+        <h3 style="margin-top:0; color:var(--gold);" id="txt-access-title">⚙️ Accessibility &amp; Comfort</h3>
+
+        <div style="margin-bottom:14px;">
+            <label style="font-size:12px; color:var(--paper-dim); display:block; margin-bottom:6px;" id="txt-access-fontsize">Text Size</label>
+            <div class="seg-btn-row">
+                <button class="btn-sm" data-fs="normal" onclick="setFontSize('normal')" id="txt-fs-normal">A</button>
+                <button class="btn-sm" data-fs="large" onclick="setFontSize('large')" id="txt-fs-large">A+</button>
+                <button class="btn-sm" data-fs="xlarge" onclick="setFontSize('xlarge')" id="txt-fs-xlarge">A++</button>
+            </div>
+        </div>
+
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:12px; cursor:pointer;">
+            <input type="checkbox" id="access-contrast-toggle" onchange="toggleHighContrast(this.checked)">
+            <span id="txt-access-contrast">High Contrast Mode</span>
+        </label>
+
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:12px; cursor:pointer;">
+            <input type="checkbox" id="access-cb-toggle" onchange="toggleColorBlind(this.checked)">
+            <span id="txt-access-cb">Color-blind Friendly Mode (adds icons/shapes to difficulty tags)</span>
+        </label>
+
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:14px; cursor:pointer;">
+            <input type="checkbox" id="access-tts-toggle" onchange="toggleTTS(this.checked)">
+            <span id="txt-access-tts">Enable Read-Aloud (Text-to-Speech) buttons</span>
+        </label>
+
+        <hr style="border:0; border-top:1px solid var(--line); margin:12px 0;">
+
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:8px; cursor:pointer;">
+            <input type="checkbox" id="access-energy-toggle" onchange="toggleEnergyMode(this.checked)">
+            <span id="txt-access-energy">Limited Daily Attempts Mode (optional challenge)</span>
+        </label>
+        <div id="energy-limit-row" style="display:none; align-items:center; gap:8px; font-size:12.5px; color:var(--paper-dim); margin-bottom:14px;">
+            <span id="txt-access-energy-limit">Daily case limit:</span>
+            <select id="energy-limit-select" onchange="setEnergyLimit(this.value)">
+                <option value="3">3</option>
+                <option value="5">5</option>
+                <option value="10">10</option>
+            </select>
+            <span id="energy-remaining-display"></span>
+        </div>
+
+        <hr style="border:0; border-top:1px solid var(--line); margin:12px 0;">
+        <label style="font-size:12px; color:var(--paper-dim); display:block; margin-bottom:6px;" id="txt-access-reminder-label">Daily Reminder</label>
+        <p style="font-size:12px; color:var(--paper-dim); margin:0 0 8px 0;" id="txt-access-reminder-desc">Get a browser notification once a day (while this tab is open) reminding you to keep investigating.</p>
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:15px; cursor:pointer;">
+            <input type="checkbox" id="access-reminder-toggle" onchange="toggleDailyReminder(this.checked)">
+            <span id="txt-access-reminder-enable">Enable daily reminder</span>
+        </label>
+
+        <div style="text-align:end;">
+            <button class="btn" onclick="closeAccessModal()" id="txt-access-close">Done</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-onboard" class="modal-bg">
+    <div class="modal" style="text-align:center;">
+        <div style="font-size:40px; margin-bottom:8px;">🕵️‍♂️📝🔍</div>
+        <h3 style="margin-top:0; color:var(--gold);" id="txt-onboard-title">Welcome, Detective</h3>
+        <p style="font-size:13.5px; text-align:start; color:var(--paper-dim); line-height:1.7;" id="txt-onboard-body"></p>
+        <button class="btn" onclick="closeOnboarding()" id="txt-onboard-btn" style="margin-top:10px;">Let's Investigate →</button>
+    </div>
+</div>
+
+<div id="loading-overlay"><div class="spinner"></div></div>
+<div id="achievement-toast-container"></div>
+
+<!-- CHAT WIDGET -->
+<div id="chat-widget">
+    <div id="chat-header">
+        <span id="txt-chat-heading">💬 Detective Friends Chat</span>
+        <span style="display:flex; align-items:center; gap:10px;">
+            <button class="btn-sm" id="call-btn" onclick="toggleVoiceCall()" title="Voice Call" style="display:none; padding:4px 8px;">📞</button>
+            <span onclick="toggleChatWidget()" style="cursor:pointer; font-size:16px;">×</span>
+        </span>
+    </div>
+    <div class="chat-disclaimer" id="txt-chat-disclaimer">Simulated demo chat — not connected to real players.</div>
+    <div id="call-status-bar" style="display:none; font-size:12px; color:var(--teal); padding:4px 10px; text-align:center;"></div>
+    <div id="chat-body">
+        <div class="chat-msg"><b>Inspector John:</b> Welcome to the network, detectives! Any new leads on the latest case?</div>
+    </div>
+    <div id="chat-footer">
+        <input type="text" id="chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+        <button class="btn-sm" id="mic-btn" onclick="toggleVoiceInput()" title="Voice Note (tap to record, tap again to send)">🎙️</button>
+        <button class="btn-sm" onclick="sendChatMessage()" id="txt-chat-send">Send</button>
+    </div>
+    <audio id="mp-remote-audio" autoplay playsinline></audio>
+</div>
+
+<script src="translations.js"></script>
+<script type="module" src="firebase.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
