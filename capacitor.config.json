@@ -1,5 +1,11 @@
 {
   "appId": "com.othmaneettoumi.blackfile",
   "appName": "the-black-file",
-  "webDir": "www"
+  "webDir": "www",
+  "plugins": {
+    "FirebaseAuthentication": {
+      "skipNativeAuth": false,
+      "providers": ["google.com"]
+    }
+  }
 }
