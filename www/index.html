@@ -178,6 +178,28 @@
         <div id="resume-banner" style="display:none; margin-bottom:12px; padding:10px 14px; background:var(--card); border:1px solid var(--gold); border-radius:8px; cursor:pointer;" onclick="resumeLastCase()">
             <span id="resume-banner-text"></span>
         </div>
+        <div id="game-modes-showcase" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:16px;">
+            <div class="mode-card" onclick="openMultiplayerModal()">
+                <span class="mode-icon">🌍</span>
+                <b id="txt-mode-mp">تحدي متعدد اللاعبين</b>
+                <small id="txt-mode-mp-sub">العب مع صديق عن بعد</small>
+            </div>
+            <div class="mode-card" onclick="openMultiplayerModal(); highlightRaceSection();">
+                <span class="mode-icon">🏁</span>
+                <b id="txt-mode-race">Race Mode</b>
+                <small id="txt-mode-race-sub">سباق حل القضية</small>
+            </div>
+            <div class="mode-card" onclick="openMultiplayerModal();">
+                <span class="mode-icon">📞</span>
+                <b id="txt-mode-voice">مكالمة صوتية</b>
+                <small id="txt-mode-voice-sub">تواصل صوتياً أثناء التحقيق</small>
+            </div>
+            <div class="mode-card" onclick="openLeaderboardModal()">
+                <span class="mode-icon">🏆</span>
+                <b id="txt-mode-lb">قائمة المتصدرين</b>
+                <small id="txt-mode-lb-sub">قارن نتائجك بالآخرين</small>
+            </div>
+        </div>
         <div id="difficulty-filter-bar" style="margin-bottom: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
             <button class="btn-sm active" onclick="filterCases('all', this)" id="f-all">All</button>
             <button class="btn-sm" onclick="filterCases('easy', this)" id="f-easy">Easy</button>
@@ -481,6 +503,17 @@
         <button class="btn-sm" onclick="sendChatMessage()" id="txt-chat-send">Send</button>
     </div>
     <audio id="mp-remote-audio" autoplay playsinline></audio>
+</div>
+
+<div id="modal-leaderboard" class="modal-bg">
+    <div class="modal">
+        <h3 style="margin-top:0; color:var(--gold);" id="txt-lb-title">🏆 قائمة المتصدرين</h3>
+        <div id="lb-loading" style="font-size:13px; color:var(--paper-dim);">...جارٍ التحميل</div>
+        <div id="lb-list" style="max-height:320px; overflow-y:auto;"></div>
+        <div style="text-align:end; margin-top:16px;">
+            <button class="btn ghost" onclick="closeModal('modal-leaderboard')" id="txt-lb-close">إغلاق</button>
+        </div>
+    </div>
 </div>
 
 <script src="translations.js"></script>
