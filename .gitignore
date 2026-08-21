@@ -1,1 +1,5 @@
 node_modules
+
+# Android release signing keystore (never commit)
+*.keystore
+!android/app/debug.keystore

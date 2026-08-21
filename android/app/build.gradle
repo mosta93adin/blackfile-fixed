@@ -4,6 +4,12 @@ android {
     namespace "com.othmaneettoumi.blackfile"
     compileSdk rootProject.ext.compileSdkVersion
 
+    // التوقيع للإصدار يعتمد على متغيرات gradle.properties (أو متغيرات البيئة في CI).
+    // إذا لم يوجد ملف keystore يُبنى الإصدار بدون توقيع بدل فشل البناء.
+    def releaseStorePath = project.findProperty('BLACKFILE_STORE_FILE') ?: System.getenv('BLACKFILE_STORE_FILE')
+    def releaseKeystore = releaseStorePath ? file(releaseStorePath) : null
+    def hasReleaseKeystore = releaseKeystore != null && releaseKeystore.exists()
+
     signingConfigs {
         debug {
             storeFile file("debug.keystore")
@@ -11,14 +17,22 @@ android {
             keyAlias "androiddebugkey"
             keyPassword "android"
         }
+        if (hasReleaseKeystore) {
+            release {
+                storeFile releaseKeystore
+                storePassword project.findProperty('BLACKFILE_STORE_PASSWORD') ?: System.getenv('BLACKFILE_STORE_PASSWORD')
+                keyAlias project.findProperty('BLACKFILE_KEY_ALIAS') ?: System.getenv('BLACKFILE_KEY_ALIAS')
+                keyPassword project.findProperty('BLACKFILE_KEY_PASSWORD') ?: System.getenv('BLACKFILE_KEY_PASSWORD')
+            }
+        }
     }
 
     defaultConfig {
         applicationId "com.othmaneettoumi.blackfile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -32,8 +46,12 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (hasReleaseKeystore) {
+                signingConfig signingConfigs.release
+            }
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
