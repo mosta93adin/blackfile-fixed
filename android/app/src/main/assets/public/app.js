@@ -1,5 +1,5 @@
 import { auth as firebaseAuth, db, checkRedirectResult, initializeAuthPersistence, loginWithGoogle as loginWithGoogleRedirect, loginOrSignupWithEmail, resetPassword, onAuthStateChanged } from './firebase.js';
-import { doc, setDoc, collection, query, orderBy, limit, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { doc, setDoc, collection, query, where, orderBy, limit, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // The Black File — app logic (UI, game state, achievements, multiplayer, accessibility, etc.)
 // Depends on translations.js being loaded first (uses the global TRANSLATIONS).
@@ -1503,6 +1503,72 @@ import { doc, setDoc, collection, query, orderBy, limit, getDocs, serverTimestam
         body.scrollTop = body.scrollHeight;
     }
 
+    // رمز غرفة من 7 محارف عشوائية تشفيرياً، بدون المحارف الملتبسة (O/0/I/1).
+    function generateRoomCode(length = 7) {
+        const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        const arr = new Uint32Array(length);
+        crypto.getRandomValues(arr);
+        let code = '';
+        for (let i = 0; i < length; i++) code += CHARS[arr[i] % CHARS.length];
+        return code;
+    }
+
+    const MP_JOIN_KEY = 'mp_join_attempts_v1';
+    const MP_JOIN_MAX_ATTEMPTS = 5;
+    const MP_JOIN_WINDOW_MS = 60000;
+
+    function mpCheckJoinRateLimit() {
+        const now = Date.now();
+        let attempts = [];
+        try { attempts = JSON.parse(localStorage.getItem(MP_JOIN_KEY) || '[]'); } catch (e) {}
+        if (!Array.isArray(attempts)) attempts = [];
+        attempts = attempts.filter(ts => now - ts < MP_JOIN_WINDOW_MS);
+        if (attempts.length >= MP_JOIN_MAX_ATTEMPTS) return false;
+        attempts.push(now);
+        try { localStorage.setItem(MP_JOIN_KEY, JSON.stringify(attempts)); } catch (e) {}
+        return true;
+    }
+
+    async function registerRoom(code, isPublic) {
+        try {
+            await setDoc(doc(db, 'rooms', code), {
+                isPublic,
+                hostUid: firebaseAuth.currentUser?.uid || null,
+                createdAt: serverTimestamp()
+            });
+        } catch (e) {
+            console.error('Room registration failed:', e);
+        }
+    }
+
+    async function browsePublicRooms() {
+        const list = document.getElementById('mp-public-list');
+        if (!list) return;
+        list.textContent = '...';
+        try {
+            const q = query(collection(db, 'rooms'), where('isPublic', '==', true), limit(20));
+            const snap = await getDocs(q);
+            list.innerHTML = '';
+            if (snap.empty) {
+                list.textContent = txx('mpNoPublicRooms') || 'No public rooms right now.';
+                return;
+            }
+            snap.forEach(d => {
+                const el = document.createElement('div');
+                el.textContent = d.id;
+                el.style.cssText = 'padding:6px; cursor:pointer; border-bottom:1px solid var(--line);';
+                el.onclick = () => {
+                    const roomInput = document.getElementById('mp-roomcode');
+                    if (roomInput) roomInput.value = d.id;
+                    joinMultiplayerRoom();
+                };
+                list.appendChild(el);
+            });
+        } catch (e) {
+            list.textContent = txx('mpPublicRoomsFailed') || 'Could not load public rooms.';
+        }
+    }
+
     function createMultiplayerRoom() {
         const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
         const statusBox = document.getElementById('mp-status-box');
@@ -1514,12 +1580,14 @@ import { doc, setDoc, collection, query, orderBy, limit, getDocs, serverTimestam
         mpTeardownPeer();
         playClickSound();
         statusBox.textContent = t.roomCreating;
-        const code = 'CASE-' + Math.floor(1000 + Math.random() * 9000);
+        const code = generateRoomCode();
+        const publicToggle = document.getElementById('mp-public-toggle');
         mpPeer = new Peer(mpRoomIdFromCode(code));
         mpAttachCallHandler(mpPeer);
         mpPeer.on('open', () => {
             codeInput.value = code;
             statusBox.textContent = t.roomWaiting.replace('{code}', code);
+            void registerRoom(code, !!(publicToggle && publicToggle.checked));
         });
         mpPeer.on('connection', (conn) => {
             mpSetupConnectionHandlers(conn, statusBox, t);
@@ -1554,6 +1622,10 @@ import { doc, setDoc, collection, query, orderBy, limit, getDocs, serverTimestam
         }
         if (typeof Peer === 'undefined') {
             statusBox.textContent = t.roomConnectFailed;
+            return;
+        }
+        if (!mpCheckJoinRateLimit()) {
+            statusBox.textContent = txx('roomJoinRateLimited') || 'Too many join attempts. Please wait a minute.';
             return;
         }
         mpTeardownPeer();
@@ -2862,6 +2934,7 @@ const GLOBAL_UI_HANDLERS = {
   saveProfile,
   openMultiplayerModal,
   closeMultiplayerModal,
+  browsePublicRooms,
   openLeaderboardModal,
   highlightRaceSection,
   toggleVoiceInput,

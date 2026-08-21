@@ -396,7 +396,15 @@
         <div style="margin-bottom:12px;">
             <input type="text" id="mp-roomcode" placeholder="" style="width:100%; background:var(--ink); border:1px solid var(--line); padding:8px; border-radius:6px; color:var(--paper); font-size:13px; outline:none;">
         </div>
+        <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--paper-dim); margin-bottom:10px; cursor:pointer;">
+            <input type="checkbox" id="mp-public-toggle">
+            <span id="txt-mp-public">اجعل الغرفة عامة (يمكن لأي لاعب الانضمام)</span>
+        </label>
         <div id="mp-status-box" style="font-size:13px; color:var(--teal); margin-bottom:15px; min-height:20px;"></div>
+        <div style="margin-bottom:12px;">
+            <button class="btn-sm ghost" onclick="browsePublicRooms()" id="txt-mp-browse">🔎 تصفح الغرف العامة</button>
+            <div id="mp-public-list" style="max-height:160px; overflow-y:auto; font-size:12.5px; margin-top:8px;"></div>
+        </div>
         <div style="display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap;">
             <button class="btn ghost" onclick="closeMultiplayerModal()" id="txt-mp-close">Close</button>
             <button class="btn ghost" onclick="leaveMultiplayerRoom()" id="txt-mp-leave">Leave Room</button>
