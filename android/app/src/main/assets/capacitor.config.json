@@ -2,6 +2,12 @@
 	"appId": "com.othmaneettoumi.blackfile",
 	"appName": "the-black-file",
 	"webDir": "www",
+	"server": {
+		"cleartext": false
+	},
+	"android": {
+		"webContentsDebuggingEnabled": false
+	},
 	"plugins": {
 		"FirebaseAuthentication": {
 			"skipNativeAuth": false,
