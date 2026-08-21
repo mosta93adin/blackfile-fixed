@@ -19,3 +19,26 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Capacitor / WebView bridge
+-keep class com.getcapacitor.** { *; }
+-keep class com.othmaneettoumi.blackfile.** { *; }
+
+# Firebase Auth & Google Sign-In
+-keep class com.google.firebase.** { *; }
+-keep class com.google.android.gms.** { *; }
+-dontwarn com.google.firebase.**
+-dontwarn com.google.android.gms.**
+
+# Capacitor Local Notifications
+-keep class com.capacitorjs.plugins.localnotifications.** { *; }
+
+# Kotlin metadata
+-keepattributes *Annotation*, Signature, InnerClasses, EnclosingMethod
+-keepclassmembers class * {
+    @com.google.firebase.database.PropertyName <methods>;
+}
+
+# Capacitor Firebase Authentication plugin (Facebook provider غير مستعمل ومكتبته غير مضمّنة)
+-keep class io.capawesome.capacitorjs.plugins.firebase.** { *; }
+-dontwarn com.facebook.**
