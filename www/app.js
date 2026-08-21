@@ -761,8 +761,12 @@ import { auth as firebaseAuth, checkRedirectResult, initializeAuthPersistence, l
         activeFilter = filter;
         const list = document.getElementById('case-list');
         list.innerHTML = '';
-        const data = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
-        const cases = data.cases;
+                const data = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+        let cases = data.cases;
+        // فوضع "بدون إنترنت" (Guest/Offline)، نوريو غير أول 10 قضايا
+        if (isOfflineMode()) {
+            cases = cases.slice(0, 10);
+        }
 
         cases.forEach((c, idx) => {
             const diffClass = 'diff-' + c.difficulty;
@@ -1524,7 +1528,11 @@ import { auth as firebaseAuth, checkRedirectResult, initializeAuthPersistence, l
     }
 
     let isDragging = false, widgetStartX = 0, widgetStartY = 0, widgetLeft = 0, widgetTop = 0;
-    window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', () => {
+        // إصلاح: كان body-tag بلا dir attribute عند أول تحميل، فكانت
+        // selectors ديال CSS (body[dir="ltr"]/[dir="rtl"]) ما كتخدمش
+        // حتى تبدل اللغة — هادشي كان سبب تداخل settings/profile.
+        document.getElementById('body-tag').setAttribute('dir', (currentLang === 'ar' || currentLang === 'ary') ? 'rtl' : 'ltr');
         loadUserData();
         updateUITexts();
         renderMenu('all');
