@@ -1,0 +1,38 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Leaderboard: publicly readable, each detective owns a single row.
+    match /leaderboard/{uid} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['displayName', 'casesSolved', 'avgHints', 'fastestMs', 'updatedAt'])
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() <= 40
+        && request.resource.data.casesSolved is int
+        && request.resource.data.casesSolved >= 0
+        && request.resource.data.casesSolved <= 1000
+        && request.resource.data.avgHints is number
+        && request.resource.data.avgHints >= 0
+        && (request.resource.data.fastestMs == null || request.resource.data.fastestMs is int);
+    }
+
+    // Multiplayer rooms: signed-in players can browse, only the host writes.
+    match /rooms/{code} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['isPublic', 'hostUid', 'createdAt'])
+        && request.resource.data.hostUid == request.auth.uid
+        && request.resource.data.isPublic is bool
+        && code.size() >= 4
+        && code.size() <= 32;
+      allow update: if false;
+      // Host cleans up its own room; anyone may prune rooms older than 2 hours.
+      allow delete: if request.auth != null
+        && (resource.data.hostUid == request.auth.uid
+            || resource.data.createdAt < request.time - duration.value(2, 'h'));
+    }
+  }
+}

@@ -1534,10 +1534,12 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
     let mpHostedRoomCode = null;
 
     async function registerRoom(code, isPublic) {
+        const uid = firebaseAuth.currentUser?.uid;
+        if (!uid) return;
         try {
             await setDoc(doc(db, 'rooms', code), {
                 isPublic,
-                hostUid: firebaseAuth.currentUser?.uid || null,
+                hostUid: uid,
                 createdAt: serverTimestamp()
             });
             mpHostedRoomCode = code;
