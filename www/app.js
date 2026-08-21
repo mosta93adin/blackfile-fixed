@@ -2700,24 +2700,21 @@ if (loginForm) {
     // نحاول تسجيل الدخول أولاً (يطابق تسمية الزر "SIGN IN"). حقل "Confirm
     // Password" لا يُفرض إلا عند إنشاء حساب جديد فعلياً (أي عندما لا يوجد
     // حساب بهذا البريد أصلاً)، بدل إجبار المستخدم العائد على تكراره في كل مرة.
+    // إصلاح: التحقق من تطابق كلمتي السر دابا كيتم داخل firebase.js نفسها
+    // (قبل استدعاء createUserWithEmailAndPassword)، ماشي هنا بعد فوات الأوان.
     if (submitBtn) submitBtn.disabled = true;
     try {
       if (typeof loginOrSignupWithEmail === 'function') {
-        try {
-          await loginOrSignupWithEmail(email, password);
-        } catch (err) {
-          const accountMissing = err?.code === 'auth/user-not-found' || err?.code === 'auth/invalid-credential';
-          if (accountMissing && password !== confirmPassword) {
-            alert("كلمتا السر غير متطابقتين!");
-            return;
-          }
-          throw err;
-        }
+        await loginOrSignupWithEmail(email, password, confirmPassword);
       } else {
         alert("جاري تسجيل الدخول...");
       }
     } catch (err) {
-      alert(err?.message || "Authentication failed. Please try again.");
+      if (err?.code === 'auth/password-mismatch') {
+        alert("كلمتا السر غير متطابقتين!");
+      } else {
+        alert(err?.message || "Authentication failed. Please try again.");
+      }
     } finally {
       if (submitBtn) submitBtn.disabled = false;
     }

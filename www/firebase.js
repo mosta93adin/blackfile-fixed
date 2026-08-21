@@ -40,12 +40,21 @@ export async function initializeAuthPersistence() {
 // Only falls back to creating a brand-new account when Firebase reports that
 // no account exists yet for this email, so returning users are never forced
 // through the "create account" path just to log back in.
-export async function loginOrSignupWithEmail(email, password) {
+export async function loginOrSignupWithEmail(email, password, confirmPassword) {
   try {
     return await signInWithEmailAndPassword(auth, email, password);
   } catch (error) {
     const noAccountYet = error?.code === 'auth/user-not-found' || error?.code === 'auth/invalid-credential';
     if (noAccountYet) {
+      // إصلاح: كان الحساب كيتنشأ مباشرة هنا بلا ما نتأكدو من تطابق
+      // "Password" مع "Confirm Password" — الفحص القديم فـ app.js كان
+      // ميت (dead code) لأن هاد الدالة ماكانتش كترمي أي خطأ فهاد الحالة.
+      // دابا كنفحصو التطابق هنا، قبل إنشاء الحساب فعلياً.
+      if (typeof confirmPassword === 'string' && password !== confirmPassword) {
+        const mismatchError = new Error('كلمتا السر غير متطابقتين!');
+        mismatchError.code = 'auth/password-mismatch';
+        throw mismatchError;
+      }
       return createUserWithEmailAndPassword(auth, email, password);
     }
     throw error;
