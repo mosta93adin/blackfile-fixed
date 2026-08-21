@@ -1,5 +1,5 @@
 import { auth as firebaseAuth, db, checkRedirectResult, initializeAuthPersistence, loginWithGoogle as loginWithGoogleRedirect, loginOrSignupWithEmail, resetPassword, onAuthStateChanged } from './firebase.js';
-import { doc, setDoc, collection, query, where, orderBy, limit, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // The Black File — app logic (UI, game state, achievements, multiplayer, accessibility, etc.)
 // Depends on translations.js being loaded first (uses the global TRANSLATIONS).
@@ -1418,6 +1418,7 @@ import { doc, setDoc, collection, query, where, orderBy, limit, getDocs, serverT
 
     function mpTeardownPeer() {
         if (mpJoinRetryTimer) { clearTimeout(mpJoinRetryTimer); mpJoinRetryTimer = null; }
+        mpReleaseHostedRoom();
         mpEndVoiceCall(true);
         mpStopLocalStream();
         if (mpConnection) { try { mpConnection.close(); } catch(e) {} mpConnection = null; }
@@ -1529,6 +1530,9 @@ import { doc, setDoc, collection, query, where, orderBy, limit, getDocs, serverT
         return true;
     }
 
+    const MP_ROOM_STALE_MS = 2 * 60 * 60 * 1000;
+    let mpHostedRoomCode = null;
+
     async function registerRoom(code, isPublic) {
         try {
             await setDoc(doc(db, 'rooms', code), {
@@ -1536,9 +1540,33 @@ import { doc, setDoc, collection, query, where, orderBy, limit, getDocs, serverT
                 hostUid: firebaseAuth.currentUser?.uid || null,
                 createdAt: serverTimestamp()
             });
+            mpHostedRoomCode = code;
         } catch (e) {
             console.error('Room registration failed:', e);
         }
+    }
+
+    async function unregisterRoom(code) {
+        if (!code) return;
+        if (mpHostedRoomCode === code) mpHostedRoomCode = null;
+        try {
+            await deleteDoc(doc(db, 'rooms', code));
+        } catch (e) {
+            console.error('Room cleanup failed:', e);
+        }
+    }
+
+    function mpReleaseHostedRoom() {
+        if (!mpHostedRoomCode) return;
+        void unregisterRoom(mpHostedRoomCode);
+    }
+
+    window.addEventListener('pagehide', mpReleaseHostedRoom);
+
+    function mpRoomAgeMs(data) {
+        const created = data && data.createdAt;
+        if (!created || typeof created.toMillis !== 'function') return 0;
+        return Date.now() - created.toMillis();
     }
 
     async function browsePublicRooms() {
@@ -1553,13 +1581,25 @@ import { doc, setDoc, collection, query, where, orderBy, limit, getDocs, serverT
                 list.textContent = txx('mpNoPublicRooms') || 'No public rooms right now.';
                 return;
             }
+            const fresh = [];
             snap.forEach(d => {
+                if (mpRoomAgeMs(d.data()) > MP_ROOM_STALE_MS) {
+                    void unregisterRoom(d.id);
+                    return;
+                }
+                fresh.push(d.id);
+            });
+            if (!fresh.length) {
+                list.textContent = txx('mpNoPublicRooms') || 'No public rooms right now.';
+                return;
+            }
+            fresh.forEach(id => {
                 const el = document.createElement('div');
-                el.textContent = d.id;
+                el.textContent = id;
                 el.style.cssText = 'padding:6px; cursor:pointer; border-bottom:1px solid var(--line);';
                 el.onclick = () => {
                     const roomInput = document.getElementById('mp-roomcode');
-                    if (roomInput) roomInput.value = d.id;
+                    if (roomInput) roomInput.value = id;
                     joinMultiplayerRoom();
                 };
                 list.appendChild(el);
@@ -1592,8 +1632,11 @@ import { doc, setDoc, collection, query, where, orderBy, limit, getDocs, serverT
         mpPeer.on('connection', (conn) => {
             mpSetupConnectionHandlers(conn, statusBox, t);
         });
+        mpPeer.on('close', mpReleaseHostedRoom);
+        mpPeer.on('disconnected', mpReleaseHostedRoom);
         mpPeer.on('error', () => {
             statusBox.textContent = t.roomConnectFailed;
+            mpReleaseHostedRoom();
         });
     }
 
