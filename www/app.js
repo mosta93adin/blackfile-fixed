@@ -1,4 +1,5 @@
-import { auth as firebaseAuth, checkRedirectResult, initializeAuthPersistence, loginWithGoogle as loginWithGoogleRedirect, loginOrSignupWithEmail, resetPassword, onAuthStateChanged } from './firebase.js';
+import { auth as firebaseAuth, db, checkRedirectResult, initializeAuthPersistence, loginWithGoogle as loginWithGoogleRedirect, loginOrSignupWithEmail, resetPassword, onAuthStateChanged } from './firebase.js';
+import { doc, setDoc, collection, query, orderBy, limit, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // The Black File — app logic (UI, game state, achievements, multiplayer, accessibility, etc.)
 // Depends on translations.js being loaded first (uses the global TRANSLATIONS).
@@ -432,7 +433,14 @@ import { auth as firebaseAuth, checkRedirectResult, initializeAuthPersistence, l
         el.textContent = '⏱ ' + m + ':' + s;
     }
 
-    const MAX_HINTS = 3;
+    const HINTS_BY_DIFFICULTY = { easy: 4, medium: 3, hard: 2, extreme: 1 };
+    const TIMER_SECONDS_BY_DIFFICULTY = { easy: 900, medium: 600, hard: 420, extreme: 240 };
+
+    function getMaxHintsForCase(idx) {
+        const data = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+        const c = data.cases[idx];
+        return HINTS_BY_DIFFICULTY[c.difficulty] ?? 3;
+    }
 
     function getHintsUsed(idx) { return userProfile.hintsUsedByCase[idx] || 0; }
 
@@ -441,8 +449,9 @@ import { auth as firebaseAuth, checkRedirectResult, initializeAuthPersistence, l
         const btn = document.getElementById('txt-hint-btn');
         if (!el) return;
         const used = getHintsUsed(currentCaseIndex);
-        const left = Math.max(0, MAX_HINTS - used);
-        el.textContent = '(' + left + '/' + MAX_HINTS + ')';
+        const maxHints = getMaxHintsForCase(currentCaseIndex);
+        const left = Math.max(0, maxHints - used);
+        el.textContent = '(' + left + '/' + maxHints + ')';
         if (btn) btn.disabled = left <= 0;
         if (btn) btn.style.opacity = left <= 0 ? '0.5' : '1';
     }
@@ -864,7 +873,8 @@ import { auth as firebaseAuth, checkRedirectResult, initializeAuthPersistence, l
         stopCaseTimer();
         if (timedToggle && timedToggle.checked) {
             if (timerEl) timerEl.style.display = 'inline';
-            startCaseTimer(600);
+            const seconds = TIMER_SECONDS_BY_DIFFICULTY[c.difficulty] ?? 600;
+            startCaseTimer(seconds);
         } else {
             if (timerEl) timerEl.style.display = 'none';
         }
@@ -1038,8 +1048,70 @@ import { auth as firebaseAuth, checkRedirectResult, initializeAuthPersistence, l
             newlyUnlocked.forEach((id, i) => setTimeout(() => showAchievementToast(id), 400 + i * 900));
         }
 
+        if (isCorrect) {
+            void syncLeaderboardEntry();
+        }
+
         if (raceActive) {
             handleRaceSubmission(isCorrect, elapsedMs);
+        }
+    }
+
+    function highlightRaceSection() {
+        setTimeout(() => {
+            const el = document.querySelector('#modal-mp h4#txt-race-title');
+            if (el) {
+                el.style.transition = 'color .3s';
+                el.style.color = 'var(--gold)';
+                setTimeout(() => el.style.color = '', 1500);
+            }
+        }, 300);
+    }
+
+    async function syncLeaderboardEntry() {
+        const uid = firebaseAuth.currentUser?.uid;
+        if (!uid) return;
+        const solved = userProfile.solvedCases.length;
+        const hintsArr = Object.values(userProfile.hintsUsedByCase || {});
+        const avgHints = hintsArr.length ? (hintsArr.reduce((a, b) => a + b, 0) / hintsArr.length) : 0;
+        const fastest = (userProfile.history || [])
+            .filter(h => h.correct).map(h => h.ms)
+            .reduce((min, ms) => Math.min(min, ms), Infinity);
+
+        try {
+            await setDoc(doc(db, 'leaderboard', uid), {
+                displayName: userProfile.name || 'Detective',
+                casesSolved: solved,
+                avgHints: Math.round(avgHints * 10) / 10,
+                fastestMs: fastest === Infinity ? null : fastest,
+                updatedAt: serverTimestamp()
+            });
+        } catch (e) {
+            console.error('Leaderboard sync failed:', e);
+        }
+    }
+
+    async function openLeaderboardModal() {
+        document.getElementById('modal-leaderboard').classList.add('active');
+        const listEl = document.getElementById('lb-list');
+        const loadingEl = document.getElementById('lb-loading');
+        listEl.innerHTML = '';
+        loadingEl.style.display = 'block';
+        try {
+            const q = query(collection(db, 'leaderboard'), orderBy('casesSolved', 'desc'), limit(20));
+            const snap = await getDocs(q);
+            loadingEl.style.display = 'none';
+            let rank = 1;
+            snap.forEach(d => {
+                const data = d.data();
+                const row = document.createElement('div');
+                row.style.cssText = 'display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;';
+                row.innerHTML = `<span>#${rank} ${escapeHtml(data.displayName)}</span><span style="color:var(--gold);">${data.casesSolved} قضية</span>`;
+                listEl.appendChild(row);
+                rank++;
+            });
+        } catch (e) {
+            loadingEl.textContent = 'تعذر تحميل القائمة، تحقق من الاتصال.';
         }
     }
 
@@ -1056,7 +1128,7 @@ import { auth as firebaseAuth, checkRedirectResult, initializeAuthPersistence, l
     function openHintsModal() {
         const used = getHintsUsed(currentCaseIndex);
         const data = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
-        if (used >= MAX_HINTS) {
+        if (used >= getMaxHintsForCase(currentCaseIndex)) {
             document.getElementById('hint-content').textContent = txx('noMoreHints') || "No more hints left for this case.";
             document.getElementById('modal-hint').classList.add('active');
             playClickSound();
@@ -2790,6 +2862,8 @@ const GLOBAL_UI_HANDLERS = {
   saveProfile,
   openMultiplayerModal,
   closeMultiplayerModal,
+  openLeaderboardModal,
+  highlightRaceSection,
   toggleVoiceInput,
   toggleChatWidget,
   sendChatMessage,

@@ -631,3 +631,11 @@ body[dir="rtl"] .story-frag { border-left: none; border-right: 3px solid var(--g
 
 /* Prevent any residual horizontal overflow on small screens */
 html, body { overflow-x: hidden; }
+.mode-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 10px; text-align: center; cursor: pointer;
+    transition: transform .15s, border-color .15s;
+}
+.mode-card:hover, .mode-card:active { transform: translateY(-2px); border-color: var(--gold); }
+.mode-card .mode-icon { display:block; font-size:26px; margin-bottom:6px; }
+.mode-card small { display:block; color: var(--paper-dim); font-size: 11px; margin-top:2px; }
