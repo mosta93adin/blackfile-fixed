@@ -77,7 +77,7 @@ jobs:
           fi
       - name: Generate Android App Icons
         run: |
-          npx capacitor-assets generate --android --iconBackgroundColor '#0e1015' --iconBackgroundColorSplash '#0e1015'
+          npx capacitor-assets generate --android --iconBackgroundColor '#0e1015' --splashBackgroundColor '#0e1015'
       - name: Build Release APK with Gradle
         env:
           RELEASE_KEYSTORE_PATH: android/app/release.keystore
