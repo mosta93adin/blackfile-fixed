@@ -2,4 +2,14 @@ node_modules
 
 # Android release signing keystore (never commit)
 *.keystore
+keystore_base64.txt
+android/keystore_base64.txt
 !android/app/debug.keystore
+
+# Build/development tools (not part of client bundle)
+tools/
+
+# Temporary files
+*.tmp
+*.bak
+*.log

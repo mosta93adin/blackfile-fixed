@@ -11,7 +11,7 @@ const TRANSLATIONS = {
             statusReady: "Ready for Duty",
             archiveTitle: "📁 Case Archives (20 Crimes)",
             archiveDesc: "Choose from 20 progressive difficulty cases to start your investigation.",
-            footerText: "The Black File © 2026 - Designed by: Othmane Ettoumi | 100% Offline (Multiplayer needs internet)",
+            footerText: "The Black File © 2026 - Designed by: Othmane Ettoumi | Solve cases offline — Multiplayer needs internet",
             filterAll: "All",
             filterEasy: "Easy",
             filterMedium: "Medium",
@@ -44,9 +44,31 @@ const TRANSLATIONS = {
             proNameLabel: "Detective Name:",
             proRankLabel: "Rank:",
             achLabel: "🎖️ Achievements",
-            onboardTitle: "Welcome, Detective",
-            onboardBody: "You have 20 criminal cases to solve. Read the case brief, examine the physical evidence, and interrogate every suspect carefully — their answers hide the truth. Use hints only if you're stuck (max 3 per case), then make your final accusation. Choose wisely: an innocent accusation lets the real culprit escape!",
-            onboardBtn: "Let's Investigate →",
+            guideTitle: "Welcome, Detective",
+            guideSubtitle: "A quick guide to everything in The Black File",
+            guideRowArchiveTitle: "Case Archives (20 Crimes)",
+            guideRowArchiveDesc: "Pick a case by difficulty (Easy, Medium, Hard, Extreme) and start investigating.",
+            guideRowFlowTitle: "How an Investigation Works",
+            guideRowFlowDesc: "Read the case brief, examine the evidence, and question every suspect carefully — their answers hide the truth.",
+            guideRowNotesTitle: "Detective Notes & Hints",
+            guideRowNotesDesc: "Jot down notes as you investigate, and use hints only when stuck (max 3 per case).",
+            guideRowAccuseTitle: "Final Accusation",
+            guideRowAccuseDesc: "Choose wisely: accusing an innocent person lets the real culprit escape!",
+            guideRowProfileTitle: "Detective Profile",
+            guideRowProfileDesc: "Shows your rank, cases solved, accuracy rate, and unlocked achievements.",
+            guideRowChatTitle: "Friends Chat",
+            guideRowChatDesc: "Text or talk with your friends while you play.",
+            guideRowFriendsTitle: "Play with Friends",
+            guideRowFriendsDesc: "Three modes: 🌍 Multiplayer Challenge, 🏁 Race Mode, 📞 Voice Call during the investigation.",
+            guideRowLbTitle: "Leaderboard",
+            guideRowLbDesc: "Compare your results with other detectives — find it inside ⚙️ Settings.",
+            guideRowSettingsTitle: "Settings",
+            guideRowSettingsDesc: "Sound, accessibility, stats, secret file, language — and you can reopen this guide here anytime.",
+            guideBtn: "Let's Investigate →",
+            showcaseLabel: "🌐 Play with Friends",
+            lbSettingsBtn: "Leaderboard",
+            helpGroupLabel: "Help",
+            guideSettingsBtn: "Game Guide",
             proClose: "Cancel",
             proSave: "Save Profile",
             mpTitle: "🌐 Play with Friends Room",
@@ -105,7 +127,7 @@ const TRANSLATIONS = {
                     "title":"Silence in the Manor",
                     "brief":"Wealthy merchant Karim Ouazzani was found murdered in his private study inside his manor from a fatal stab wound. The door was locked from inside and the window open.",
                     "victim":"Victim: Karim Ouazzani (54) - Businessman.",
-                    "culprit":"Yahya Alami",
+                    "culpritHash": "730bb0fd3d90bf2dfe74490f7c9f484075f9093127ec5d535b8602169dfa7c1b",
                     "evidence":[
                         {"name":"Silver Dagger","desc":"Wiped carefully, leaving a partial fingerprint matching partner Yahya."},
                         {"name":"Torn Financial Letter","desc":"Proves the victim owed a huge debt to his business partner Yahya."},
@@ -128,7 +150,7 @@ const TRANSLATIONS = {
                     "title":"Eye of the Nile Gem",
                     "brief":"The rare blue \"Eye of the Nile\" diamond vanished from its display glass case at the National Museum on opening night without breaking any lock.",
                     "victim":"Location: National Museum - Gem valued at $10 Million.",
-                    "culprit":"Maher the Curator",
+                    "culpritHash": "405d6246e537d5f09cb1063fb8311002dd32eafcbab069c48e1dda9c3bc31c73",
                     "evidence":[
                         {"name":"Cut Silk Glove","desc":"Found beside the glass display box."},
                         {"name":"VIP Access Card","desc":"Carries hidden fingerprints belonging to the curator."},
@@ -151,7 +173,7 @@ const TRANSLATIONS = {
                     "title":"Where is Yasmine?",
                     "brief":"University student Yasmine Alaoui vanished 3 days ago. Her car was found parked near the dark forest with keys left in the ignition.",
                     "victim":"Missing Person: Yasmine Alaoui (22).",
-                    "culprit":"Ziad the Ex",
+                    "culpritHash": "1723b426376a0efaf17b5973c04944c651dbeba69462803f029a081aa0e44c5e",
                     "evidence":[
                         {"name":"Shattered Phone","desc":"Found on roadside; last call was to her ex-fiancé."},
                         {"name":"Handwritten Threat","desc":"Handwritten threatening note inside her handbag."},
@@ -174,7 +196,7 @@ const TRANSLATIONS = {
                     "title":"Poison in the Glass",
                     "brief":"Prominent literary critic Ramzi Hamid died immediately after sipping juice at his honor ceremony inside the Opera House.",
                     "victim":"Victim: Ramzi Hamid (61).",
-                    "culprit":"Samer the Rival Writer",
+                    "culpritHash": "0663401dc07d8ea230472a9b952a7f9fb3ea643b18429aeca725f207584a6205",
                     "evidence":[
                         {"name":"Contaminated Juice Bottle","desc":"Contains traces of lethal cyanide poison."},
                         {"name":"Folded Napkin","desc":"Has toxic powder residue and a partial fingerprint."},
@@ -197,7 +219,7 @@ const TRANSLATIONS = {
                     "title":"The Locked Room Riddle",
                     "brief":"Businessman Mamdouh Sabri was found stabbed inside his hotel room. All doors and windows were securely locked from inside with no exit.",
                     "victim":"Victim: Mamdouh Sabri (48).",
-                    "culprit":"Khaled Maintenance",
+                    "culpritHash": "d1f5c05acd93a62d8a65b9f4482ec887e134e1b0689418505311f434f87f32de",
                     "evidence":[
                         {"name":"Air Conditioner","desc":"Jammed with metal shim to delay auto door lock mechanism."},
                         {"name":"Starter Pistol","desc":"Thrown from top floor window."},
@@ -220,7 +242,7 @@ const TRANSLATIONS = {
                     "title":"Stolen Masterpiece",
                     "brief":"An original painting by a world-renowned artist was stolen from the International Gallery, leaving a precise duplicate replica hanging in its place.",
                     "victim":"Location: International Art Gallery - $5M Value.",
-                    "culprit":"Fouad the Painter",
+                    "culpritHash": "3e86983e32cc1d1edd14fb5d3b3e6862209ac4345ee349932d5700a23c5c4f10",
                     "evidence":[
                         {"name":"Empty Wooden Frame","desc":"Found hidden behind tool storage."},
                         {"name":"Professional Paintbrush","desc":"Carries fresh oil paint formulation."},
@@ -243,7 +265,7 @@ const TRANSLATIONS = {
                     "title":"Midnight Lab Murder",
                     "brief":"Chemist Dr. Murad was killed in his locked laboratory. His final typed PC code points towards his killer.",
                     "victim":"Victim: Dr. Murad (55) - Chemist.",
-                    "culprit":"Hani Lead Assistant",
+                    "culpritHash": "c9a3512f441e9f0e1f2440334b23ecea06c5a0b68b922e772c73489f7634b014",
                     "evidence":[
                         {"name":"Shattered Beaker","desc":"Contains nerve agent toxin residues."},
                         {"name":"Laptop Computer","desc":"Final typed cipher matching lead assistant name."},
@@ -266,7 +288,7 @@ const TRANSLATIONS = {
                     "title":"Assassination on Express",
                     "brief":"Retired intelligence agent died inside sleeper train carriage from silencer gunshot in dark tunnel.",
                     "victim":"Victim: Kamal Eddine (62).",
-                    "culprit":"Salim Mysterious",
+                    "culpritHash": "3a8d8b8bcf7d14e8370603bf80dac55644565221514407e0fd5f52f922d04832",
                     "evidence":[
                         {"name":"Metal Suppressor","desc":"Thrown onto tracks during tunnel crossing."},
                         {"name":"Forged Ticket","desc":"Fake identity ticket seated in next car."},
@@ -289,7 +311,7 @@ const TRANSLATIONS = {
                     "title":"Vault Heist",
                     "brief":"Millions vanished from national cable company safe without forced entry; digital key was with Director only.",
                     "victim":"National Cable Corp - $2M Loss.",
-                    "culprit":"Ziad Accountant",
+                    "culpritHash": "08fd6ba7124b3f1851af6919668af7a5fe715bab7615ecbb27bd1e95434310d8",
                     "evidence":[
                         {"name":"Hidden Camera Clip","desc":"Shows individual entering PIN code carefully."},
                         {"name":"Note Slip","desc":"Contains hints to old passcode."},
@@ -312,7 +334,7 @@ const TRANSLATIONS = {
                     "title":"Andalusia Beach Crime",
                     "brief":"Fisherman found dead on sand at dawn beside small boat with running engine.",
                     "victim":"Victim: Ibrahim Fisherman (50).",
-                    "culprit":"Hamza Youth",
+                    "culpritHash": "f465aa6495ec10141e1376f68a66fca586ca9e62bd54f42c871d826ecd3e8fa8",
                     "evidence":[
                         {"name":"Broken Wooden Oar","desc":"Bloodied with fight marks."},
                         {"name":"Torn Fishing Net","desc":"Scattered near water line."},
@@ -335,7 +357,7 @@ const TRANSLATIONS = {
                     "title":"Missing Antique Painting",
                     "brief":"Rare painting vanished from ancient royal palace without triggering alarm system.",
                     "victim":"Late Prince Palace - Rare Artwork.",
-                    "culprit":"Maher Decorator",
+                    "culpritHash": "7a2c6cbbdd2ce49ca7f8f4986a8f27cca9d25fdba8e5bffee194b390b04cdf2b",
                     "evidence":[
                         {"name":"Alarm Bypass Tool","desc":"High tech bypass gadget."},
                         {"name":"Cloth Glove","desc":"Carries old palace dust."},
@@ -358,7 +380,7 @@ const TRANSLATIONS = {
                     "title":"Famous Actor Murder",
                     "brief":"A prominent actor was found dead in theater green room following final stage performance.",
                     "victim":"Victim: Rafat Rami (45).",
-                    "culprit":"Bassem Understudy",
+                    "culpritHash": "ad3fc5807026c818be5221b95f19fe55ddfbbf0f19347118497b5c4be6747289",
                     "evidence":[
                         {"name":"Torn Script","desc":"Harsh written notes about lead role."},
                         {"name":"Prop Rope","desc":"Fake prop converted into real strangulation tool."},
@@ -381,7 +403,7 @@ const TRANSLATIONS = {
                     "title":"Golden Train Robbery",
                     "brief":"Gold bullion shipment worth $1M vanished from fast cargo train mid-journey between cities at night.",
                     "victim":"Express Transit Corp - Gold Bullion.",
-                    "culprit":"Sameh Train Driver",
+                    "culpritHash": "8596b00b6c3b890ac5a4c8aed49afeb3899ed242575c35cfea1e8d8aaeeb93e3",
                     "evidence":[
                         {"name":"Hydraulic Jack","desc":"Hidden beside railway tracks."},
                         {"name":"Walkie-Talkie","desc":"Uses train company security radio frequency."},
@@ -404,7 +426,7 @@ const TRANSLATIONS = {
                     "title":"Archaeologist Death",
                     "brief":"Renowned archaeologist found dead inside newly opened tomb with relic chest forced open.",
                     "victim":"Victim: Dr. Fadel (58).",
-                    "culprit":"Maher Smuggler",
+                    "culpritHash": "e716b7bf09607d5a6091b2a26728cca9490fbae786eaf4daf6efdeaaa1fce5a7",
                     "evidence":[
                         {"name":"Archaeological Pickaxe","desc":"Bloodstained with victim blood and prints."},
                         {"name":"Gold Figurine","desc":"Dropped by fleeing killer."},
@@ -427,7 +449,7 @@ const TRANSLATIONS = {
                     "title":"Vanished Private Jet",
                     "brief":"A private business jet vanished over rugged mountain airspace near dense pine forest.",
                     "victim":"Private Aircraft - 4 Passengers.",
-                    "culprit":"Samer Co-Pilot",
+                    "culpritHash": "ddc09be1a481ce0bdda7070c45d53104b89ef8529ae1a79684d2608d7bfa0b5e",
                     "evidence":[
                         {"name":"Crushed Flight Box","desc":"Shows deliberate tampering with autopilot system."},
                         {"name":"Contaminated Fuel","desc":"Chemical agent added causing engine shutdown."},
@@ -450,7 +472,7 @@ const TRANSLATIONS = {
                     "title":"Invisible Poison",
                     "brief":"Tycoon poisoned inside fortified vault office using rare undetectable bio-compound.",
                     "victim":"Victim: Fouad Al-Moatasem (60).",
-                    "culprit":"Dr. Ziad",
+                    "culpritHash": "1000bc6cf06fd297a34ffd3d469166961c3aa50a5deed19a7d70257bb5b612ae",
                     "evidence":[
                         {"name":"Medical Dropper","desc":"Contains micro drops of neuro-toxin."},
                         {"name":"Water Tumbler","desc":"Mixed with odorless bio-compound."},
@@ -473,7 +495,7 @@ const TRANSLATIONS = {
                     "title":"Local Museum Heist",
                     "brief":"Ancient bronze statues vanished from local museum display case without breaking locks.",
                     "victim":"Local Museum - 3 Statues.",
-                    "culprit":"Rami Curator",
+                    "culpritHash": "908c66ce3dc766ea64119e62a0025f7666ff6122c6b22c2160ebc4454078e40f",
                     "evidence":[
                         {"name":"Standard Key Set","desc":"Unlocks glass display case smoothly."},
                         {"name":"Blue Ink Mark","desc":"On display cabinet handle."},
@@ -496,7 +518,7 @@ const TRANSLATIONS = {
                     "title":"Haunted House Crime",
                     "brief":"An elderly man was found murdered in abandoned forest home with front door locked inside.",
                     "victim":"Victim: Saleh (75).",
-                    "culprit":"Nabil Nephew",
+                    "culpritHash": "f094a5c397c6acaa46cbfaae0b6288e72ab1b3090adb828eeafb8496106f1aa5",
                     "evidence":[
                         {"name":"Spare Key","desc":"Hidden under door mat."},
                         {"name":"Wooden Club","desc":"Bloodstained with struggle marks."},
@@ -519,7 +541,7 @@ const TRANSLATIONS = {
                     "title":"Diplomatic Document",
                     "brief":"Top secret diplomatic document vanished from ambassador briefcase during crowded reception.",
                     "victim":"Foreign Embassy - Secret Document.",
-                    "culprit":"Daniel Reporter",
+                    "culpritHash": "61b118eb44a72a4b079671f76c177e5e7c41900da0be51fd1516a78fa425746c",
                     "evidence":[
                         {"name":"Matching Briefcase","desc":"Swapped skilfully with original."},
                         {"name":"Forged Invitation","desc":"Has fake guest name."},
@@ -542,7 +564,7 @@ const TRANSLATIONS = {
                     "title":"High-Rise Assassination",
                     "brief":"Tycoon found dead from poisoned dart inside 50th floor glass tower office.",
                     "victim":"Victim: Ghassan Al-Malik (65).",
-                    "culprit":"Ziad Rival",
+                    "culpritHash": "5dfcf3ac3bdb95a8c23d799a81bdcd784abeb016d02a3589897c9c162cbbe965",
                     "evidence":[
                         {"name":"Poisoned Micro Dart","desc":"Fired from window of opposing building."},
                         {"name":"Professional Crossbow","desc":"Mounted on tripod in opposite building."},
@@ -559,7 +581,8 @@ const TRANSLATIONS = {
                     "explain":"Ziad Rival hired Jehad Mercenary to execute long-range cross-building assassination.",
                     "hints":["Hint 1: Examine the poisoned micro dart and professional crossbow mounted in the opposite building.","Hint 2: Check the dissolved contract showing major financial losses for the main market rival.","Hint 3: Ziad Rival hired Jehad Sniper in the abandoned opposing building to execute the tower assassination."]
                 }
-            ]
+            ],
+            difficultyLabels: {easy: "Easy", medium: "Medium", hard: "Hard", extreme: "Extreme"}
         },
         ary: {
                     appTitle: "الملف الأسود | عثمان التومي",
@@ -570,7 +593,7 @@ const TRANSLATIONS = {
         statusReady: "جاهز للخدمة",
         archiveTitle: "📁 أرشيف القضايا (20 جريمة)",
         archiveDesc: "اختر من بين 20 قضية بتدرج في الصعوبة باش تبدأ التحقيق ديالك.",
-        footerText: "الملف الأسود © 2026 - صمم بواسطة: عثمان التومي | 100% بدون إنترنت (اللعب مع الأصدقاء خاصو إنترنت)",
+        footerText: "الملف الأسود © 2026 - صمم بواسطة: عثمان التومي | حل القضايا بلا إنترنت — اللعب مع الأصدقاء خاصو إنترنت",
         filterAll: "الكل",
         filterEasy: "سهل",
         filterMedium: "متوسط",
@@ -603,9 +626,31 @@ const TRANSLATIONS = {
         proNameLabel: "سمية المحقق:",
         proRankLabel: "الرتبة:",
         achLabel: "🎖️ الإنجازات",
-        onboardTitle: "أهلاً بك أيها المحقق",
-        onboardBody: "أمامك 20 قضية جنائية لحلّها. اقرأ ملخص القضية، افحص الأدلة المادية بعناية، واستجوب كل مشتبه به — إجاباتهم تخفي الحقيقة. استخدم التلميحات فقط عند الحاجة (3 كحد أقصى لكل قضية)، ثم قدّم اتهامك النهائي. اختر بحكمة: اتهام بريء يترك الجاني الحقيقي يهرب!",
-        onboardBtn: "لنبدأ التحقيق ←",
+        guideTitle: "أهلاً بك أيها المحقق",
+        guideSubtitle: "دليل سريع لكل ما يحتويه الملف الأسود",
+        guideRowArchiveTitle: "أرشيف القضايا (20 جريمة)",
+        guideRowArchiveDesc: "اختر قضية حسب مستوى الصعوبة (سهل، متوسط، صعب، شديد الصعوبة) وابدأ التحقيق.",
+        guideRowFlowTitle: "سير التحقيق",
+        guideRowFlowDesc: "اقرأ ملخص القضية، افحص الأدلة المادية، واستجوب كل مشتبه به بعناية — إجاباتهم تخفي الحقيقة.",
+        guideRowNotesTitle: "ملاحظات المحقق وطلب تلميح",
+        guideRowNotesDesc: "دوّن ملاحظاتك أثناء التحقيق، واستعمل التلميحات فقط عند الحاجة (3 كحد أقصى لكل قضية).",
+        guideRowAccuseTitle: "الاتهام النهائي",
+        guideRowAccuseDesc: "اختر بحكمة: اتهام شخص بريء يترك الجاني الحقيقي يهرب!",
+        guideRowProfileTitle: "الملف الشخصي للمحقق",
+        guideRowProfileDesc: "يعرض رتبتك، عدد القضايا المحلولة، نسبة الدقة، والإنجازات التي حققتها.",
+        guideRowChatTitle: "دردشة الأصدقاء",
+        guideRowChatDesc: "تواصل نصياً أو صوتياً مع أصدقائك أثناء اللعب.",
+        guideRowFriendsTitle: "العب مع صديق",
+        guideRowFriendsDesc: "ثلاثة أوضاع: 🌍 تحدي متعدد اللاعبين، 🏁 سباق حل القضية، 📞 مكالمة صوتية أثناء التحقيق.",
+        guideRowLbTitle: "قائمة المتصدرين",
+        guideRowLbDesc: "قارن نتائجك بباقي المحققين — تجدها داخل ⚙️ الإعدادات.",
+        guideRowSettingsTitle: "الإعدادات",
+        guideRowSettingsDesc: "الصوت، إمكانية الوصول، الإحصائيات، الملف السري، اللغة — ويمكنك إعادة فتح هذا الدليل من هنا في أي وقت.",
+        guideBtn: "لنبدأ التحقيق 🔍",
+        showcaseLabel: "🌐 العب مع صديق",
+        lbSettingsBtn: "قائمة المتصدرين",
+        helpGroupLabel: "المساعدة",
+        guideSettingsBtn: "دليل اللعبة",
         proClose: "إلغاء",
         proSave: "حفظ البروفايل",
         mpTitle: "🌐 غرفة اللعب مع الأصدقاء",
@@ -664,7 +709,7 @@ const TRANSLATIONS = {
                 "title":"صمت في القصر",
                 "brief":"التاجر الغني كريم وازاني تلاقاو مقتول في المكتب الخاص ديالو داخل القصر بضربة موس قاتلة. الباب كان مقفول من الداخل والسرجم محلول.",
                 "victim":"الضحية: كريم وازاني (54 عام) - رجل أعمال.",
-                "culprit":"يحيى العلمي",
+                "culpritHash": "724f726ad2232def6d8f4b57ec80a2690ac0242b9d06bdde4a099195a158b0bf",
                 "evidence":[
                     {"name":"موس من الفضة","desc":"مسوح مزيان، وخلف بصمة جزئية كتطابق الشريك يحيى."},
                     {"name":"رسالة مالية ممزقة","desc":"كتثبت بلي الضحية كان كيسلّ ديون كبيرة للشريك التجاري ديالو يحيى."},
@@ -687,7 +732,7 @@ const TRANSLATIONS = {
                 "title":"جوهرة عين النيل",
                 "brief":"ألماسة 'عين النيل' الزرقاء النادرة تحضات واختفت من الفاتريند ديال الزاج في المتحف الوطني ليلة الافتتاح بلا ما يتهرس حتى شي قفل.",
                 "victim":"المكان: المتحف الوطني - جوهرة كتعادل 10 مليون دولار.",
-                "culprit":"ماهر المحافظ",
+                "culpritHash": "4e2c637fefb6901e6238bbef0b91bb7312a51badd10f16de95e856d87c2d3c79",
                 "evidence":[
                     {"name":"گواني (قفاز) ديال الحرير مقطوع","desc":"تلقى محطوط حدا صندوق العرض الزجاجي."},
                     {"name":"كارط ديال الدخول VIP","desc":"هز بصمات مخبأة كتنسب لمحافظ المتحف."},
@@ -710,7 +755,7 @@ const TRANSLATIONS = {
                 "title":"فين هي ياسمين؟",
                 "brief":"الطالبة الجامعية ياسمين العلوي غبرات هادي 3 أيام. طوموبيلتها تلقات محطوطة قرب الغابة المظلمة والسواري (المفاتيح) باقين في الكونتاكت.",
                 "victim":"مختفية: ياسمين العلوي (22 عام).",
-                "culprit":"زياد الاكس",
+                "culpritHash": "b1abe678c33fcb1d6e8fea88ea76ffec0c5fadff57d947de76f7f9a03aa8da24",
                 "evidence":[
                     {"name":"تلفون مهرس","desc":"تلقى في الجناب ديال الطريق؛ آخر مكالمة كانت مع الاكس خطيبها."},
                     {"name":"رسالة تهديد مكتوبة بخط اليد","desc":"رسالة تهديد بخط الإيد داخل صاكها."},
@@ -733,7 +778,7 @@ const TRANSLATIONS = {
                 "title":"السم في الكاس",
                 "brief":"الناقد الأدبي الكبير رمزي حامد مات ديريكت مور ما شرب العصير في حفل تكريمي داخل المسرح الوطني.",
                 "victim":"الضحية: رمزي حامد (61 عام).",
-                "culprit":"سامر الكاتب المنافس",
+                "culpritHash": "afa3d8648b71fae8e78398fa42c68332ede94e2f1e8c1089abaf74ddbac793a8",
                 "evidence":[
                     {"name":"قرعة عصير فيها سم","desc":"فيه آثار ديال سم السيانور القاتل."},
                     {"name":"سربيتة (منديل) مطوية","desc":"فيها بقايا بودرة سامة وبصمة جزئية."},
@@ -756,7 +801,7 @@ const TRANSLATIONS = {
                 "title":"لغز الغرفة المغلقة",
                 "brief":"رجل الأعمال ممدوح صبري تلاقى مقتول بالموس داخل بيتو فيوطيل. كاع البِيبان والسرجم كانوا مسدودين ومتبوتين من الداخل وما كاين حتى مخرج.",
                 "victim":"الضحية: ممدوح صبري (48 عام).",
-                "culprit":"خالد مول الصيانة",
+                "culpritHash": "4dfc088a589517835366f5d53ed506a50709e62444bf65dfdab76eaa3f9c9032",
                 "evidence":[
                     {"name":"الكليماتيزور (مكيف الهواء)","desc":"مخرب بقطعة حديدية باش يتعطل سيستيم قفل الباب التوماتيكي."},
                     {"name":"مسدس بداية (Starter)","desc":"ملاح من سرجم الطبقة اللفوقية."},
@@ -779,7 +824,7 @@ const TRANSLATIONS = {
                 "title":"اللوحة المسروقة",
                 "brief":"لوحة أصلية ديال فنان عالمي اتسرقت من المعرض الدولي، وخلاو بلاصتها نسخة مطابقة للأصلية بلصق معلق بدقة.",
                 "victim":"المكان: المعرض الفني الدولي - قيمة 5 مليون دولار.",
-                "culprit":"فؤاد الرسام",
+                "culpritHash": "ec9c96569b23895711d23f139bbc17f2082863be031f25124966d336822d0f97",
                 "evidence":[
                     {"name":"إطار خشبي خاوي","desc":"تلاقى مخبي وراء صندوق تخزين العدة."},
                     {"name":"شيتة (فرشاة) رسام مهنية","desc":"فيها صباغة زيتية جديدة وباقي طرية."},
@@ -802,7 +847,7 @@ const TRANSLATIONS = {
                 "title":"جريمة مختبر نص الليل",
                 "brief":"الكيميائي الدكتور مراد تقتل في مختبره المغلق. الكود الأخير لي كتب في بيسي (حاسوب) ديالو كيوجه أصابع الاتهام للقاتل.",
                 "victim":"الضحية: الدكتور مراد (55 عام) - كيميائي.",
-                "culprit":"هاني المساعد الرئيسي",
+                "culpritHash": "73ebdbd0e9aca487cfcb328cb9718d8ccea9eeb1a61d40bbf33d52f77217c341",
                 "evidence":[
                     {"name":"بيكر (كأس مختبر) مهرس","desc":"فيه آثار ديال سم عصبي خطير."},
                     {"name":"جهاز كمبيوتر محمول (بيسي)","desc":"آخر شفرة مكتوبة كاتطابق مع سمية المساعد الرئيسي."},
@@ -825,7 +870,7 @@ const TRANSLATIONS = {
                 "title":"اغتيال في القطار السريع",
                 "brief":"عميل مخابرات متقاعد مات داخل مقصورة قطار النوم برصاصة من مسدس بسكاتش (كاتم صوت) في ظلام النفق.",
                 "victim":"الضحية: كمال الدين (62 عام).",
-                "culprit":"سليم الغامض",
+                "culpritHash": "99540c2d5e3c230337816fd93c2c67aaefe6d739df9feb4755f44b16d2fe8dd4",
                 "evidence":[
                     {"name":"كاتم صوت معدني (Suppressor)","desc":"تلاح فوق السكة الحديدية وقت عبور النفق."},
                     {"name":"تذكرة مزورة","desc":"تذكرة بهوية مزورة مسجلة في الكاروسة لي حداه."},
@@ -848,7 +893,7 @@ const TRANSLATIONS = {
                 "title":"سرقة الخزنة الكبرى",
                 "brief":"ملايين اختفات من خزنة شركة الاتصالات الوطنية بلا كسر؛ الكود الرقمي كان عند المدير بوحدو.",
                 "victim":"شركة الاتصالات الوطنية - خسارة 2 مليون دولار.",
-                "culprit":"زياد المحاسب",
+                "culpritHash": "6eeb3873e5b4a0e434ca5abcd6da6b3c7b6f0978ea19c865900838eae7b3235c",
                 "evidence":[
                     {"name":"فيديو كاميرا مخبأة","desc":"كيبين شخص كيدخل رقم الكود (PIN) بعناية."},
                     {"name":"وريقة ورقة ملاحظات","desc":"فيها تلميحات لكود السر القديم."},
@@ -871,7 +916,7 @@ const TRANSLATIONS = {
                 "title":"جريمة شاطئ الأندلس",
                 "brief":"صيدال (صياد) تلاقى مقتول في الرمل مع الفجر حدا طوموبيلته الصغيورة (فلوكة) والماكينة باقية خدامة.",
                 "victim":"الضحية: إبراهيم الصياد (50 عام).",
-                "culprit":"حمزة الشاب",
+                "culpritHash": "84f7f27584d1a45a0602f1da0cd90464ffed7d41864dbbf4f6814c769a9372eb",
                 "evidence":[
                     {"name":"مجداف خشبي مهرس","desc":"مغرق بالدم وفيه آثار عراك."},
                     {"name":"شبكة صيد مقطعة","desc":"مشتتة قرب خط الما."},
@@ -894,7 +939,7 @@ const TRANSLATIONS = {
                 "title":"اللوحة الأثرية المختفية",
                 "brief":"لوحة نادرة غبرات من قصر ملكي قديم بلا ما تدور سيستيم الإنذار (الألارم).",
                 "victim":"قصر الأمير الراحل - عمل فني نادر.",
-                "culprit":"ماهر الديكوراتور",
+                "culpritHash": "596232ea8c6f504edca9c1210190c389758704a9e0a6b9bc3128583fc2e4bda8",
                 "evidence":[
                     {"name":"أداة تعطيل الألارم","desc":"أداة تقنية عالية لتجاوز الإنذار."},
                     {"name":"گواني قماش","desc":"فيه غبار القصر القديم."},
@@ -917,7 +962,7 @@ const TRANSLATIONS = {
                 "title":"مقتل الممثل الشهير",
                 "brief":"ممثل معروف تلاقى مقتول في كواليس المسرح (Green Room) مور العرض المسرحي الأخير.",
                 "victim":"الضحية: رأفت رامي (45 عام).",
-                "culprit":"باسهم الممثل الاحتياطي",
+                "culpritHash": "578c5dc94d51df714718a63b1d3571927cea889f0106f914a07b0c89cba17968",
                 "evidence":[
                     {"name":"سيناريو مقطع","desc":"ملاحظات مكتوبة بقسوة على دور البطولة."},
                     {"name":"حبل دعامة مسرحية","desc":"حبل مزور تبدل وتحول لأداة خنق حقيقية."},
@@ -940,7 +985,7 @@ const TRANSLATIONS = {
                 "title":"سرقة قطار الذهب",
                 "brief":"شحنة سبائك ذهب كتسوى مليون دولار غبرات من قطار سلع سريع في نص الطريق بين المدن بالليل.",
                 "victim":"شركة النقل السريع - سبائك ذهب.",
-                "culprit":"سامح سائق القطار",
+                "culpritHash": "c7e5d0f43c1d7d141842f8fa0a23013ce2b9b0b75f0cfe242cdc92538a87d0fb",
                 "evidence":[
                     {"name":"جاك هيدروليكي (مرفاع)","desc":"مخبي حدا السكة الحديدية."},
                     {"name":"جهاز لاسلكي (Walkie-Talkie)","desc":"كيخدم بتردد راديو أمن شركة القطارات."},
@@ -963,7 +1008,7 @@ const TRANSLATIONS = {
                 "title":"مقتل عالم الآثار",
                 "brief":"عالم آثار معروف تلاقى مقتول داخل مقبرة تفتحات جديدة والصندوق الأثري مكسور بالقوة.",
                 "victim":"الضحية: الدكتور فاضل (58 عام).",
-                "culprit":"ماهر المهرب",
+                "culpritHash": "6608dd2d6f62c9fe39bd3cb03bef9f1b7e04f4d190e41e9d5ca553224cb5f796",
                 "evidence":[
                     {"name":"فاس أثري (Pickaxe)","desc":"مغرق بدم الضحية والبصمات."},
                     {"name":"تمثال ذهبي صغيور","desc":"طاح من القاتل فاش كان هارب."},
@@ -986,7 +1031,7 @@ const TRANSLATIONS = {
                 "title":"اختفاء الطائرة الخاصة",
                 "brief":"طائرة رجال أعمال خاصة غبرات فوق أجواء جبلية وعرة قريبة من غابة صنوبر كثيفة.",
                 "victim":"طائرة خاصة - 4 ركاب.",
-                "culprit":"سامر مساعد الطيار",
+                "culpritHash": "1473c2b31bd2c48d6063bd2fbb95128594d2849009c4369308484d081d71f0dc",
                 "evidence":[
                     {"name":"صندوق الطائرة الأسود مهشم","desc":"كيبين تلاعب متعمد بنظام الطيار الآلي (Autopilot)."},
                     {"name":"وقود ملوث","desc":"مادة كيميائية تزادت سببات في توقف المحركات."},
@@ -1009,7 +1054,7 @@ const TRANSLATIONS = {
                 "title":"السم الخفي",
                 "brief":"ملياردير تم تسميمه داخل مكتبه في عمارة برجية مؤمنة باستعمال مركب بيولوجي نادر ما كيتكشفش بسهولة.",
                 "victim":"الضحية: فؤاد المعتصم (60 عام).",
-                "culprit":"الدكتور زياد",
+                "culpritHash": "79cca0c23b2e44b87b46c283658420f853c13decb290b3afb53e38f6c3a0d090",
                 "evidence":[
                     {"name":"قطارة طبية","desc":"فيها قطرات ميكروسكوبية من السم العصبي."},
                     {"name":"كأس ماء","desc":"مخلط بمركب بيولوجي ما عندوش ريحة."},
@@ -1032,7 +1077,7 @@ const TRANSLATIONS = {
                 "title":"سرقة المتحف المحلي",
                 "brief":"تماثيل برونزية قديمة غبرات من فاتريند المتحف المحلي بلا ما يتهرسو القفول.",
                 "victim":"المتحف المحلي - 3 تماثيل.",
-                "culprit":"رامي المحافظ",
+                "culpritHash": "1f197e50cfc3a8a29c5791af08c762e859cf023515504390f1cb4a387bd9abd0",
                 "evidence":[
                     {"name":"مجموعة مفاتيح عادية","desc":"كتفتح فاتريند الزاج بكل سلاسة."},
                     {"name":"أثر حبر أزرق","desc":"فوق يد صندوق العرض."},
@@ -1055,7 +1100,7 @@ const TRANSLATIONS = {
                 "title":"جريمة الدار المسكونة",
                 "brief":"راجل كبير تلاقى مقتول في دار مهجورة في الغابة والباب الرئيسي مسدود من الداخل.",
                 "victim":"الضحية: صالح (75 عام).",
-                "culprit":"نبيل ولد الخو",
+                "culpritHash": "88a78aad5013100d6f23de9ef67dc06a61abca70b0be48578195a9f372864be4",
                 "evidence":[
                     {"name":"ساري إضافي","desc":"مخبي تحت زربية الباب."},
                     {"name":"هراوة خشبية","desc":"مغرق بالدم وفيه آثار معركة."},
@@ -1078,7 +1123,7 @@ const TRANSLATIONS = {
                 "title":"الوثيقة الدبلوماسية",
                 "brief":"وثيقة دبلوماسية سرية للغاية غبرات من صاك السفير وسط حفل استقبال عامر بالناس.",
                 "victim":"السفارة الأجنبية - وثيقة سرية.",
-                "culprit":"دانيال الصحفي",
+                "culpritHash": "dca92e9a636ef5dd7ab51f1a8ec2c80251fb306e5ca683dd56b094f445ff3cdc",
                 "evidence":[
                     {"name":"صاك مشابه","desc":"تبدل بمهارة مع الصاك الأصلي."},
                     {"name":"دعوة مزورة","desc":"فيها اسم ضيف وهمي."},
@@ -1101,7 +1146,7 @@ const TRANSLATIONS = {
                 "title":"اغتيال في البرج العالي",
                 "brief":"ملياردير تلاقى مقتول بسهم مسموم داخل مكتبه في الطابق 50 ديال برج زجاجي.",
                 "victim":"الضحية: غسان الملك (65 عام).",
-                "culprit":"زياد المنافس",
+                "culpritHash": "6e81ef595ed048a63299a13aa130642c4df1a8194c6fbb626c7202e1da417b61",
                 "evidence":[
                     {"name":"سهم ميكروسكوبي مسموم","desc":"مطلق من سرجم عمارة مقابلة."},
                     {"name":"قوس احترافي (Crossbow)","desc":"مركب على پيصي (حامل ثلاثي) في عمارة مقابلة."},
@@ -1118,7 +1163,8 @@ const TRANSLATIONS = {
                 "explain":"زياد المنافس خلص القناص جهاد باش ينفذ عملية الاغتيال عن بعد من عمارة مقابلة.",
                 "hints":["تلميح 1: فحص السهم المسموم والقوس الاحترافي المركب في العمارة المقابلة.","تلميح 2: تحقق من العقد المفسوخ لي كيبين الخسائر المالية الكبرى للمنافس في السوق.","تلميح 3: زياد المنافس استعان بالقناص جهاد في العمارة المهجورة باش ينفذ اغتيال البرج."]
             }
-        ]
+        ],
+            difficultyLabels: {easy: "سهل", medium: "متوسط", hard: "صعب", extreme: "مستحيل"}
     },
         fr: {
             appTitle: "Le Dossier Noir | Othmane Ettoumi",
@@ -1129,7 +1175,7 @@ const TRANSLATIONS = {
             statusReady: "Prêt pour le Service",
             archiveTitle: "📁 Archives des Affaires (20 Crimes)",
             archiveDesc: "Choisissez parmi 20 affaires à difficulté progressive pour commencer votre enquête.",
-            footerText: "Le Dossier Noir © 2026 - Conçu par : Othmane Ettoumi | 100% Hors Ligne (Internet requis pour le multijoueur)",
+            footerText: "Le Dossier Noir © 2026 - Conçu par : Othmane Ettoumi | Enquêtes jouables hors ligne — Internet requis pour le multijoueur",
             filterAll: "Tous",
             filterEasy: "Facile",
             filterMedium: "Moyen",
@@ -1162,9 +1208,31 @@ const TRANSLATIONS = {
             proNameLabel: "Nom du Détective :",
             proRankLabel: "Rang :",
             achLabel: "🎖️ Succès",
-            onboardTitle: "Bienvenue, Détective",
-            onboardBody: "20 affaires criminelles vous attendent. Lisez le résumé de l'affaire, examinez les preuves matérielles et interrogez chaque suspect avec attention — leurs réponses cachent la vérité. N'utilisez les indices qu'en cas de blocage (3 maximum par affaire), puis faites votre accusation finale. Choisissez avec soin : accuser un innocent laisse le vrai coupable s'échapper !",
-            onboardBtn: "Commençons l'enquête →",
+            guideTitle: "Bienvenue, Détective",
+            guideSubtitle: "Un guide rapide de tout ce que propose The Black File",
+            guideRowArchiveTitle: "Archives des affaires (20 crimes)",
+            guideRowArchiveDesc: "Choisissez une affaire selon la difficulté (Facile, Moyen, Difficile, Extrême) et lancez l'enquête.",
+            guideRowFlowTitle: "Déroulement d'une enquête",
+            guideRowFlowDesc: "Lisez le résumé de l'affaire, examinez les preuves et interrogez chaque suspect — leurs réponses cachent la vérité.",
+            guideRowNotesTitle: "Notes du détective et indices",
+            guideRowNotesDesc: "Prenez des notes pendant l'enquête et n'utilisez les indices qu'en cas de blocage (3 maximum par affaire).",
+            guideRowAccuseTitle: "Accusation finale",
+            guideRowAccuseDesc: "Choisissez avec soin : accuser un innocent laisse le vrai coupable s'échapper !",
+            guideRowProfileTitle: "Profil du détective",
+            guideRowProfileDesc: "Affiche votre grade, vos affaires résolues, votre taux de réussite et vos succès débloqués.",
+            guideRowChatTitle: "Chat entre amis",
+            guideRowChatDesc: "Discutez par texte ou par la voix avec vos amis pendant la partie.",
+            guideRowFriendsTitle: "Jouer avec des amis",
+            guideRowFriendsDesc: "Trois modes : 🌍 Défi multijoueur, 🏁 Mode Course, 📞 Appel vocal pendant l'enquête.",
+            guideRowLbTitle: "Classement",
+            guideRowLbDesc: "Comparez vos résultats aux autres détectives — disponible dans ⚙️ Paramètres.",
+            guideRowSettingsTitle: "Paramètres",
+            guideRowSettingsDesc: "Son, accessibilité, statistiques, dossier secret, langue — et vous pouvez rouvrir ce guide ici à tout moment.",
+            guideBtn: "Commençons l'enquête →",
+            showcaseLabel: "🌐 Jouer avec des amis",
+            lbSettingsBtn: "Classement",
+            helpGroupLabel: "Aide",
+            guideSettingsBtn: "Guide du jeu",
             proClose: "Annuler",
             proSave: "Enregistrer le Profil",
             mpTitle: "🌐 Salle Jouer avec des amis",
@@ -1223,7 +1291,7 @@ const TRANSLATIONS = {
                     "title":"Silence dans le Manoir",
                     "brief":"Le riche marchand Karim Ouazzani a été retrouvé assassiné dans son bureau privé à l'intérieur de son manoir, tué par un coup de poignard fatal. La porte était fermée de l'intérieur et la fenêtre ouverte.",
                     "victim":"Victime : Karim Ouazzani (54 ans) - Homme d'affaires.",
-                    "culprit":"Yahya Alami",
+                    "culpritHash": "730bb0fd3d90bf2dfe74490f7c9f484075f9093127ec5d535b8602169dfa7c1b",
                     "evidence":[
                         {"name":"Dague en Argent","desc":"Soigneusement nettoyée, laissant une empreinte partielle correspondant à son associé Yahya."},
                         {"name":"Lettre Financière Déchirée","desc":"prouve que la victime devait une énorme somme d'argent à son associé Yahya."},
@@ -1246,7 +1314,7 @@ const TRANSLATIONS = {
                     "title":"Le Joyau de l'Œil du Nil",
                     "brief":"Le diamant bleu rare \"L'Œil du Nil\" a disparu de sa vitrine d'exposition au Musée National lors de la soirée d'ouverture, sans qu'aucune serrure ne soit forcée.",
                     "victim":"Lieu : Musée National - Joyau évalué à 10 millions de dollars.",
-                    "culprit":"Maher le Conservateur",
+                    "culpritHash": "d5b5e8ff115a84612dd6eacc118299ff70f3eab3ffd9163f6b6befb08765f72c",
                     "evidence":[
                         {"name":"Gant en Soie Coupé","desc":"Trouvé juste à côté de la vitrine en verre."},
                         {"name":"Carte d'Accès VIP","desc":"Porte des empreintes digitales cachées appartenant au conservateur."},
@@ -1269,7 +1337,7 @@ const TRANSLATIONS = {
                     "title":"Où est Yasmine ?",
                     "brief":"Yasmine Alaoui, étudiante universitaire, a disparu il y a 3 jours. Sa voiture a été retrouvée garée près de la forêt sombre avec les clés laissées sur le contact.",
                     "victim":"Personne Disparue : Yasmine Alaoui (22 ans).",
-                    "culprit":"Ziad l'Ex",
+                    "culpritHash": "1589f496fa96a31fe01f1791c189549c040ced7d7c5b87d6fbcbb27c14b71157",
                     "evidence":[
                         {"name":"Téléphone Brisé","desc":"Trouvé sur le bord de la route ; son dernier appel était destiné à son ex-fiancé."},
                         {"name":"Menace Écrite à la Main","desc":"Une note de menace manuscrite à l'intérieur de son sac à main."},
@@ -1292,7 +1360,7 @@ const TRANSLATIONS = {
                     "title":"Du Poison dans le Verre",
                     "brief":"Le critique littéraire éminent Ramzi Hamid est mort instantanément après avoir siroté du jus lors de sa cérémonie d'hommage à l'intérieur de l'Opéra.",
                     "victim":"Victime : Ramzi Hamid (61 ans).",
-                    "culprit":"Samer l'Écrivain Rival",
+                    "culpritHash": "6f0ca2674dab5560cdad5be94926c6a865942dfb37d8a9f133df325867283873",
                     "evidence":[
                         {"name":"Bouteille de Jus Contaminée","desc":"Contient des traces de poison mortel au cyanure."},
                         {"name":"Serviette Pliée","desc":"Présente des résidus de poudre toxique et une empreinte partielle."},
@@ -1315,7 +1383,7 @@ const TRANSLATIONS = {
                     "title":"L'Énigme de la Chambre Close",
                     "brief":"L'homme d'affaires Mamdouh Sabri a été retrouvé poignardé à l'intérieur de sa chambre d'hôtel. Toutes les portes et fenêtres étaient solidement verrouillées de l'intérieur sans aucune issue.",
                     "victim":"Victime : Mamdouh Sabri (48 ans).",
-                    "culprit":"Khaled le Maintenancier",
+                    "culpritHash": "4c04582b9f756083853a086c8f61c563452ae9e627ef2960a1ef513abc27b23f",
                     "evidence":[
                         {"name":"Climatiseur","desc":"Bloqué avec une cale en métal pour retarder le mécanisme de verrouillage automatique de la porte."},
                         {"name":"Pistolet d'Alarme","desc":"Jeté par la fenêtre du dernier étage."},
@@ -1338,7 +1406,7 @@ const TRANSLATIONS = {
                     "title":"Le Chef-d'Œuvre Volé",
                     "brief":"Un tableau original d'un artiste de renommée mondiale a été volé à la Galerie Internationale, laissant une copie réplique précise accrochée à sa place.",
                     "victim":"Lieu : Galerie d'Art Internationale - Valeur de 5 Millions de Dollars.",
-                    "culprit":"Fouad le Peintre",
+                    "culpritHash": "7033468cfca99e24f5a856c3852ffe73450c52767924913a57593313ad5e6710",
                     "evidence":[
                         {"name":"Cadre en Bois Vide","desc":"Trouvé caché derrière le stockage d'outils."},
                         {"name":"Pinceau Professionnel","desc":"Porte une formulation de peinture à l'huile fraîche."},
@@ -1361,7 +1429,7 @@ const TRANSLATIONS = {
                     "title":"Meurtre au Laboratoire de Minuit",
                     "brief":"Le chimiste Dr Murad a été tué dans son laboratoire fermé à clé. Son dernier code d'ordinateur tapé pointe vers son assassin.",
                     "victim":"Victime : Dr Murad (55 ans) - Chimiste.",
-                    "culprit":"Hani l'Assistant Principal",
+                    "culpritHash": "cbdb5f4aab4367b56b14f2faf27ca674ee7eeff8b4d318b5b3542d66c8464e74",
                     "evidence":[
                         {"name":"Bécher Brisé","desc":"Contient des résidus de toxine neurotoxique."},
                         {"name":"Ordinateur Portable","desc":"Dernier chiffre/code tapé correspondant au nom de l'assistant principal."},
@@ -1384,7 +1452,7 @@ const TRANSLATIONS = {
                     "title":"Assassinat dans l'Express",
                     "brief":"Un ancien agent des services secrets est mort à l'intérieur d'un wagon de train-couchettes suite à un tir de pistolet silencieux dans un tunnel sombre.",
                     "victim":"Victime : Kamal Eddine (62 ans).",
-                    "culprit":"Salim le Mystérieux",
+                    "culpritHash": "4a71c179ee6c3a54ad7af262e10217f930da496be1d4730375c6ecc278d53913",
                     "evidence":[
                         {"name":"Silencieux en Métal","desc":"Jeté sur les voies lors du passage dans le tunnel."},
                         {"name":"Billet Falsifié","desc":"Billet à fausse identité assis dans la voiture suivante."},
@@ -1407,7 +1475,7 @@ const TRANSLATIONS = {
                     "title":"Casse du Coffre-Fort",
                     "brief":"Des millions ont disparu du coffre-fort de la compagnie nationale de câbles sans effraction ; la clé numérique était uniquement entre les mains du Directeur.",
                     "victim":"Compagnie Nationale de Câbles - Perte de 2 Millions de Dollars.",
-                    "culprit":"Ziad le Comptable",
+                    "culpritHash": "243c469e962116a8b10357d63511bff23be00cc2f1900102f35739712689a8a2",
                     "evidence":[
                         {"name":"Clip de Caméra Cachée","desc":"Montre une personne composant soigneusement le code PIN."},
                         {"name":"Bout de Papier","desc":"Contient des indices sur l'ancien mot de passe."},
@@ -1430,7 +1498,7 @@ const TRANSLATIONS = {
                     "title":"Crime sur la Plage d'Andalousie",
                     "brief":"Un pêcheur retrouvé mort sur le sable à l'aube à côté d'une petite embarcation au moteur tournant.",
                     "victim":"Victime : Ibrahim le Pêcheur (50 ans).",
-                    "culprit":"Hamza le Jeune",
+                    "culpritHash": "c5a58e2855626495d197d9c328f9558b887ced272e1e40624d44351c5a2f5ec8",
                     "evidence":[
                         {"name":"Rame en Bois Brisée","desc":"Tachée de sang avec des marques de lutte."},
                         {"name":"Filet de Pêche Déchiré","desc":"Éparpillé près de la ligne d'eau."},
@@ -1453,7 +1521,7 @@ const TRANSLATIONS = {
                     "title":"Disparition d'un Tableau Ancien",
                     "brief":"Un tableau rare a disparu d'un ancien palais royal sans déclencher le système d'alarme.",
                     "victim":"Palais du Feu Prince - Œuvre d'Art Rare.",
-                    "culprit":"Maher le Décorateur",
+                    "culpritHash": "30d7e2a13bbb9449be9e6d92e9bef4564606bf063c746a10bf7ccbda775786ad",
                     "evidence":[
                         {"name":"Outil de Contournement d'Alarme","desc":"Gadget de contournement de haute technologie."},
                         {"name":"Gant en Tissu","desc":"Porte la vieille poussière du palais."},
@@ -1476,7 +1544,7 @@ const TRANSLATIONS = {
                     "title":"Meurtre d'un Acteur Célèbre",
                     "brief":"Un acteur de premier plan a été retrouvé mort dans la loge du théâtre après la dernière représentation sur scène.",
                     "victim":"Victime : Rafat Rami (45 ans).",
-                    "culprit":"Bassem la Doublure",
+                    "culpritHash": "fad15998585675a33ecad677ebbb0a29ed4d72e812fd8c9969f7de2f666a6272",
                     "evidence":[
                         {"name":"Scénario Déchiré","desc":"Notes manuscrites sévères sur le rôle principal."},
                         {"name":"Corde d'Accessoire","desc":"Faux accessoire converti en véritable outil de strangulation."},
@@ -1499,7 +1567,7 @@ const TRANSLATIONS = {
                     "title":"Le Braquage du Train d'Or",
                     "brief":"Une cargaison de lingots d'or d'une valeur de 1 million de dollars a disparu d'un train de marchandises rapide en plein milieu du voyage entre des villes la nuit.",
                     "victim":"Express Transit Corp - Lingots d'Or.",
-                    "culprit":"Sameh le Conducteur de Train",
+                    "culpritHash": "13dde005681bb58f053e4dbe173956558c73e9df4863f282cbbae8eecd1f195b",
                     "evidence":[
                         {"name":"Cric Hydraulique","desc":"Caché à côté des voies ferrées."},
                         {"name":"Talkie-Walkie","desc":"Utilise la fréquence radio de sécurité de la compagnie de train."},
@@ -1522,7 +1590,7 @@ const TRANSLATIONS = {
                     "title":"La Mort de l'Archéologue",
                     "brief":"Un archéologue de renom a été retrouvé mort à l'intérieur d'un tombeau récemment ouvert avec un coffre de reliques forcé.",
                     "victim":"Victime : Dr Fadel (58 ans).",
-                    "culprit":"Maher le Contrebandier",
+                    "culpritHash": "2d4e43ef7648b7355bd40660b6fc35307910bbb7c35f61d242e7a69b6030777a",
                     "evidence":[
                         {"name":"Pioche Archéologique","desc":"Tachée du sang de la victime et d'empreintes."},
                         {"name":"Statuette en Or","desc":"Laissée par le tueur en fuite."},
@@ -1545,7 +1613,7 @@ const TRANSLATIONS = {
                     "title":"Disparition d'un Jet Privé",
                     "brief":"Un jet d'affaires privé a disparu au-dessus de l'espace aérien montagneux accidenté près d'une dense forêt de pins.",
                     "victim":"Avion Privé - 4 Passagers.",
-                    "culprit":"Samer le Copilote",
+                    "culpritHash": "b898a9caa4f16d6d85e101c9b8dffc342b2ea5a21a2926246d9361619679253b",
                     "evidence":[
                         {"name":"Boîte Noire Écrasée","desc":"Montre une altération délibérée du système de pilotage automatique."},
                         {"name":"Carburant Contaminé","desc":"Agent chimique ajouté provoquant l'arrêt du moteur."},
@@ -1568,7 +1636,7 @@ const TRANSLATIONS = {
                     "title":"Poison Invisible",
                     "brief":"Un magnat empoisonné à l'intérieur d'un bureau-coffre fort fortifié en utilisant un composé bio rare et indétectable.",
                     "victim":"Victime : Fouad Al-Moatasem (60 ans).",
-                    "culprit":"Dr Ziad",
+                    "culpritHash": "a0a3f7a60b8ba0fadb6f8920f41077c469ef6a265b6d86ab3ab2a110b00318fd",
                     "evidence":[
                         {"name":"Compte-Gouttes Médical","desc":"Contient des micro-gouttes de neurotoxine."},
                         {"name":"Gobelet d'Eau","desc":"Mélangé avec un composé bio inodore."},
@@ -1591,7 +1659,7 @@ const TRANSLATIONS = {
                     "title":"Casse du Musée Local",
                     "brief":"Des statues de bronze anciennes ont disparu de la vitrine d'exposition du musée local sans forcer les serrures.",
                     "victim":"Musée Local - 3 Statues.",
-                    "culprit":"Rami le Conservateur",
+                    "culpritHash": "f4beab44e1648c747a4894d943e8775f8184db9857560fe5acc57ee2d47fa382",
                     "evidence":[
                         {"name":"Jeu de Clés Standard","desc":"Déverrouille la vitrine en verre en douceur."},
                         {"name":"Marque d'Encre Bleue","desc":"Sur la poignée de l'armoire d'exposition."},
@@ -1614,7 +1682,7 @@ const TRANSLATIONS = {
                     "title":"Crime dans la Maison Hantée",
                     "brief":"Un homme âgé a été retrouvé assassiné dans une maison forestière abandonnée avec la porte d'entrée verrouillée de l'intérieur.",
                     "victim":"Victime : Saleh (75 ans).",
-                    "culprit":"Nabil le Neveu",
+                    "culpritHash": "bb87633a2fdb0fb71a91b3244a18001bbd85724d72596aee70d8fbf61104e72e",
                     "evidence":[
                         {"name":"Clé de Secours","desc":"Cachée sous le paillasson."},
                         {"name":"Gourdin en Bois","desc":"Taché de sang avec des marques de lutte."},
@@ -1637,7 +1705,7 @@ const TRANSLATIONS = {
                     "title":"Document Diplomatique",
                     "brief":"Un document diplomatique top-secret a disparu de la mallette de l'ambassadeur lors d'une réception bondée.",
                     "victim":"Ambassade Étrangère - Document Secret.",
-                    "culprit":"Daniel le Reporter",
+                    "culpritHash": "8e680d050ca598c588d8d5db3153a25b58b82ecbf8059a149fe65d0225f4d843",
                     "evidence":[
                         {"name":"Mallette Correspondante","desc":"Échangée habilement avec l'originale."},
                         {"name":"Fausse Invitation","desc":"Porte un faux nom d'invité."},
@@ -1660,7 +1728,7 @@ const TRANSLATIONS = {
                     "title":"Assassinat en Hauteur",
                     "brief":"Un magnat retrouvé mort d'une fléchette empoisonnée à l'intérieur d'un bureau-tour en verre au 50ème étage.",
                     "victim":"Victime : Ghassan Al-Malik (65 ans).",
-                    "culprit":"Ziad le Rival",
+                    "culpritHash": "971b717e19978a81a3b7dfd7a8171b41ac4f323f1bfa762301bc4a1367c378d6",
                     "evidence":[
                         {"name":"Micro-Fléchette Empoisonnée","desc":"Tirée depuis la fenêtre d'un bâtiment opposé."},
                         {"name":"Arbalète Professionnelle","desc":"Montée sur un trépied dans le bâtiment opposé."},
@@ -1677,7 +1745,8 @@ const TRANSLATIONS = {
                     "explain":"Ziad le Rival a embauché le mercenaire Jehad pour exécuter l'assassinat à longue portée inter-bâtiments.",
                     "hints":["Indice 1 : Examinez la micro-fléchette empoisonnée et l'arbalète professionnelle montée dans le bâtiment opposé.","Indice 2 : Vérifiez le contrat dissout montrant des pertes financières majeures pour le principal rival du marché.","Indice 3 : Ziad le Rival a embauché le sniper Jehad dans le bâtiment opposé abandonné pour exécuter l'assassinat dans la tour."]
                 }
-            ]
+            ],
+            difficultyLabels: {easy: "Facile", medium: "Moyen", hard: "Difficile", extreme: "Extrême"}
         },
         es: {
             appTitle: "El Archivo Negro | Othmane Ettoumi",
@@ -1688,7 +1757,7 @@ const TRANSLATIONS = {
             statusReady: "Listo para el Servicio",
             archiveTitle: "📁 Archivos de Casos (20 Crímenes)",
             archiveDesc: "Elige entre 20 casos de dificultad progresiva para comenzar tu investigación.",
-            footerText: "El Archivo Negro © 2026 - Diseñado por: Othmane Ettoumi | 100% Sin Conexión (el multijugador necesita internet)",
+            footerText: "El Archivo Negro © 2026 - Diseñado por: Othmane Ettoumi | Resuelve casos sin conexión — el multijugador necesita internet",
             filterAll: "Todos",
             filterEasy: "Fácil",
             filterMedium: "Medio",
@@ -1721,9 +1790,31 @@ const TRANSLATIONS = {
             proNameLabel: "Nombre de Detective:",
             proRankLabel: "Rango:",
             achLabel: "🎖️ Logros",
-            onboardTitle: "Bienvenido, Detective",
-            onboardBody: "Tienes 20 casos criminales por resolver. Lee el resumen del caso, examina cuidadosamente las pruebas físicas e interroga a cada sospechoso — sus respuestas esconden la verdad. Usa las pistas solo si te atascas (máximo 3 por caso) y luego haz tu acusación final. Elige con sabiduría: ¡acusar a un inocente deja escapar al verdadero culpable!",
-            onboardBtn: "Comencemos la investigación →",
+            guideTitle: "Bienvenido, Detective",
+            guideSubtitle: "Una guía rápida de todo lo que ofrece The Black File",
+            guideRowArchiveTitle: "Archivo de casos (20 crímenes)",
+            guideRowArchiveDesc: "Elige un caso según la dificultad (Fácil, Medio, Difícil, Extremo) y comienza a investigar.",
+            guideRowFlowTitle: "Cómo funciona una investigación",
+            guideRowFlowDesc: "Lee el resumen del caso, examina las pruebas e interroga a cada sospechoso — sus respuestas esconden la verdad.",
+            guideRowNotesTitle: "Notas del detective y pistas",
+            guideRowNotesDesc: "Toma notas mientras investigas y usa las pistas solo si te atascas (máximo 3 por caso).",
+            guideRowAccuseTitle: "Acusación final",
+            guideRowAccuseDesc: "Elige con sabiduría: ¡acusar a un inocente deja escapar al verdadero culpable!",
+            guideRowProfileTitle: "Perfil del detective",
+            guideRowProfileDesc: "Muestra tu rango, casos resueltos, precisión y logros desbloqueados.",
+            guideRowChatTitle: "Chat de amigos",
+            guideRowChatDesc: "Chatea por texto o voz con tus amigos mientras juegas.",
+            guideRowFriendsTitle: "Jugar con amigos",
+            guideRowFriendsDesc: "Tres modos: 🌍 Desafío multijugador, 🏁 Modo Carrera, 📞 Llamada de voz durante la investigación.",
+            guideRowLbTitle: "Clasificación",
+            guideRowLbDesc: "Compara tus resultados con otros detectives — disponible en ⚙️ Configuración.",
+            guideRowSettingsTitle: "Configuración",
+            guideRowSettingsDesc: "Sonido, accesibilidad, estadísticas, expediente secreto, idioma — y puedes reabrir esta guía aquí cuando quieras.",
+            guideBtn: "Comencemos la investigación →",
+            showcaseLabel: "🌐 Jugar con amigos",
+            lbSettingsBtn: "Clasificación",
+            helpGroupLabel: "Ayuda",
+            guideSettingsBtn: "Guía del juego",
             proClose: "Cancelar",
             proSave: "Guardar Perfil",
             mpTitle: "🌐 Sala Jugar con Amigos",
@@ -1782,7 +1873,7 @@ const TRANSLATIONS = {
                     "title": "Silencio en la Mansión",
                     "brief": "El acaudalado comerciante Karim Ouazzani fue encontrado asesinado en su estudio privado dentro de su mansión a causa de una puñalada mortal. La puerta estaba cerrada por dentro y la ventana abierta.",
                     "victim": "Víctima: Karim Ouazzani (54) - Empresario.",
-                    "culprit": "Yahya Alami",
+                    "culpritHash": "730bb0fd3d90bf2dfe74490f7c9f484075f9093127ec5d535b8602169dfa7c1b",
                     "evidence": [
                         {"name": "Daga de Plata", "desc": "Limpiada cuidadosamente, dejando una huella digital parcial que coincide con su socio Yahya."},
                         {"name": "Carta Financiera Rota", "desc": "Prueba que la víctima debía una gran suma de dinero a su socio comercial Yahya."},
@@ -1805,7 +1896,7 @@ const TRANSLATIONS = {
                     "title": "Gema Ojo del Nilo",
                     "brief": "El raro diamante azul \"Ojo del Nilo\" desapareció de su vitrina de exposición en el Museo Nacional la noche de la inauguración sin romper ninguna cerradura.",
                     "victim": "Ubicación: Museo Nacional - Gema valorada en 10 Millones de dólares.",
-                    "culprit": "Maher el Curador",
+                    "culpritHash": "e9c228168b3c01845bdc0fa32e476e033dd0972d8870ddf7649d84192ef9e31a",
                     "evidence": [
                         {"name": "Guante de Seda Cortado", "desc": "Encontrado al lado de la vitrina de exposición."},
                         {"name": "Tarjeta de Acceso VIP", "desc": "Lleva huellas dactilares ocultas pertenecientes al curador."},
@@ -1828,7 +1919,7 @@ const TRANSLATIONS = {
                     "title": "¿Dónde está Yasmine?",
                     "brief": "La estudiante universitaria Yasmine Alaoui desapareció hace 3 días. Su coche fue encontrado estacionado cerca del bosque oscuro con las llaves puestas en el encendido.",
                     "victim": "Persona Desaparecida: Yasmine Alaoui (22).",
-                    "culprit": "Ziad el Ex",
+                    "culpritHash": "7484211f316a1672292a8f3589c4cb286366f02f59184d03d0973e6cddfa0019",
                     "evidence": [
                         {"name": "Teléfono Destruido", "desc": "Encontrado en la carretera; la última llamada fue a su ex prometido."},
                         {"name": "Amenaza Escrita a Mano", "desc": "Nota amenazante escrita a mano dentro de su bolso."},
@@ -1851,7 +1942,7 @@ const TRANSLATIONS = {
                     "title": "Veneno en el Vaso",
                     "brief": "El destacado crítico literario Ramzi Hamid murió inmediatamente después de sorber jugo en su ceremonia de homenaje dentro de la Ópera.",
                     "victim": "Víctima: Ramzi Hamid (61).",
-                    "culprit": "Samer el Escritor Rival",
+                    "culpritHash": "372d31baaefdcf20472630895eeccab8968a47d2e1fac1ab754f70f5a9578925",
                     "evidence": [
                         {"name": "Botella de Jugo Contaminada", "desc": "Contiene rastros de cianuro letal."},
                         {"name": "Servilleta Doblez", "desc": "Tiene residuo de polvo tóxico y una huella digital parcial."},
@@ -1874,7 +1965,7 @@ const TRANSLATIONS = {
                     "title": "El Enigma de la Habitación Cerrada",
                     "brief": "El empresario Mamdouh Sabri fue encontrado apuñalado dentro de su habitación de hotel. Todas las puertas y ventanas estaban bien cerradas desde el interior sin salida.",
                     "victim": "Víctima: Mamdouh Sabri (48).",
-                    "culprit": "Khaled Mantenimiento",
+                    "culpritHash": "6a7c50f178d72a89e8c91ba06121d708f73e7a9731228cfab6526243176483fd",
                     "evidence": [
                         {"name": "Aire Acondicionado", "desc": "Atascado con una cuña de metal para retrasar el mecanismo de bloqueo automático de la puerta."},
                         {"name": "Pistola de Salva", "desc": "Arrojada desde la ventana del piso superior."},
@@ -1897,7 +1988,7 @@ const TRANSLATIONS = {
                     "title": "Obra Maestra Robada",
                     "brief": "Una pintura original de un artista de renombre mundial fue robada de la Galería Internacional, dejando una réplica exacta colgando en su lugar.",
                     "victim": "Ubicación: Galería de Arte Internacional - Valor de 5 Millones de dólares.",
-                    "culprit": "Fouad el Pintor",
+                    "culpritHash": "f56f1dc5e9c6a78db7100b289838f2d0ead8a160469354fd20ca5cdc3cf35496",
                     "evidence": [
                         {"name": "Marco de Madera Vacío", "desc": "Encontrado escondido detrás del almacenamiento de herramientas."},
                         {"name": "Pincel Profesional", "desc": "Lleva formulación de pintura al óleo fresca."},
@@ -1920,7 +2011,7 @@ const TRANSLATIONS = {
                     "title": "Asesinato en Laboratorio a Medianoche",
                     "brief": "El químico Dr. Murad fue asesinado en su laboratorio cerrado con llave. Su código final de PC escrito apunta hacia su asesino.",
                     "victim": "Víctima: Dr. Murad (55) - Químico.",
-                    "culprit": "Hani Asistente Principal",
+                    "culpritHash": "0527cddc843cc3c04f8ed61c30a8573b1a83fade59900a668dd7aa4f3779e781",
                     "evidence": [
                         {"name": "Vaso de Precipitado Destruido", "desc": "Contiene residuos de toxinas de agentes nerviosos."},
                         {"name": "Computadora Portátil", "desc": "Cifrado escrito final que coincide con el nombre del asistente principal."},
@@ -1943,7 +2034,7 @@ const TRANSLATIONS = {
                     "title": "Asesinato en Expreso",
                     "brief": "Un agente de inteligencia retirado murió dentro del vagón de un tren cama a causa de un disparo con silenciador en un túnel oscuro.",
                     "victim": "Víctima: Kamal Eddine (62).",
-                    "culprit": "Salim Misterioso",
+                    "culpritHash": "577d64a96b0de83bb3fe352f2f96e45970c81ebbf5a65fada6e439d5bc58fa50",
                     "evidence": [
                         {"name": "Supresor de Metal", "desc": "Arrojado a las vías durante el cruce del túnel."},
                         {"name": "Boleto Falsificado", "desc": "Boleto de identidad falsa sentado en el siguiente coche."},
@@ -1966,7 +2057,7 @@ const TRANSLATIONS = {
                     "title": "Robo a la Bóveda",
                     "brief": "Millones desaparecieron de la caja fuerte de la compañía nacional de cables sin entrada forzada; la llave digital estaba solo con el Director.",
                     "victim": "Compañía Nacional de Cables - Pérdida de 2 Millones de dólares.",
-                    "culprit": "Ziad Contador",
+                    "culpritHash": "d2ce12d2f7f100053717b2c37aa372be2dadcadb68e95d44a5404b677bcd0953",
                     "evidence": [
                         {"name": "Clip de Cámara Oculta", "desc": "Muestra a una persona ingresando el código PIN cuidadosamente."},
                         {"name": "Nota de Papel", "desc": "Contiene pistas para la contraseña anterior."},
@@ -1989,7 +2080,7 @@ const TRANSLATIONS = {
                     "title": "Crimen en la Playa de Andalucía",
                     "brief": "Pescador encontrado muerto en la arena al amanecer al lado de un pequeño bote con el motor en marcha.",
                     "victim": "Víctima: Ibrahim Pescador (50).",
-                    "culprit": "Hamza Joven",
+                    "culpritHash": "ada228cce3c1dc82ad43913532ceb3191d19eb14b1b3a192cb2e97d935c8c894",
                     "evidence": [
                         {"name": "Remo de Madera Roto", "desc": "Ensangrentado con marcas de pelea."},
                         {"name": "Red de Pesca Rota", "desc": "Dispersa cerca de la línea del agua."},
@@ -2012,7 +2103,7 @@ const TRANSLATIONS = {
                     "title": "Pintura Antigua Desaparecida",
                     "brief": "Pintura rara desapareció del antiguo palacio real sin activar el sistema de alarma.",
                     "victim": "Palacio del Príncipe Difunto - Obra de arte rara.",
-                    "culprit": "Maher Decorador",
+                    "culpritHash": "7ba88cb0ecf2c2763bf0c388d946c861c8ccb213c912cdcbe3279f87767cab39",
                     "evidence": [
                         {"name": "Herramienta de Derivación de Alarma", "desc": "Dispositivo de derivación de alta tecnología."},
                         {"name": "Guante de Tela", "desc": "Lleva polvo viejo del palacio."},
@@ -2035,7 +2126,7 @@ const TRANSLATIONS = {
                     "title": "Asesinato de Famoso Actor",
                     "brief": "Un actor prominente fue encontrado muerto en el camerino del teatro tras la actuación final en el escenario.",
                     "victim": "Víctima: Rafat Rami (45).",
-                    "culprit": "Bassem Suplente",
+                    "culpritHash": "e3bbfd549381babb41c3e389ce3be2787aeb8f00e0e1fa076d5f9aa72e42de20",
                     "evidence": [
                         {"name": "Guión Roto", "desc": "Notas escritas duras sobre el papel principal."},
                         {"name": "Cuerda de Atrezzo", "desc": "Atrezzo falso convertido en verdadera herramienta de estrangulamiento."},
@@ -2058,7 +2149,7 @@ const TRANSLATIONS = {
                     "title": "Robo del Tren Dorado",
                     "brief": "Cargamento de lingotes de oro por valor de 1M de dólares desapareció de un tren de carga rápido a mitad de viaje entre ciudades por la noche.",
                     "victim": "Express Transit Corp - Lingotes de Oro.",
-                    "culprit": "Sameh Conductor de Tren",
+                    "culpritHash": "3c0314938c40b2570e1b1b9f46c72f1096f3aa91824ce866cb7fa3a7823f2bac",
                     "evidence": [
                         {"name": "Gato Hidráulico", "desc": "Escondido al lado de las vías del tren."},
                         {"name": "Walkie-Talkie", "desc": "Usa la frecuencia de radio de seguridad de la compañía de trenes."},
@@ -2081,7 +2172,7 @@ const TRANSLATIONS = {
                     "title": "Muerte de Arqueólogo",
                     "brief": "Arqueólogo renombrado encontrado muerto dentro de una tumba recién abierta con un cofre de reliquias forzado a abrirse.",
                     "victim": "Víctima: Dr. Fadel (58).",
-                    "culprit": "Maher Contrabandista",
+                    "culpritHash": "a8b7a6c143cbb5b8c8b7b7cbde7c849f05b0cb2324e63f7120c77e2cfd1bbfed",
                     "evidence": [
                         {"name": "Pico Arqueológico", "desc": "Manchado de sangre con sangre de la víctima y huellas."},
                         {"name": "Figurilla de Oro", "desc": "Dejada caer por el asesino que huía."},
@@ -2104,7 +2195,7 @@ const TRANSLATIONS = {
                     "title": "Jet Privado Desaparecido",
                     "brief": "Un jet de negocios privado desapareció sobre el espacio aéreo montañoso escarpado cerca de un denso bosque de pinos.",
                     "victim": "Avión Privado - 4 Pasajeros.",
-                    "culprit": "Samer Copiloto",
+                    "culpritHash": "13ef017fd7cc2cef74ad9cbf9f8095f43394c6dd606b53d7f937984170dc2527",
                     "evidence": [
                         {"name": "Caja de Vuelo Aplastada", "desc": "Muestra manipulación deliberada del sistema de piloto automático."},
                         {"name": "Combustible Contaminado", "desc": "Agente químico agregado que causa el cierre del motor."},
@@ -2127,7 +2218,7 @@ const TRANSLATIONS = {
                     "title": "Veneno Invisible",
                     "brief": "Magnate envenenado dentro de una oficina de bóveda fortificada utilizando un compuesto biológico raro indetectable.",
                     "victim": "Víctima: Fouad Al-Moatasem (60).",
-                    "culprit": "Dr. Ziad",
+                    "culpritHash": "1000bc6cf06fd297a34ffd3d469166961c3aa50a5deed19a7d70257bb5b612ae",
                     "evidence": [
                         {"name": "Gotero Médico", "desc": "Contiene microgotas de neurotoxina."},
                         {"name": "Vaso de Agua", "desc": "Mezclado con compuesto biológico inodoro."},
@@ -2150,7 +2241,7 @@ const TRANSLATIONS = {
                     "title": "Robo al Museo Local",
                     "brief": "Estatuas de bronce antiguas desaparecieron de la vitrina del museo local sin romper cerraduras.",
                     "victim": "Museo Local - 3 Estatuas.",
-                    "culprit": "Rami Curador",
+                    "culpritHash": "88a981b834dee1292aea4487ada4459efa403e3906056bb665807fbcfe91a987",
                     "evidence": [
                         {"name": "Juego de Llaves Estándar", "desc": "Desbloquea la vitrina de cristal sin problemas."},
                         {"name": "Marca de Tinta Azul", "desc": "En el tirador del gabinete de exhibición."},
@@ -2173,7 +2264,7 @@ const TRANSLATIONS = {
                     "title": "Crimen en la Casa Embrujada",
                     "brief": "Un anciano fue encontrado asesinado en una casa abandonada en el bosque con la puerta principal cerrada por dentro.",
                     "victim": "Víctima: Saleh (75).",
-                    "culprit": "Nabil Sobrino",
+                    "culpritHash": "930a18670b1692c65ef954905807d6e8623ddca88c120ab06767acd56e756549",
                     "evidence": [
                         {"name": "Llave de Repuesto", "desc": "Escondida debajo del felpudo de la puerta."},
                         {"name": "Club de Madera", "desc": "Ensangrentado con marcas de lucha."},
@@ -2196,7 +2287,7 @@ const TRANSLATIONS = {
                     "title": "Documento Diplomático",
                     "brief": "Documento diplomático ultrasecreto desapareció del maletín del embajador durante una recepción concurrida.",
                     "victim": "Embajada Extranjera - Documento Secreto.",
-                    "culprit": "Daniel Reportero",
+                    "culpritHash": "fa5f6ac5baa92b4f358513db8d9ea4af57ebd7601c5b6d34b15526f855a60649",
                     "evidence": [
                         {"name": "Maletín Coincidente", "desc": "Cambiado hábilmente con el original."},
                         {"name": "Invitación Falsificada", "desc": "Tiene nombre de invitado falso."},
@@ -2219,7 +2310,7 @@ const TRANSLATIONS = {
                     "title": "Asesinato en las Alturas",
                     "brief": "Magnate encontrado muerto por dardo envenenado dentro de una oficina de torre de cristal en el piso 50.",
                     "victim": "Víctima: Ghassan Al-Malik (65).",
-                    "culprit": "Ziad Rival",
+                    "culpritHash": "5dfcf3ac3bdb95a8c23d799a81bdcd784abeb016d02a3589897c9c162cbbe965",
                     "evidence": [
                         {"name": "Micro Dardo Envenenado", "desc": "Disparado desde la ventana del edificio de enfrente."},
                         {"name": "Ballesta Profesional", "desc": "Montada en un trípode en el edificio de enfrente."},
@@ -2236,7 +2327,8 @@ const TRANSLATIONS = {
                     "explain": "Ziad el Rival contrató al mercenario Jehad para ejecutar el asesinato de largo alcance entre edificios.",
                     "hints": ["Pista 1: Examina el microdardo envenenado y la ballesta profesional montada en el edificio opuesto.", "Pista 2: Revisa el contrato disuelto que muestra grandes pérdidas financieras para el principal rival del mercado.", "Pista 3: Ziad el Rival contrató al francotirador Jehad en el edificio opuesto abandonado para ejecutar el asesinato de la torre."]
                 }
-            ]
+            ],
+            difficultyLabels: {easy: "Fácil", medium: "Medio", hard: "Difícil", extreme: "Extremo"}
         },
         it: {
             appTitle: "Il File Nero | Othmane Ettoumi",
@@ -2247,7 +2339,7 @@ const TRANSLATIONS = {
             statusReady: "Pronto per il Servizio",
             archiveTitle: "📁 Archivi dei Casi (20 Crimini)",
             archiveDesc: "Scegli tra 20 casi a difficoltà progressiva per iniziare la tua indagine.",
-            footerText: "Il File Nero © 2026 - Progettato da: Othmane Ettoumi | 100% Offline (il multiplayer richiede internet)",
+            footerText: "Il File Nero © 2026 - Progettato da: Othmane Ettoumi | Risolvi i casi offline — il multiplayer richiede internet",
             filterAll: "Tutti",
             filterEasy: "Facile",
             filterMedium: "Medio",
@@ -2280,9 +2372,31 @@ const TRANSLATIONS = {
             proNameLabel: "Nome Investigatore:",
             proRankLabel: "Grado:",
             achLabel: "🎖️ Obiettivi",
-            onboardTitle: "Benvenuto, Detective",
-            onboardBody: "Ti aspettano 20 casi criminali da risolvere. Leggi il riepilogo del caso, esamina attentamente le prove fisiche e interroga ogni sospettato — le loro risposte nascondono la verità. Usa gli indizi solo se sei bloccato (massimo 3 per caso), poi fai la tua accusa finale. Scegli con saggezza: accusare un innocente lascia scappare il vero colpevole!",
-            onboardBtn: "Iniziamo l'indagine →",
+            guideTitle: "Benvenuto, Detective",
+            guideSubtitle: "Una guida rapida a tutto ciò che offre The Black File",
+            guideRowArchiveTitle: "Archivio dei casi (20 crimini)",
+            guideRowArchiveDesc: "Scegli un caso in base alla difficoltà (Facile, Medio, Difficile, Estremo) e inizia l'indagine.",
+            guideRowFlowTitle: "Come funziona un'indagine",
+            guideRowFlowDesc: "Leggi il riepilogo del caso, esamina le prove e interroga ogni sospettato — le loro risposte nascondono la verità.",
+            guideRowNotesTitle: "Note del detective e indizi",
+            guideRowNotesDesc: "Prendi appunti mentre indaghi e usa gli indizi solo se sei bloccato (massimo 3 per caso).",
+            guideRowAccuseTitle: "Accusa finale",
+            guideRowAccuseDesc: "Scegli con saggezza: accusare un innocente lascia scappare il vero colpevole!",
+            guideRowProfileTitle: "Profilo del detective",
+            guideRowProfileDesc: "Mostra il tuo grado, i casi risolti, la precisione e gli obiettivi sbloccati.",
+            guideRowChatTitle: "Chat con gli amici",
+            guideRowChatDesc: "Scrivi o parla con i tuoi amici mentre giochi.",
+            guideRowFriendsTitle: "Gioca con gli amici",
+            guideRowFriendsDesc: "Tre modalità: 🌍 Sfida multigiocatore, 🏁 Modalità Corsa, 📞 Chiamata vocale durante l'indagine.",
+            guideRowLbTitle: "Classifica",
+            guideRowLbDesc: "Confronta i tuoi risultati con altri detective — disponibile in ⚙️ Impostazioni.",
+            guideRowSettingsTitle: "Impostazioni",
+            guideRowSettingsDesc: "Audio, accessibilità, statistiche, fascicolo segreto, lingua — e puoi riaprire questa guida qui in qualsiasi momento.",
+            guideBtn: "Iniziamo l'indagine →",
+            showcaseLabel: "🌐 Gioca con gli amici",
+            lbSettingsBtn: "Classifica",
+            helpGroupLabel: "Aiuto",
+            guideSettingsBtn: "Guida al gioco",
             proClose: "Annulla",
             proSave: "Salva Profilo",
             mpTitle: "🌐 Stanza Gioca con Amici",
@@ -2341,7 +2455,7 @@ const TRANSLATIONS = {
                     "title":"Silenzio nel Maniero",
                     "brief":"Il ricco mercante Karim Ouazzani è stato trovato assassinato nel suo studio privato all'interno del maniero a causa di una ferita da pugnale fatale. La porta era chiusa dall'interno e la finestra aperta.",
                     "victim":"Vittima: Karim Ouazzani (54) - Uomo d'affari.",
-                    "culprit":"Yahya Alami",
+                    "culpritHash": "730bb0fd3d90bf2dfe74490f7c9f484075f9093127ec5d535b8602169dfa7c1b",
                     "evidence":[
                         {"name":"Pugnale d'Argento","desc":"Pulito con cura, lasciamo un'impronta parziale corrispondente al socio Yahya."},
                         {"name":"Lettera Finanziaria Strappata","desc":"Dimostra che la vittima doveva un'enorme somma al suo socio in affari Yahya."},
@@ -2364,7 +2478,7 @@ const TRANSLATIONS = {
                     "title":"Il Diamante Occhio del Nilo",
                     "brief":"Il raro diamante blu \"Occhio del Nilo\" è svanito dalla sua teca di vetro al Museo Nazionale nella notte di apertura senza rompere alcuna serratura.",
                     "victim":"Luogo: Museo Nazionale - Gemma valutata 10 Milioni di Dollari.",
-                    "culprit":"Maher il Curatore",
+                    "culpritHash": "b970c48bc598577d4ea379a89a7a6300c4c42a6bd531d85dbaef1e78860d7dd3",
                     "evidence":[
                         {"name":"Guanto di Seta Tagliato","desc":"Trovato accanto alla teca di vetro."},
                         {"name":"Carta d'Accesso VIP","desc":"Porta impronte digitali nascoste appartenenti al curatore."},
@@ -2387,7 +2501,7 @@ const TRANSLATIONS = {
                     "title":"Dov'è Yasmine?",
                     "brief":"La studentessa universitaria Yasmine Alaoui è svanita 3 giorni fa. La sua auto è stata trovata parcheggiata vicino alla foresta oscura con le chiavi lasciate nel quadro.",
                     "victim":"Persona Scomparsa: Yasmine Alaoui (22).",
-                    "culprit":"Ziad l'Ex",
+                    "culpritHash": "1589f496fa96a31fe01f1791c189549c040ced7d7c5b87d6fbcbb27c14b71157",
                     "evidence":[
                         {"name":"Telefono Frantumato","desc":"Trovato sul ciglio della strada; l'ultima chiamata è stata fatta al suo ex fidanzato."},
                         {"name":"Minaccia Scritta a Mano","desc":"Nota minacciosa scritta a mano all'interno della sua borsetta."},
@@ -2410,7 +2524,7 @@ const TRANSLATIONS = {
                     "title":"Veleno nel Bicchiere",
                     "brief":"L'illustre critico letterario Ramzi Hamid è morto immediatamente dopo aver sorseggiato del succo alla sua cerimonia di premiazione all'interno del Teatro dell'Opera.",
                     "victim":"Vittima: Ramzi Hamid (61).",
-                    "culprit":"Samer lo Scrittore Rivale",
+                    "culpritHash": "8f2d4c3a8c8bd790a642ca7e4e8fbcef3cbf1743b7b844065df935d8bb77c5cf",
                     "evidence":[
                         {"name":"Bottiglia di Succo Contaminata","desc":"Contiene tracce di cianuro letale."},
                         {"name":"Tovagliolo Piegato","desc":"Ha residui di polvere tossica e un'impronta parziale."},
@@ -2433,7 +2547,7 @@ const TRANSLATIONS = {
                     "title":"Il Mistero della Stanza Chiusa",
                     "brief":"L'uomo d'affari Mamdouh Sabri è stato trovato accoltellato all'interno della sua camera d'albergo. Tutte le porte e le finestre erano saldamente chiuse dall'interno senza alcuna via d'uscita.",
                     "victim":"Vittima: Mamdouh Sabri (48).",
-                    "culprit":"Khaled Manutenzione",
+                    "culpritHash": "bcebd2e63486c600aead6f62b13cf35d679b73aeb0732f913fc4baad035a5f7b",
                     "evidence":[
                         {"name":"Condizionatore d'Aria","desc":"Bloccato con uno spessore di metallo per ritardare il meccanismo di chiusura automatica della porta."},
                         {"name":"Pistola Starter","desc":"Getta dalla finestra dell'ultimo piano."},
@@ -2456,7 +2570,7 @@ const TRANSLATIONS = {
                     "title":"Capolavoro Rubato",
                     "brief":"Un dipinto originale di un artista di fama mondiale è stato rubato dalla Galleria Internazionale, lasciando una replica esatta appesa al suo posto.",
                     "victim":"Luogo: Galleria d'Arte Internazionale - Valore di 5M$.",
-                    "culprit":"Fouad il Pittore",
+                    "culpritHash": "e3a9aa8d5bdc67d5c818e3c1abab8c74abf35210b75d98f479a2e7fb4e3609b3",
                     "evidence":[
                         {"name":"Cornice di Legno Vuota","desc":"Trovata nascosta dietro il deposito degli attrezzi."},
                         {"name":"Pennello Professionale","desc":"Porta una formulazione di pittura a olio fresca."},
@@ -2479,7 +2593,7 @@ const TRANSLATIONS = {
                     "title":"Omicidio nel Laboratorio di Mezzanotte",
                     "brief":"Il chimico Dr. Murad è stato ucciso nel suo laboratorio chiuso a chiave. Il suo ultimo codice digitato al PC indica il suo assassino.",
                     "victim":"Vittima: Dr. Murad (55) - Chimico.",
-                    "culprit":"Hani Assistente Capo",
+                    "culpritHash": "4ef8c5c522850a4720c2ec5b4a03aaccf49cf26b44fbd4d28e9367f55a26a111",
                     "evidence":[
                         {"name":"Becher Frantumato","desc":"Contiene residui di tossina di agente nervoso."},
                         {"name":"Computer Portatile","desc":"Ultimo cifrario digitato corrispondente al nome dell'assistente capo."},
@@ -2502,7 +2616,7 @@ const TRANSLATIONS = {
                     "title":"Assassinio sull'Espresso",
                     "brief":"Un ex agente dell'intelligence è morto all'interno di una carrozza letto del treno a causa di un colpo d'arma da fuoco con silenziatore in un tunnel buio.",
                     "victim":"Vittima: Kamal Eddine (62).",
-                    "culprit":"Salim Misterioso",
+                    "culpritHash": "577d64a96b0de83bb3fe352f2f96e45970c81ebbf5a65fada6e439d5bc58fa50",
                     "evidence":[
                         {"name":"Silenziatore in Metallo","desc":"Gettato sui binari durante l'attraversamento del tunnel."},
                         {"name":"Biglietto Falsificato","desc":"Biglietto con identità falsa seduto nella vettura successiva."},
@@ -2525,7 +2639,7 @@ const TRANSLATIONS = {
                     "title":"Rapina in Cassaforte",
                     "brief":"Milioni sono svaniti dalla cassaforte della compagnia nazionale dei cavi senza scasso; la chiave digitale era solo del Direttore.",
                     "victim":"Compagnia Nazionale Cavi - Perdita di 2 Milioni di $.",
-                    "culprit":"Ziad Contabile",
+                    "culpritHash": "6c05362c0af09498ee94c4840bc9941f3571dd8912bebf2fbb5890002ed765f5",
                     "evidence":[
                         {"name":"Clip di Telecamera Nascosta","desc":"Mostra un individuo che inserisce con attenzione il codice PIN."},
                         {"name":"Foglio di Appunti","desc":"Contiene indizi sul vecchio codice di accesso."},
@@ -2548,7 +2662,7 @@ const TRANSLATIONS = {
                     "title":"Crimine sulla Spiaggia dell'Andalusia",
                     "brief":"Un pescatore è stato trovato morto sulla sabbia all'alba accanto a una piccola barca con il motore acceso.",
                     "victim":"Vittima: Ibrahim Pescatore (50).",
-                    "culprit":"Hamza Giovane",
+                    "culpritHash": "a665bd651c3e8a1327296f3243798276c27d13133a5ae7a512099e9ecfe93372",
                     "evidence":[
                         {"name":"Remo di Legno Rotto","desc":"Macchiato di sangue con segni di lotta."},
                         {"name":"Rete da Pesca Strappata","desc":"Sparsa vicino alla linea dell'acqua."},
@@ -2571,7 +2685,7 @@ const TRANSLATIONS = {
                     "title":"Dipinto Antico Scomparso",
                     "brief":"Un dipinto raro è svanito dall'antico palazzo reale senza attivare il sistema di allarme.",
                     "victim":"Palazzo del Tardo Principe - Opera d'Arte Rara.",
-                    "culprit":"Maher Decoratore",
+                    "culpritHash": "c405376d9b2b57b1839f894087c345858a02cf82727e6d3fe71eaf6d53f5ee8b",
                     "evidence":[
                         {"name":"Strumento di Bypass dell'Allarme","desc":"Gadget hi-tech per il bypass."},
                         {"name":"Guanto di Stoffa","desc":"Porta la vecchia polvere del palazzo."},
@@ -2594,7 +2708,7 @@ const TRANSLATIONS = {
                     "title":"Omicidio di un Attore Famoso",
                     "brief":"Un attore di primo piano è stato trovato morto nella stanza verde del teatro in seguito all'ultima rappresentazione sul palco.",
                     "victim":"Vittima: Rafat Rami (45).",
-                    "culprit":"Bassem Sostituto",
+                    "culpritHash": "df676986b96ee8f4eb103790b84f8741e880039ee8c6b94b5fea5db72aa175e1",
                     "evidence":[
                         {"name":"Copione Strappato","desc":"Dure note scritte sul ruolo principale."},
                         {"name":"Corda di Scena","desc":"Finto attrezzo di scena convertito in un vero strumento di strangolamento."},
@@ -2617,7 +2731,7 @@ const TRANSLATIONS = {
                     "title":"Rapina al Treno d'Oro",
                     "brief":"Una spedizione di lingotti d'oro del valore di 1 milione di dollari è svanita da un treno merci veloce a metà viaggio tra le città di notte.",
                     "victim":"Express Transit Corp - Lingotti d'Oro.",
-                    "culprit":"Sameh Macchinista",
+                    "culpritHash": "ae03a3af5af18978365d112bcf50a0779917b723372d45dfdc4cd7e94caaf3ae",
                     "evidence":[
                         {"name":"Martinetto Idraulico","desc":"Nascosto accanto ai binari ferroviari."},
                         {"name":"Walkie-Talkie","desc":"Utilizza la frequenza radio di sicurezza della compagnia ferroviaria."},
@@ -2640,7 +2754,7 @@ const TRANSLATIONS = {
                     "title":"Morte dell'Archeologo",
                     "brief":"Un rinomato archeologo è stato trovato morto all'interno di una tomba appena aperta con una cassa di reliquie forzata.",
                     "victim":"Vittima: Dr. Fadel (58).",
-                    "culprit":"Maher Contrabbandiere",
+                    "culpritHash": "4e8ceaecf6c6ab85647a68cfc4b38e85ddf2e6e8c56aad35743d71d3490cd2df",
                     "evidence":[
                         {"name":"Piccone Archeologico","desc":"Macchiato di sangue della vittima e impronte."},
                         {"name":"Statuetta d'Oro","desc":"Fatta cadere dal killer in fuga."},
@@ -2663,7 +2777,7 @@ const TRANSLATIONS = {
                     "title":"Jet Privato Svanito",
                     "brief":"Un business jet privato è svanito nello spazio aereo montuoso accidentato vicino a una fitta pineta.",
                     "victim":"Aeromobile Privato - 4 Passeggeri.",
-                    "culprit":"Samer Co-Pilota",
+                    "culpritHash": "d14617985d0431b2ecf172ced11f64d5cb0e1a0a6112cc17ce311fdee9c6e85b",
                     "evidence":[
                         {"name":"Scatola di Volo Schiacciata","desc":"Mostra manomissione deliberata del sistema di autopilota."},
                         {"name":"Carburante Contaminato","desc":"Agente chimico aggiunto che ha causato lo spegnimento del motore."},
@@ -2686,7 +2800,7 @@ const TRANSLATIONS = {
                     "title":"Veleno Invisibile",
                     "brief":"Un magnate avvelenato all'interno di un ufficio con cassaforte fortificata utilizzando un raro composto biologico non rilevabile.",
                     "victim":"Vittima: Fouad Al-Moatasem (60).",
-                    "culprit":"Dr. Ziad",
+                    "culpritHash": "1000bc6cf06fd297a34ffd3d469166961c3aa50a5deed19a7d70257bb5b612ae",
                     "evidence":[
                         {"name":"Contagocce Medico","desc":"Contiene micro gocce di neurotossina."},
                         {"name":"Bicchiere d'Acqua","desc":"Mescolato con composto biologico inodore."},
@@ -2709,7 +2823,7 @@ const TRANSLATIONS = {
                     "title":"Rapina al Museo Locale",
                     "brief":"Antiche statue di bronzo sono svanite dalla teca espositiva del museo locale senza rompere le serrature.",
                     "victim":"Museo Locale - 3 Statue.",
-                    "culprit":"Rami Curatore",
+                    "culpritHash": "4a751c2ab3c5e5c17caf4c35813ae1d88bb3ee50e44aa55b9e7ae8437ef76d50",
                     "evidence":[
                         {"name":"Set di Chiavi Standard","desc":"Sblocca la teca di vetro senza intoppi."},
                         {"name":"Segno d'Inchiostro Blu","desc":"Sulla maniglia del mobile espositivo."},
@@ -2732,7 +2846,7 @@ const TRANSLATIONS = {
                     "title":"Crimine nella Casa Infestata",
                     "brief":"Un anziano è stato trovato assassinato in una casa abbandonata nella foresta con la porta d'ingresso chiusa dall'interno.",
                     "victim":"Vittima: Saleh (75).",
-                    "culprit":"Nabil Nipote",
+                    "culpritHash": "4eea17268a129e84619266c77bbf0b27f13f147ebff4cb0ac2763a02e25b34b4",
                     "evidence":[
                         {"name":"Chiave di Riserva","desc":"Nascosta sotto lo zerbino della porta."},
                         {"name":"Clava di Legno","desc":"Macchiata di sangue con segni di lotta."},
@@ -2755,7 +2869,7 @@ const TRANSLATIONS = {
                     "title":"Documento Diplomatico",
                     "brief":"Un documento diplomatico top secret è svanito dalla valigetta dell'ambasciatore durante un ricevimento affollato.",
                     "victim":"Ambasciata Straniera - Documento Segreto.",
-                    "culprit":"Daniel Giornalista",
+                    "culpritHash": "723c5d768b0b622596d23f4199f1269870d7e346baa639e3c50ce9ec724aaa1f",
                     "evidence":[
                         {"name":"Valigetta Corrispondente","desc":"Scambiata abilmente con l'originale."},
                         {"name":"Invito Falsificato","desc":"Ha un nome di ospite falso."},
@@ -2778,7 +2892,7 @@ const TRANSLATIONS = {
                     "title":"Assassinio nel Grattacielo",
                     "brief":"Un magnate trovato morto per dardo avvelenato all'interno di un ufficio in una torre di vetro al 50° piano.",
                     "victim":"Vittima: Ghassan Al-Malik (65).",
-                    "culprit":"Ziad Rivale",
+                    "culpritHash": "8e770985980995da2e123c81f4a43f19334f8d2e3d614058d8ab93f095c91c2a",
                     "evidence":[
                         {"name":"Micro Dardo Avvelenato","desc":"Sparato dalla finestra di un edificio di fronte."},
                         {"name":"Balestra Professionale","desc":"Montata su un treppiede nell'edificio di fronte."},
@@ -2795,7 +2909,8 @@ const TRANSLATIONS = {
                     "explain":"Ziad Rivale ha assunto il mercenario Jehad per eseguire un assassinio a lungo raggio tra edifici.",
                     "hints":["Indizio 1: Esamina il micro dardo avvelenato e la balestra professionale montata nell'edificio di fronte.","Indizio 2: Controlla il contratto disciolto che mostra ingenti perdite finanziarie per il principale rivale di mercato.","Indizio 3: Ziad Rivale ha assunto il cecchino Jehad nell'edificio di fronte abbandonato per eseguire l'assassinio nella torre."]
                 }
-            ]
+            ],
+            difficultyLabels: {easy: "Facile", medium: "Medio", hard: "Difficile", extreme: "Estremo"}
         },
         pt: {
             appTitle: "O Arquivo Negro | Othmane Ettoumi",
@@ -2806,7 +2921,7 @@ const TRANSLATIONS = {
             statusReady: "Pronto para o Serviço",
             archiveTitle: "📁 Arquivos de Casos (20 Crimes)",
             archiveDesc: "Escolha entre 20 casos de dificuldade progressiva para iniciar sua investigação.",
-            footerText: "O Arquivo Negro © 2026 - Desenhado por: Othmane Ettoumi | 100% Offline (multijogador precisa de internet)",
+            footerText: "O Arquivo Negro © 2026 - Desenhado por: Othmane Ettoumi | Resolva casos offline — o multijogador precisa de internet",
             filterAll: "Todos",
             filterEasy: "Fácil",
             filterMedium: "Médio",
@@ -2839,9 +2954,31 @@ const TRANSLATIONS = {
             proNameLabel: "Nome do Detetive:",
             proRankLabel: "Patente:",
             achLabel: "🎖️ Conquistas",
-            onboardTitle: "Bem-vindo, Detetive",
-            onboardBody: "Tem 20 casos criminais para resolver. Leia o resumo do caso, examine cuidadosamente as provas físicas e interrogue cada suspeito — as respostas deles escondem a verdade. Use as dicas apenas se ficar preso (máximo 3 por caso) e depois faça a sua acusação final. Escolha com sabedoria: acusar um inocente deixa o verdadeiro culpado escapar!",
-            onboardBtn: "Vamos investigar →",
+            guideTitle: "Bem-vindo, Detetive",
+            guideSubtitle: "Um guia rápido de tudo o que o The Black File oferece",
+            guideRowArchiveTitle: "Arquivo de casos (20 crimes)",
+            guideRowArchiveDesc: "Escolha um caso pela dificuldade (Fácil, Médio, Difícil, Extremo) e comece a investigar.",
+            guideRowFlowTitle: "Como funciona uma investigação",
+            guideRowFlowDesc: "Leia o resumo do caso, examine as provas e interrogue cada suspeito — as respostas deles escondem a verdade.",
+            guideRowNotesTitle: "Notas do detetive e dicas",
+            guideRowNotesDesc: "Anote observações enquanto investiga e use as dicas apenas se ficar preso (máximo 3 por caso).",
+            guideRowAccuseTitle: "Acusação final",
+            guideRowAccuseDesc: "Escolha com sabedoria: acusar um inocente deixa o verdadeiro culpado escapar!",
+            guideRowProfileTitle: "Perfil do detetive",
+            guideRowProfileDesc: "Mostra a sua patente, casos resolvidos, taxa de acerto e conquistas desbloqueadas.",
+            guideRowChatTitle: "Chat de amigos",
+            guideRowChatDesc: "Converse por texto ou voz com os seus amigos enquanto joga.",
+            guideRowFriendsTitle: "Jogar com amigos",
+            guideRowFriendsDesc: "Três modos: 🌍 Desafio multijogador, 🏁 Modo Corrida, 📞 Chamada de voz durante a investigação.",
+            guideRowLbTitle: "Classificação",
+            guideRowLbDesc: "Compare os seus resultados com outros detetives — disponível em ⚙️ Definições.",
+            guideRowSettingsTitle: "Definições",
+            guideRowSettingsDesc: "Som, acessibilidade, estatísticas, ficheiro secreto, idioma — e pode reabrir este guia aqui a qualquer momento.",
+            guideBtn: "Vamos investigar →",
+            showcaseLabel: "🌐 Jogar com amigos",
+            lbSettingsBtn: "Classificação",
+            helpGroupLabel: "Ajuda",
+            guideSettingsBtn: "Guia do jogo",
             proClose: "Cancelar",
             proSave: "Salvar Perfil",
             mpTitle: "🌐 Sala Jogar com Amigos",
@@ -2900,7 +3037,7 @@ const TRANSLATIONS = {
                     "title":"Silêncio na Mansão",
                     "brief":"O rico comerciante Karim Ouazzani foi encontrado assassinado em seu escritório privado dentro de sua mansão devido a um ferimento fatal de faca. A porta estava trancada por dentro e a janela aberta.",
                     "victim":"Vítima: Karim Ouazzani (54) - Homem de negócios.",
-                    "culprit":"Yahya Alami",
+                    "culpritHash": "730bb0fd3d90bf2dfe74490f7c9f484075f9093127ec5d535b8602169dfa7c1b",
                     "evidence":[
                         {"name":"Adaga de Prata","desc":"Limpa cuidadosamente, deixando uma impressão digital parcial correspondente ao sócio Yahya."},
                         {"name":"Carta Financeira Rasgada","desc":"Prova que a vítima devia uma enorme quantia ao seu parceiro de negócios Yahya."},
@@ -2923,7 +3060,7 @@ const TRANSLATIONS = {
                     "title":"Joia Olho do Nilo",
                     "brief":"O raro diamante azul \"Olho do Nilo\" desapareceu de sua vitrine de vidro no Museu Nacional na noite de inauguração sem que nenhuma fechadura fosse quebrada.",
                     "victim":"Local: Museu Nacional - Joia avaliada em $10 Milhões.",
-                    "culprit":"Maher o Curador",
+                    "culpritHash": "0a7b3d80d5f27e2f42e113f0fb05c330631b9ce7e0f1b0d66cf0498561654bb3",
                     "evidence":[
                         {"name":"Luva de Seda Cortada","desc":"Encontrada ao lado da caixa expositora de vidro."},
                         {"name":"Cartão de Acesso VIP","desc":"Contém impressões digitais ocultas pertencentes ao curador."},
@@ -2946,7 +3083,7 @@ const TRANSLATIONS = {
                     "title":"Onde está Yasmine?",
                     "brief":"A estudante universitária Yasmine Alaoui desapareceu há 3 dias. Seu carro foi encontrado estacionado perto da floresta escura com as chaves na ignição.",
                     "victim":"Pessoa Desaparecida: Yasmine Alaoui (22).",
-                    "culprit":"Ziad o Ex",
+                    "culpritHash": "896068c100a9c13f653b97ddf6c2b14398cdd4499f9422528cbff27887ed0756",
                     "evidence":[
                         {"name":"Telefone Despedaçado","desc":"Encontrado na beira da estrada; a última ligação foi para seu ex-noivo."},
                         {"name":"Ameaça Escrita à Mão","desc":"Bilhete de ameaça manuscrito dentro de sua bolsa."},
@@ -2969,7 +3106,7 @@ const TRANSLATIONS = {
                     "title":"Veneno no Copo",
                     "brief":"O proeminente crítico literário Ramzi Hamid morreu imediatamente após tomar um gole de suco em sua cerimônia de homenagem dentro da Casa de Ópera.",
                     "victim":"Vítima: Ramzi Hamid (61).",
-                    "culprit":"Samer o Escritor Rival",
+                    "culpritHash": "2a4e9090a5af110024f69400ca5e7b5c86b885d7cbdeb6bf599ca87f4a8605b1",
                     "evidence":[
                         {"name":"Garrafa de Suco Contaminada","desc":"Contém vestígios de veneno letal de cianureto."},
                         {"name":"Guardanapo Dobrado","desc":"Tem resíduo de pó tóxico e uma impressão digital parcial."},
@@ -2992,7 +3129,7 @@ const TRANSLATIONS = {
                     "title":"O Enigma do Quarto Trancado",
                     "brief":"O empresário Mamdouh Sabri foi encontrado esfaqueado dentro de seu quarto de hotel. Todas as portas e janelas estavam firmemente trancadas por dentro sem saída.",
                     "victim":"Vítima: Mamdouh Sabri (48).",
-                    "culprit":"Khaled Manutenção",
+                    "culpritHash": "f56fc5338a5a906c99ae1e8fb2aab1b3fc94822e33dc3155b308679c91ad2164",
                     "evidence":[
                         {"name":"Ar Condicionado","desc":"Bloqueado com calço de metal para atrasar o mecanismo de travamento automático da porta."},
                         {"name":"Pistola de Partida","desc":"Jogada pela janela do último andar."},
@@ -3015,7 +3152,7 @@ const TRANSLATIONS = {
                     "title":"Obra-Prima Roubada",
                     "brief":"Uma pintura original de um artista mundialmente famoso foi roubada da Galeria Internacional, deixando uma réplica idêntica pendurada em seu lugar.",
                     "victim":"Local: Galeria Internacional de Arte - Valor de $5M.",
-                    "culprit":"Fouad o Pintor",
+                    "culpritHash": "a6aa59245f175a68ad74d16782dc00191e24459038966b85c51dff8f516621a3",
                     "evidence":[
                         {"name":"Moldura de Madeira Vazia","desc":"Encontrada escondida atrás do armazenamento de ferramentas."},
                         {"name":"Pincel Profissional","desc":"Contém formulação de tinta a óleo fresca."},
@@ -3038,7 +3175,7 @@ const TRANSLATIONS = {
                     "title":"Assassinato no Laboratório à Meia-Noite",
                     "brief":"O químico Dr. Murad foi morto em seu laboratório trancado. Seu último código digitado no PC aponta para seu assassino.",
                     "victim":"Vítima: Dr. Murad (55) - Químico.",
-                    "culprit":"Hani Assistente Principal",
+                    "culpritHash": "5780dce0519ef3e9ac617644b8e706da6caf10c5d76ab589d8bb4677e7e72b57",
                     "evidence":[
                         {"name":"Béquer Despedaçado","desc":"Contém resíduos de toxina de agente nervoso."},
                         {"name":"Computador Portátil","desc":"Cifra final digitada correspondente ao nome do assistente principal."},
@@ -3061,7 +3198,7 @@ const TRANSLATIONS = {
                     "title":"Assassinato no Expresso",
                     "brief":"Ex-agente de inteligência morreu dentro de um vagão de trem-leito por tiro de silenciador em túnel escuro.",
                     "victim":"Vítima: Kamal Eddine (62).",
-                    "culprit":"Salim Misterioso",
+                    "culpritHash": "577d64a96b0de83bb3fe352f2f96e45970c81ebbf5a65fada6e439d5bc58fa50",
                     "evidence":[
                         {"name":"Supressor de Metal","desc":"Jogado nos trilhos durante travessia de túnel."},
                         {"name":"Bilhete Falsificado","desc":"Bilhete de identidade falsa sentado no próximo carro."},
@@ -3084,7 +3221,7 @@ const TRANSLATIONS = {
                     "title":"Roubo ao Cofre",
                     "brief":"Milhões desapareceram do cofre da companhia nacional de cabos sem arrombamento; a chave digital estava apenas com o Diretor.",
                     "victim":"Companhia Nacional de Cabos - Perda de $2M.",
-                    "culprit":"Ziad Contador",
+                    "culpritHash": "d2ce12d2f7f100053717b2c37aa372be2dadcadb68e95d44a5404b677bcd0953",
                     "evidence":[
                         {"name":"Clipe de Câmera Oculta","desc":"Mostra indivíduo inserindo código PIN com cuidado."},
                         {"name":"Tira de Notas","desc":"Contém dicas para a senha antiga."},
@@ -3107,7 +3244,7 @@ const TRANSLATIONS = {
                     "title":"Crime na Praia da Andaluzia",
                     "brief":"Pescador encontrado morto na areia ao amanhecer ao lado de um pequeno barco com motor ligado.",
                     "victim":"Vítima: Ibrahim Pescador (50).",
-                    "culprit":"Hamza Jovem",
+                    "culpritHash": "4f17ef1a0f398d5ab315e05c3d4f79e7be683364529e3c42c3a41b7538b645a4",
                     "evidence":[
                         {"name":"Remo de Madeira Quebrado","desc":"Ensujado de sangue com marcas de luta."},
                         {"name":"Rede de Pesca Rasgada","desc":"Espalhada perto da linha d'água."},
@@ -3130,7 +3267,7 @@ const TRANSLATIONS = {
                     "title":"Pintura Antiga Desaparecida",
                     "brief":"Pintura rara desapareceu do antigo palácio real sem acionar o sistema de alarme.",
                     "victim":"Palácio do Príncipe Falecido - Obra de Arte Rara.",
-                    "culprit":"Maher Decorador",
+                    "culpritHash": "7ba88cb0ecf2c2763bf0c388d946c861c8ccb213c912cdcbe3279f87767cab39",
                     "evidence":[
                         {"name":"Ferramenta de Desvio de Alarme","desc":"Gadget de alta tecnologia."},
                         {"name":"Luva de Pano","desc":"Contém poeira antiga do palácio."},
@@ -3153,7 +3290,7 @@ const TRANSLATIONS = {
                     "title":"Assassinato de Famoso Ator",
                     "brief":"Um ator proeminente foi encontrado morto no camarim do teatro após a apresentação final no palco.",
                     "victim":"Vítima: Rafat Rami (45).",
-                    "culprit":"Bassem Substituto",
+                    "culpritHash": "8708b99357effd6fc847954f09baec4767ccfbcfbf41ca2ce62ce7ec44431a61",
                     "evidence":[
                         {"name":"Roteiro Rasgado","desc":"Notas escritas severas sobre o papel principal."},
                         {"name":"Corda de Cenografia","desc":"Adereço falso convertido em real ferramenta de estrangulamento."},
@@ -3176,7 +3313,7 @@ const TRANSLATIONS = {
                     "title":"Roubo do Trem de Ouro",
                     "brief":"Remessa de barras de ouro no valor de $1M desapareceu de trem de carga rápido no meio da viagem entre cidades à noite.",
                     "victim":"Transito Expresso Corp - Barras de Ouro.",
-                    "culprit":"Sameh Maquinista",
+                    "culpritHash": "fd013fc53b8e7a4bca732d16f5d0962584ab6bcf294cea8382e2bbf775ebb8eb",
                     "evidence":[
                         {"name":"Macaco Hidráulico","desc":"Escondido ao lado dos trilhos da ferrovia."},
                         {"name":"Walkie-Talkie","desc":"Usa frequência de rádio de segurança da empresa de trens."},
@@ -3199,7 +3336,7 @@ const TRANSLATIONS = {
                     "title":"Morte de Arqueólogo",
                     "brief":"Arqueólogo renomado encontrado morto dentro de tumba recém-aberta com o baú de relíquias forçado a abrir.",
                     "victim":"Vítima: Dr. Fadel (58).",
-                    "culprit":"Maher Contrabandista",
+                    "culpritHash": "a8b7a6c143cbb5b8c8b7b7cbde7c849f05b0cb2324e63f7120c77e2cfd1bbfed",
                     "evidence":[
                         {"name":"Picareta Arqueológica","desc":"Manchada de sangue com sangue da vítima e impressões."},
                         {"name":"Estatueta de Ouro","desc":"Deixada cair pelo assassino em fuga."},
@@ -3222,7 +3359,7 @@ const TRANSLATIONS = {
                     "title":"Jato Particular Desaparecido",
                     "brief":"Um jato executivo particular desapareceu sobre o espaço aéreo montanhoso acidentado perto de densa floresta de pinheiros.",
                     "victim":"Aeronave Particular - 4 Passageiros.",
-                    "culprit":"Samer Copiloto",
+                    "culpritHash": "13ef017fd7cc2cef74ad9cbf9f8095f43394c6dd606b53d7f937984170dc2527",
                     "evidence":[
                         {"name":"Caixa de Voo Esmagada","desc":"Mostra adulteração deliberada com o sistema de piloto automático."},
                         {"name":"Combustível Contaminado","desc":"Agente químico adicionado causando pane no motor."},
@@ -3245,7 +3382,7 @@ const TRANSLATIONS = {
                     "title":"Veneno Invisível",
                     "brief":"Magnata envenenado dentro de escritório de cofre fortificado usando composto biológico raro indetectável.",
                     "victim":"Vítima: Fouad Al-Moatasem (60).",
-                    "culprit":"Dr. Ziad",
+                    "culpritHash": "1000bc6cf06fd297a34ffd3d469166961c3aa50a5deed19a7d70257bb5b612ae",
                     "evidence":[
                         {"name":"Conta-gotas Médico","desc":"Contém microgotas de neurotoxina."},
                         {"name":"Copo de Água","desc":"Misturado com composto biológico inodoro."},
@@ -3268,7 +3405,7 @@ const TRANSLATIONS = {
                     "title":"Roubo ao Museu Local",
                     "brief":"Estátuas de bronze antigas desapareceram da vitrine do museu local sem quebrar fechaduras.",
                     "victim":"Museu Local - 3 Estátuas.",
-                    "culprit":"Rami Curador",
+                    "culpritHash": "88a981b834dee1292aea4487ada4459efa403e3906056bb665807fbcfe91a987",
                     "evidence":[
                         {"name":"Conjunto de Chaves Padrão","desc":"Destrava a vitrine de vidro suavemente."},
                         {"name":"Marca de Tinta Azul","desc":"Na maçaneta do gabinete de exibição."},
@@ -3291,7 +3428,7 @@ const TRANSLATIONS = {
                     "title":"Crime na Casa Assombrada",
                     "brief":"Um homem idoso foi encontrado assassinado em casa abandonada na floresta com a porta da frente trancada por dentro.",
                     "victim":"Vítima: Saleh (75).",
-                    "culprit":"Nabil Sobrinho",
+                    "culpritHash": "e036edc3147ce2a3a032999cec2b0ae2863167afcba9de47ce0974a04a52037e",
                     "evidence":[
                         {"name":"Chave Reserva","desc":"Escondida sob o tapete da porta."},
                         {"name":"Taco de Madeira","desc":"Ensujado de sangue com marcas de luta."},
@@ -3314,7 +3451,7 @@ const TRANSLATIONS = {
                     "title":"Documento Diplomático",
                     "brief":"Documento diplomático ultrassecreto desapareceu da pasta do embaixador durante recepção lotada.",
                     "victim":"Embaixada Estrangeira - Documento Secreto.",
-                    "culprit":"Daniel Repórter",
+                    "culpritHash": "07268ae21bc4438f2824eaf3d12bee24d83cb39563687327a1ce46cf755a3272",
                     "evidence":[
                         {"name":"Pasta Correspondente","desc":"Trocada habilmente com a original."},
                         {"name":"Convite Falsificado","desc":"Tem nome de convidado falso."},
@@ -3337,7 +3474,7 @@ const TRANSLATIONS = {
                     "title":"Assassinato em Arranha-Céu",
                     "brief":"Magnata encontrado morto por dardo envenenado dentro de escritório de torre de vidro no 50º andar.",
                     "victim":"Vítima: Ghassan Al-Malik (65).",
-                    "culprit":"Ziad Rival",
+                    "culpritHash": "5dfcf3ac3bdb95a8c23d799a81bdcd784abeb016d02a3589897c9c162cbbe965",
                     "evidence":[
                         {"name":"Microdardo Envenenado","desc":"Disparado da janela de prédio oposto."},
                         {"name":"Bestas Profissionais","desc":"Montadas em tripé em prédio oposto."},
@@ -3346,7 +3483,7 @@ const TRANSLATIONS = {
                         {"name":"Escopo de Alta Potência","desc":"Usado para mira de precisão de longo alcance."}
                     ],
                     "suspects":[
-                        {"name":"Ziad Rival","role":"Magnata Rival","alibi":"Em reuniões bancárias o dia todo.","qs":[{"q":"Relação com a vítima?","a":"Fierce market competition."},{"q":"Contratou atirador?","a":"Sou empresário legal."},{"q":"Onde na hora do crime?","a":"Na torre financeira."}]},
+                        {"name":"Ziad Rival","role":"Magnata Rival","alibi":"Em reuniões bancárias o dia todo.","qs":[{"q":"Relação com a vítima?","a":"Concorrência de mercado feroz."},{"q":"Contratou atirador?","a":"Sou empresário legal."},{"q":"Onde na hora do crime?","a":"Na torre financeira."}]},
                         {"name":"Sahar Secretária","role":"Assistente Executiva","alibi":"Preparando café no lounge.","qs":[{"q":"Quem tem acesso ao escritório?","a":"Eu e o chefe de segurança."},{"q":"Ouviu som de janela?","a":"O vidro é à prova de som."},{"q":"Ele estava com medo?","a":"Recebeu ameaças de morte."}]},
                         {"name":"Maher Chefe de Segurança","role":"Chefe de Guarda","alibi":"Monitorando câmeras do andar inferior.","qs":[{"q":"Por que perdeu o atirador?","a":"Prédio oposto abandonado."},{"q":"Quem possui a chave oposta?","a":"Empreiteiro falido."},{"q":"As câmeras cobrem o oposto?","a":"O ângulo perde isso."}]},
                         {"name":"Jehad Atirador","role":"Mercenário Misterioso","alibi":"Alugando quarto sob pseudônimo.","qs":[{"q":"Por que na torre oposta?","a":"Fotografia entusiasta."},{"q":"Por que impressão na besta?","a":"Executei contrato por dinheiro."},{"q":"Quem te pagou?","a":"Rival Ziad."}]}
@@ -3354,7 +3491,8 @@ const TRANSLATIONS = {
                     "explain":"Ziad Rival contratou o mercenário Jehad para executar assassinato de longo alcance entre prédios.",
                     "hints":["Dica 1: Examine o microdardo envenenado e a besta profissional montada no prédio oposto.","Dica 2: Verifique o contrato dissolvido mostrando grandes perdas financeiras para o principal rival de mercado.","Dica 3: Ziad Rival contratou o atirador Jehad no prédio oposto abandonado para executar o assassinato na torre."]
                 }
-            ]
+            ],
+            difficultyLabels: {easy: "Fácil", medium: "Médio", hard: "Difícil", extreme: "Extremo"}
         },
         de: {
             appTitle: "Die Schwarze Akte | Othmane Ettoumi",
@@ -3365,7 +3503,7 @@ const TRANSLATIONS = {
             statusReady: "Bereit für den Einsatz",
             archiveTitle: "📁 Fallarchive (20 Verbrechen)",
             archiveDesc: "Wählen Sie aus 20 Fällen mit steigendem Schwierigkeitsgrad, um Ihre Ermittlungen zu beginnen.",
-            footerText: "Die Schwarze Akte © 2026 - Entworfen von: Othmane Ettoumi | 100% Offline (Mehrspieler benötigt Internet)",
+            footerText: "Die Schwarze Akte © 2026 - Entworfen von: Othmane Ettoumi | Fälle offline lösbar — Mehrspieler benötigt Internet",
             filterAll: "Alle",
             filterEasy: "Leicht",
             filterMedium: "Mittel",
@@ -3398,9 +3536,31 @@ const TRANSLATIONS = {
             proNameLabel: "Detektivname:",
             proRankLabel: "Rang:",
             achLabel: "🎖️ Erfolge",
-            onboardTitle: "Willkommen, Detektiv",
-            onboardBody: "20 Kriminalfälle warten darauf, gelöst zu werden. Lies die Fallzusammenfassung, untersuche die physischen Beweise sorgfältig und verhöre jeden Verdächtigen — ihre Antworten verbergen die Wahrheit. Nutze Hinweise nur, wenn du nicht weiterkommst (maximal 3 pro Fall), und stelle dann deine endgültige Anklage. Wähle weise: Eine falsche Anklage lässt den wahren Täter entkommen!",
-            onboardBtn: "Auf zur Ermittlung →",
+            guideTitle: "Willkommen, Detektiv",
+            guideSubtitle: "Ein kurzer Leitfaden zu allem in The Black File",
+            guideRowArchiveTitle: "Fallarchiv (20 Verbrechen)",
+            guideRowArchiveDesc: "Wähle einen Fall nach Schwierigkeit (Leicht, Mittel, Schwer, Extrem) und beginne die Ermittlung.",
+            guideRowFlowTitle: "So läuft eine Ermittlung ab",
+            guideRowFlowDesc: "Lies die Fallzusammenfassung, untersuche die Beweise und verhöre jeden Verdächtigen — ihre Antworten verbergen die Wahrheit.",
+            guideRowNotesTitle: "Notizen und Hinweise",
+            guideRowNotesDesc: "Mache dir während der Ermittlung Notizen und nutze Hinweise nur, wenn du nicht weiterkommst (maximal 3 pro Fall).",
+            guideRowAccuseTitle: "Endgültige Anklage",
+            guideRowAccuseDesc: "Wähle weise: Eine falsche Anklage lässt den wahren Täter entkommen!",
+            guideRowProfileTitle: "Detektiv-Profil",
+            guideRowProfileDesc: "Zeigt deinen Rang, gelöste Fälle, Trefferquote und freigeschaltete Erfolge.",
+            guideRowChatTitle: "Freundeschat",
+            guideRowChatDesc: "Schreibe oder sprich mit deinen Freunden während des Spiels.",
+            guideRowFriendsTitle: "Mit Freunden spielen",
+            guideRowFriendsDesc: "Drei Modi: 🌍 Mehrspieler-Duell, 🏁 Rennmodus, 📞 Sprachanruf während der Ermittlung.",
+            guideRowLbTitle: "Bestenliste",
+            guideRowLbDesc: "Vergleiche deine Ergebnisse mit anderen Detektiven — zu finden unter ⚙️ Einstellungen.",
+            guideRowSettingsTitle: "Einstellungen",
+            guideRowSettingsDesc: "Ton, Barrierefreiheit, Statistiken, geheime Akte, Sprache — und du kannst diesen Leitfaden hier jederzeit erneut öffnen.",
+            guideBtn: "Auf zur Ermittlung →",
+            showcaseLabel: "🌐 Mit Freunden spielen",
+            lbSettingsBtn: "Bestenliste",
+            helpGroupLabel: "Hilfe",
+            guideSettingsBtn: "Spielanleitung",
             proClose: "Abbrechen",
             proSave: "Profil speichern",
             mpTitle: "🌐 Raum Mit Freunden spielen",
@@ -3459,7 +3619,7 @@ const TRANSLATIONS = {
                     "title":"Stille im Herrenhaus",
                     "brief":"Der wohlhabende Kaufmann Karim Ouazzani wurde tot in seinem privaten Arbeitszimmer im Herrenhaus durch eine tödliche Stichwunde aufgefunden. Die Tür war von innen verschlossen und das Fenster offen.",
                     "victim":"Opfer: Karim Ouazzani (54) - Geschäftsmann.",
-                    "culprit":"Yahya Alami",
+                    "culpritHash": "730bb0fd3d90bf2dfe74490f7c9f484075f9093127ec5d535b8602169dfa7c1b",
                     "evidence":[
                         {"name":"Silberner Dolch","desc":"Sorgfältig abgewischt, hinterließ einen Teilfingerabdruck, der zum Partner Yahya passt."},
                         {"name":"Zerrissener Finanzbrief","desc":"Beweist, dass das Opfer seinem Geschäftspartner Yahya eine riesige Summe schuldete."},
@@ -3482,7 +3642,7 @@ const TRANSLATIONS = {
                     "title":"Auge des Nils Juwel",
                     "brief":"Der seltene blaue Diamant „Auge des Nils“ verschwand in der Eröffnungsnacht spurlos aus seiner Vitrine im Nationalmuseum, ohne dass ein Schloss aufgebrochen wurde.",
                     "victim":"Ort: Nationalmuseum - Juwel im Wert von 10 Millionen Dollar.",
-                    "culprit":"Maher der Kurator",
+                    "culpritHash": "a9747bd9974b48b0cd5f498a34cf21ae2e62427c1dd8ec7b75f1b37e102cbee0",
                     "evidence":[
                         {"name":"Geschnittener Seidenhandschuh","desc":"Wurde neben der Vitrine gefunden."},
                         {"name":"VIP-Zutrittskarte","desc":"Trägt versteckte Fingerabdrücke des Kurators."},
@@ -3505,7 +3665,7 @@ const TRANSLATIONS = {
                     "title":"Wo ist Yasmine?",
                     "brief":"Die Universitätsstudentin Yasmine Alaoui ist seit 3 Tagen verschwunden. Ihr Auto wurde geparkt in der Nähe des dunklen Waldes gefunden, wobei der Schlüssel im Zündschloss steckte.",
                     "victim":"Vermisste Person: Yasmine Alaoui (22).",
-                    "culprit":"Ziad der Ex",
+                    "culpritHash": "f2df9e087b292a5b9e520c46f8ff9c34fbec6f9978c803b10f2aca259107d57b",
                     "evidence":[
                         {"name":"Zerstörtes Telefon","desc":"Am Straßenrand gefunden; der letzte Anruf ging an ihren Ex-Verlobten."},
                         {"name":"Handgeschriebene Drohung","desc":"Ein handgeschriebener Drohbrief in ihrer Handtasche."},
@@ -3528,7 +3688,7 @@ const TRANSLATIONS = {
                     "title":"Gift im Glas",
                     "brief":"Der prominente Literaturkritiker Ramzi Hamid starb unmittelbar nach dem Schlucken von Saft bei seiner Ehrungszeremonie im Opernhaus.",
                     "victim":"Opfer: Ramzi Hamid (61).",
-                    "culprit":"Samer der rivalisierende Autor",
+                    "culpritHash": "94985b12eff6aba5d982e957df90f633d8066484cbb619b06c151a0a4de37054",
                     "evidence":[
                         {"name":"Kontaminierte Saftflasche","desc":"Enthält Spuren von tödlichem Zyanidgift."},
                         {"name":"Gefaltete Serviette","desc":"Hat giftige Pulverrückstände und einen Teilfingerabdruck."},
@@ -3551,7 +3711,7 @@ const TRANSLATIONS = {
                     "title":"Das Rätsel des geschlossenen Raumes",
                     "brief":"Der Geschäftsmann Mamdouh Sabri wurde tot in seinem Hotelzimmer aufgefunden, erstochen. Alle Türen und Fenster waren von innen sicher verschlossen und boten keinen Ausgang.",
                     "victim":"Opfer: Mamdouh Sabri (48).",
-                    "culprit":"Khaled der Wartungstechniker",
+                    "culpritHash": "912529662acd60dee2ef8812d2dfc8993558e1275b174e4f2d7f1cc8c5add202",
                     "evidence":[
                         {"name":"Klimaanlage","desc":"Mit einem Metallkeil blockiert, um den automatischen Türverriegelungsmechanismus zu verzögern."},
                         {"name":"Startpistole","desc":"Aus dem Fenster im obersten Stockwerk geworfen."},
@@ -3574,7 +3734,7 @@ const TRANSLATIONS = {
                     "title":"Das gestohlene Meisterwerk",
                     "brief":"Ein Originalgemälde eines weltberühmten Künstlers wurde aus der Internationalen Galerie gestohlen, wobei an seiner Stelle eine präzise Duplikatkopie aufgehängt wurde.",
                     "victim":"Ort: Internationale Kunstgalerie - Wert 5 Mio. $.",
-                    "culprit":"Fouad der Maler",
+                    "culpritHash": "739e7bef91788af9e5ba6939c37e1e224034f9402acad6d3ffb6a7c3adfa579c",
                     "evidence":[
                         {"name":"Leerer Holzrahmen","desc":"Wurde versteckt hinter der Werkzeugaufbewahrung gefunden."},
                         {"name":"Professioneller Pinsel","desc":"Trägt frische Ölfarbenformulierung."},
@@ -3597,7 +3757,7 @@ const TRANSLATIONS = {
                     "title":"Mitternächtlicher Labor-Mord",
                     "brief":"Der Chemiker Dr. Murad wurde in seinem verschlossenen Labor getötet. Sein letzter getippter PC-Code weist auf seinen Mörder hin.",
                     "victim":"Opfer: Dr. Murad (55) - Chemiker.",
-                    "culprit":"Hani der leitende Assistent",
+                    "culpritHash": "ef65bcaa3c1eca30b6ec9cc9eec4e951c5ede26f41974be28d860a7a118e8c79",
                     "evidence":[
                         {"name":"Zerstörtes Becherglas","desc":"Enthält Rückstände eines Nervengift-Toxins."},
                         {"name":"Laptop-Computer","desc":"Letzte getippte Chiffre stimmt mit dem Namen des leitenden Assistenten überein."},
@@ -3620,7 +3780,7 @@ const TRANSLATIONS = {
                     "title":"Attentat im Expresszug",
                     "brief":"Ein pensionierter Geheimdienstagent starb im Schlafwagenabteil durch einen Schalldämpfer-Schuss in einem dunklen Tunnel.",
                     "victim":"Opfer: Kamal Eddine (62).",
-                    "culprit":"Salim der Geheime",
+                    "culpritHash": "e8505442c5bfe36a78aaa1d9566167f0e7fd9f0953491bcb60e3c8288cfa9a72",
                     "evidence":[
                         {"name":"Schalldämpfer aus Metall","desc":"Wurde bei einer Tunneldurchquerung auf die Gleise geworfen."},
                         {"name":"Gefälschtes Ticket","desc":"Ticket mit falscher Identität, Sitzplatz im nächsten Wagen."},
@@ -3643,7 +3803,7 @@ const TRANSLATIONS = {
                     "title":"Tresorraub",
                     "brief":"Millionen verschwanden aus dem Tresor der nationalen Kabelgesellschaft ohne gewaltsames Eindringen; der digitale Schlüssel war nur beim Direktor.",
                     "victim":"Nationale Kabelgesellschaft - Verlust von 2 Mio. $.",
-                    "culprit":"Ziad der Buchhalter",
+                    "culpritHash": "6a427dc74ef93a9808adc445f23ac75956b1faf65874db1614ec0be7569ecd4f",
                     "evidence":[
                         {"name":"Versteckter Kamera-Clip","desc":"Zeigt eine Person, die den PIN-Code sorgfältig eingibt."},
                         {"name":"Notizzettel","desc":"Enthält Hinweise auf das alte Passwort."},
@@ -3666,7 +3826,7 @@ const TRANSLATIONS = {
                     "title":"Verbrechen am Strand von Andalusien",
                     "brief":"Ein Fischer wurde im Morgengrauen tot am Sand neben einem kleinen Boot mit laufendem Motor aufgefunden.",
                     "victim":"Opfer: Ibrahim Fischer (50).",
-                    "culprit":"Hamza der Jugendliche",
+                    "culpritHash": "f4f76dcaeffc30eeae66b5fbc643ab3dbf2c4987624c5f6bd30afb1dcf9411dd",
                     "evidence":[
                         {"name":"Zerbrochener Ruder aus Holz","desc":"Blutverschmiert mit Kampfspuren."},
                         {"name":"Zerrissenes Fischernetz","desc":"Verstreut in der Nähe der Wasserlinie."},
@@ -3689,7 +3849,7 @@ const TRANSLATIONS = {
                     "title":"Verschwundenes antikes Gemälde",
                     "brief":"Ein seltenes Gemälde verschwand aus dem alten Königspalast, ohne das Alarmsystem auszulösen.",
                     "victim":"Palast des verstorbenen Prinzen - Seltenes Kunstwerk.",
-                    "culprit":"Maher der Dekorateur",
+                    "culpritHash": "1d2921546f05453c9ac2fcc758cd299bf6d58c25ce54002e630f937f66490336",
                     "evidence":[
                         {"name":"Alarm-Umgehungswerkzeug","desc":"High-Tech-Bypass-Gerät."},
                         {"name":"Stoffhandschuh","desc":"Trägt alten Palaststaub."},
@@ -3712,7 +3872,7 @@ const TRANSLATIONS = {
                     "title":"Mord am berühmten Schauspieler",
                     "brief":"Ein prominenter Schauspieler wurde nach der letzten Bühnenaufführung tot in seiner Garderobe im Theater aufgefunden.",
                     "victim":"Opfer: Rafat Rami (45).",
-                    "culprit":"Bassem der Zweitbesetzungsschauspieler",
+                    "culpritHash": "429cf64f45fd99a1e4d9852d59ed9d626da206d27ac94d3780b52ffae48e794a",
                     "evidence":[
                         {"name":"Zerrissenes Skript","desc":"Harte schriftliche Notizen über die Hauptrolle."},
                         {"name":"Requisiten-Seil","desc":"Eine gefälschte Requisite, die in ein echtes Tötungswerkzeug verwandelt wurde."},
@@ -3735,7 +3895,7 @@ const TRANSLATIONS = {
                     "title":"Goldener Zugraub",
                     "brief":"Eine Goldbarren-Sendung im Wert von 1 Mio. $ verschwand nachts mitten auf der Fahrt zwischen Städten aus einem schnellen Frachtzug.",
                     "victim":"Express Transit Corp - Goldbarren.",
-                    "culprit":"Sameh der Zugführer",
+                    "culpritHash": "1240cc69af72ae98a35807ebbbfd5ef48a93854b90db0dd3937419a0c8a1d537",
                     "evidence":[
                         {"name":"Hydraulischer Wagenheber","desc":"Neben den Bahngleisen versteckt."},
                         {"name":"Walkie-Talkie","desc":"Verwendet die Sicherheitsfrequenz des Zugunternehmens."},
@@ -3758,7 +3918,7 @@ const TRANSLATIONS = {
                     "title":"Tod des Archäologen",
                     "brief":"Ein renommierter Archäologe wurde tot in einem frisch geöffneten Grab aufgefunden, wobei eine Reliquientruhe gewaltsam aufgebrochen worden war.",
                     "victim":"Opfer: Dr. Fadel (58).",
-                    "culprit":"Maher der Schmuggler",
+                    "culpritHash": "ed540344798a60a4d50a68eb2ebef0d4a2b8dc05a3360880cb5ae84b38bb94a9",
                     "evidence":[
                         {"name":"Archäologische Hacke","desc":"Blutverschmiert mit dem Blut des Opfers und Fingerabdrücken."},
                         {"name":"Goldene Figur","desc":"Von einem flüchtenden Mörder fallen gelassen."},
@@ -3781,7 +3941,7 @@ const TRANSLATIONS = {
                     "title":"Verschwundenes Privatjet",
                     "brief":"Ein privates Geschäftsflugzeug verschwand über unwegsamem Berg-Luftraum in der Nähe eines dichten Kiefernwaldes.",
                     "victim":"Privatflugzeug - 4 Passagiere.",
-                    "culprit":"Samer der Co-Pilot",
+                    "culpritHash": "7f61a9d227e547bd76354273e5fd5f39be3b373a1655e797eb2b442ddf21690f",
                     "evidence":[
                         {"name":"Zerstörte Flugbox","desc":"Zeigt bewusste Manipulation des Autopilotsystems."},
                         {"name":"Kontaminierter Treibstoff","desc":"Chemikalie hinzugefügt, die Motorenausfall verursacht."},
@@ -3804,7 +3964,7 @@ const TRANSLATIONS = {
                     "title":"Unsichtbares Gift",
                     "brief":"Ein Tycoon wurde in einem befestigten Tresorraum-Büro mit einer seltenen, unauffindbaren Bio-Verbindung vergiftet.",
                     "victim":"Opfer: Fouad Al-Moatasem (60).",
-                    "culprit":"Dr. Ziad",
+                    "culpritHash": "1000bc6cf06fd297a34ffd3d469166961c3aa50a5deed19a7d70257bb5b612ae",
                     "evidence":[
                         {"name":"Medizinische Pipette","desc":"Enthält Mikro-Tropfen Neurotoxin."},
                         {"name":"Trinkglas","desc":"Mit geruchloser Bio-Verbindung vermischt."},
@@ -3827,7 +3987,7 @@ const TRANSLATIONS = {
                     "title":"Raub im lokalen Museum",
                     "brief":"Antike Bronzestatuen verschwanden aus einer Vitrine des lokalen Museums, ohne dass Schlösser aufgebrochen wurden.",
                     "victim":"Lokales Museum - 3 Statuen.",
-                    "culprit":"Rami der Kurator",
+                    "culpritHash": "c949a877ea98a6dabdd97fc5d7dbf61f2b5d144d28245c974dd8b8515d361bf1",
                     "evidence":[
                         {"name":"Standard-Schlüsselsatz","desc":"Öffnet die Glasvitrine reibungslos."},
                         {"name":"Blauer Tintenfleck","desc":"Auf dem Griff des Vitrinenschranks."},
@@ -3850,7 +4010,7 @@ const TRANSLATIONS = {
                     "title":"Verbrechen im Spukhaus",
                     "brief":"Ein älterer Mann wurde tot in einem verlassenen Waldhaus aufgefunden, wobei die Haustür von innen verschlossen war.",
                     "victim":"Opfer: Saleh (75).",
-                    "culprit":"Nabil der Neffe",
+                    "culpritHash": "cad45480eb565803a06a293596d111ce21a451ad7ed2bbe245c81efebc59b936",
                     "evidence":[
                         {"name":"Ersatzschlüssel","desc":"Unter der Fußmatte versteckt."},
                         {"name":"Holzknüppel","desc":"Blutverschmiert mit Kampfspuren."},
@@ -3873,7 +4033,7 @@ const TRANSLATIONS = {
                     "title":"Diplomatisches Dokument",
                     "brief":"Ein streng geheimes diplomatisches Dokument verschwand während eines überfüllten Empfangs aus der Aktentasche des Botschafters.",
                     "victim":"Ausländische Botschaft - Geheimes Dokument.",
-                    "culprit":"Daniel der Reporter",
+                    "culpritHash": "ea42bb325f8d0d940bfd8557da4740b179cba4ad35a4f4227e5d04d0298e79f5",
                     "evidence":[
                         {"name":"Passende Aktentasche","desc":"Gekonnt mit dem Original vertauscht."},
                         {"name":"Gefälschte Einladung","desc":"Hat einen gefälschten Gastnamen."},
@@ -3896,7 +4056,7 @@ const TRANSLATIONS = {
                     "title":"Hochhaus-Attentat",
                     "brief":"Ein Tycoon wurde durch einen Vergiftungspfeil tot in seinem Glasurm-Büro im 50. Stock aufgefunden.",
                     "victim":"Opfer: Ghassan Al-Malik (65).",
-                    "culprit":"Ziad der Rivalisierende",
+                    "culpritHash": "f55a1dd35da1602eb846c05442173784132a0253b0ef253a943e22e2931e8609",
                     "evidence":[
                         {"name":"Vergifteter Mikropfeil","desc":"Aus dem Fenster eines gegenüberliegenden Gebäudes abgefeuert."},
                         {"name":"Professionelle Armbrust","desc":"Auf einem Stativ im gegenüberliegenden Gebäude montiert."},
@@ -3913,7 +4073,8 @@ const TRANSLATIONS = {
                     "explain":"Ziad der Rivalisierende heuerte den Söldner Jehad an, um das Attentat aus der Ferne über Gebäude hinweg auszuführen.",
                     "hints":["Hinweis 1: Untersuchen Sie den vergifteten Mikropfeil und die professionelle Armbrust im gegenüberliegenden Gebäude.","Hinweis 2: Überprüfen Sie den aufgelösten Vertrag, der große finanzielle Verluste für den Hauptmarktrivalen zeigt.","Hinweis 3: Ziad der Rivalisierende heuerte den Scharfschützen Jehad im verlassenen gegenüberliegenden Gebäude an, um das Turmattentat auszuführen."]
                 }
-            ]
+            ],
+            difficultyLabels: {easy: "Leicht", medium: "Mittel", hard: "Schwer", extreme: "Extrem"}
         },
         ar: {
             appTitle: "الملف الأسود | عثمان التومي",
@@ -3924,7 +4085,7 @@ const TRANSLATIONS = {
             statusReady: "جاهز للخدمة",
             archiveTitle: "📁 أرشيف القضايا (20 جريمة)",
             archiveDesc: "اختر من بين 20 قضية ذات صعوبة تصاعدية لبدء تحقيقك.",
-            footerText: "الملف الأسود © 2026 - تصميم: عثمان التومي | بدون إنترنت 100% (اللعب مع الأصدقاء يحتاج إنترنت)",
+            footerText: "الملف الأسود © 2026 - تصميم: عثمان التومي | حل القضايا بدون إنترنت — اللعب مع الأصدقاء يحتاج إنترنت",
             filterAll: "الكل",
             filterEasy: "سهل",
             filterMedium: "متوسط",
@@ -3957,9 +4118,31 @@ const TRANSLATIONS = {
             proNameLabel: "اسم المحقق:",
             proRankLabel: "الرتبة:",
             achLabel: "🎖️ الإنجازات",
-            onboardTitle: "مرحبا بيك أيها المحقق",
-            onboardBody: "عندك 20 قضية جنائية باش تحلها. قرا ملخص القضية، شوف الأدلة المادية مزيان، واستنطق كلشي مشتبه فيه — الجوابات ديالهم فيهم الحقيقة. استعمل التلميحات غير إلا احتجتي (3 كحد أقصى فكل قضية)، ومن بعد دير الاتهام النهائي ديالك. اختار بالعقل: اتهام واحد بريء يخلي الجاني الحقيقي يهرب!",
-            onboardBtn: "يالله نحققو ←",
+        guideTitle: "مرحبا بيك أيها المحقق",
+        guideSubtitle: "دليل سريع لكلشي كاين فـ الملف الأسود",
+        guideRowArchiveTitle: "أرشيف القضايا (20 جريمة)",
+        guideRowArchiveDesc: "اختار قضية حسب الصعوبة (سهلة، متوسطة، صعيبة، صعيبة بزاف) وبدا التحقيق.",
+        guideRowFlowTitle: "كيفاش كيمشي التحقيق",
+        guideRowFlowDesc: "قرا ملخص القضية، شوف الأدلة مزيان، واستنطق كل واحد مشتبه فيه — الجوابات ديالهم فيهم الحقيقة.",
+        guideRowNotesTitle: "ملاحظات المحقق والتلميحات",
+        guideRowNotesDesc: "كتب الملاحظات ديالك منين كتحقق، واستعمل التلميحات غير إلا احتجتي (3 الأقصى فكل قضية).",
+        guideRowAccuseTitle: "الاتهام النهائي",
+        guideRowAccuseDesc: "اختار بالعقل: اتهام واحد بريء غادي يخلي الجاني الحقيقي يهرب!",
+        guideRowProfileTitle: "الملف الشخصي ديال المحقق",
+        guideRowProfileDesc: "كيوري الرتبة ديالك، شحال حليتي من قضية، نسبة الدقة، والإنجازات ديالك.",
+        guideRowChatTitle: "الشات مع الأصدقاء",
+        guideRowChatDesc: "تواصل بالكتابة ولا بالصوت مع الأصدقاء ديالك منين كتلعب.",
+        guideRowFriendsTitle: "لعب مع صاحبك",
+        guideRowFriendsDesc: "تلاتة أوضاع: 🌍 تحدي بين اللاعبين، 🏁 سباق حل القضية، 📞 مكالمة صوتية منين كتحقق.",
+        guideRowLbTitle: "قائمة المتصدرين",
+        guideRowLbDesc: "قارن النتائج ديالك مع المحققين الأخرين — تلقاها فـ ⚙️ الإعدادات.",
+        guideRowSettingsTitle: "الإعدادات",
+        guideRowSettingsDesc: "الصوت، سهولة الاستعمال، الإحصائيات، الملف السري، اللغة — وتقدر تعاود تحل هاد الدليل من هنا فأي وقت.",
+        guideBtn: "يالله نحققو 🔍",
+        showcaseLabel: "🌐 لعب مع صاحبك",
+        lbSettingsBtn: "قائمة المتصدرين",
+        helpGroupLabel: "المساعدة",
+        guideSettingsBtn: "دليل اللعبة",
             proClose: "إلغاء",
             proSave: "حفظ الملف",
             mpTitle: "🌐 غرفة اللعب مع الأصدقاء",
@@ -4018,7 +4201,7 @@ const TRANSLATIONS = {
                     "title":"صمت في القصر",
                     "brief":"عُثر على التاجر الثري كريم وزاني مقتولاً في مكتبه الخاص داخل قصره متأثراً بطعنة قاتلة. كان الباب مقفلاً من الداخل والنافذة مفتوحة.",
                     "victim":"الضحية: كريم وزاني (54 سنة) - رجل أعمال.",
-                    "culprit":"يحيى العلمي",
+                    "culpritHash": "724f726ad2232def6d8f4b57ec80a2690ac0242b9d06bdde4a099195a158b0bf",
                     "evidence":[
                         {"name":"خنجر فضي","desc":"مُسح بعناية، لكنه ترك بصمة جزئية تطابق بصمة الشريك يحيى."},
                         {"name":"رسالة مالية ممزقة","desc":"تثبت أن الضحية كان مديناً بمبلغ ضخم لشريكه يحيى."},
@@ -4041,7 +4224,7 @@ const TRANSLATIONS = {
                     "title":"عين النيل الزرقاء",
                     "brief":"اختفى الماس الأزرق النادر \"عين النيل\" من صندوقه الزجاجي في المتحف الوطني ليلة الافتتاح دون كسر أي قفل.",
                     "victim":"المكان: المتحف الوطني - جوهرة تقدر قيمتها بـ 10 ملايين دولار.",
-                    "culprit":"ماهر أمين المتحف",
+                    "culpritHash": "e3d66d7fdb21ba3a44e2406b5fc6ca5c87862998aaebb427c13c20bf8f9cde8a",
                     "evidence":[
                         {"name":"قفاز حريري مقطوع","desc":"وُجد بجانب صندوق العرض الزجاجي."},
                         {"name":"بطاقة دخول كبار الزوار","desc":"تحمل بصمات خفية تعود لأمين المتحف."},
@@ -4064,7 +4247,7 @@ const TRANSLATIONS = {
                     "title":"أين ياسمين؟",
                     "brief":"اختفت الطالبة الجامعية ياسمين العلوي منذ 3 أيام. عُثر على سيارتها متوقفة قرب الغابة المظلمة والمفتاح لا يزال في المحرك.",
                     "victim":"مفقودة: ياسمين العلوي (22 سنة).",
-                    "culprit":"زياد الخطيب السابق",
+                    "culpritHash": "c5b04e0435abae3ebf32855cf82975c5ee8a87b29d3831e18b2265781bfbf51d",
                     "evidence":[
                         {"name":"هاتف محطم","desc":"وُجد على جانب الطريق؛ آخر مكالمة كانت لخطيبها السابق."},
                         {"name":"رسالة تهديد مكتوبة بخط اليد","desc":"وُجدت داخل حقيبتها."},
@@ -4087,7 +4270,7 @@ const TRANSLATIONS = {
                     "title":"سُم في الكأس",
                     "brief":"توفي الناقد الأدبي البارز رمزي حميد فور احتسائه العصير في حفل تكريمه داخل دار الأوبرا.",
                     "victim":"الضحية: رمزي حميد (61 سنة).",
-                    "culprit":"سامر الكاتب المنافس",
+                    "culpritHash": "afa3d8648b71fae8e78398fa42c68332ede94e2f1e8c1089abaf74ddbac793a8",
                     "evidence":[
                         {"name":"زجاجة عصير ملوثة","desc":"تحتوي آثار سم السيانيد القاتل."},
                         {"name":"منديل مطوي","desc":"يحمل بقايا مسحوق سام وبصمة جزئية."},
@@ -4110,7 +4293,7 @@ const TRANSLATIONS = {
                     "title":"لغز الغرفة المغلقة",
                     "brief":"عُثر على رجل الأعمال ممدوح صبري مطعوناً داخل غرفته بالفندق. كانت جميع الأبواب والنوافذ مقفلة بإحكام من الداخل بلا أي مخرج.",
                     "victim":"الضحية: ممدوح صبري (48 سنة).",
-                    "culprit":"خالد الصيانة",
+                    "culpritHash": "7679260c4528d8a6772b1ee56dd64244b0acee7114c6450136df68dd55c29ff3",
                     "evidence":[
                         {"name":"مكيف الهواء","desc":"عُطّل بقطعة معدنية لتأخير آلية إغلاق الباب التلقائي."},
                         {"name":"مسدس إشارة","desc":"أُلقي من نافذة الطابق العلوي."},
@@ -4133,7 +4316,7 @@ const TRANSLATIONS = {
                     "title":"التحفة المسروقة",
                     "brief":"سُرقت لوحة أصلية لفنان عالمي الشهرة من المعرض الدولي، تاركة نسخة طبق الأصل معلقة مكانها.",
                     "victim":"المكان: المعرض الفني الدولي - قيمة 5 ملايين دولار.",
-                    "culprit":"فؤاد الرسام",
+                    "culpritHash": "ec9c96569b23895711d23f139bbc17f2082863be031f25124966d336822d0f97",
                     "evidence":[
                         {"name":"إطار خشبي فارغ","desc":"وُجد مخبأً خلف مخزن الأدوات."},
                         {"name":"فرشاة رسم احترافية","desc":"تحمل تركيبة طلاء زيتي طازجة."},
@@ -4156,7 +4339,7 @@ const TRANSLATIONS = {
                     "title":"جريمة المختبر عند منتصف الليل",
                     "brief":"قُتل الكيميائي الدكتور مراد داخل مختبره المغلق. آخر شيفرة كتبها على حاسوبه تشير إلى قاتله.",
                     "victim":"الضحية: الدكتور مراد (55 سنة) - كيميائي.",
-                    "culprit":"هاني المساعد الأول",
+                    "culpritHash": "8f82b9a2ef1b28932f6e4f11f7388991f1c5e67da0c21f69820e6e8835e802c3",
                     "evidence":[
                         {"name":"كأس زجاجي محطم","desc":"يحتوي بقايا سم عصبي."},
                         {"name":"حاسوب محمول","desc":"آخر شيفرة مكتوبة تطابق اسم المساعد الأول."},
@@ -4179,7 +4362,7 @@ const TRANSLATIONS = {
                     "title":"اغتيال على متن القطار السريع",
                     "brief":"توفي عميل استخبارات متقاعد داخل عربة النوم من طلقة مكتومة الصوت في نفق مظلم.",
                     "victim":"الضحية: كمال الدين (62 سنة).",
-                    "culprit":"سليم الغامض",
+                    "culpritHash": "99540c2d5e3c230337816fd93c2c67aaefe6d739df9feb4755f44b16d2fe8dd4",
                     "evidence":[
                         {"name":"كاتم صوت معدني","desc":"أُلقي على السكة أثناء عبور النفق."},
                         {"name":"تذكرة مزوّرة","desc":"بهوية مزيفة في العربة التالية."},
@@ -4202,7 +4385,7 @@ const TRANSLATIONS = {
                     "title":"سطو الخزنة",
                     "brief":"اختفت ملايين من خزنة شركة الكابلات الوطنية دون اقتحام؛ المفتاح الرقمي كان بحوزة المدير فقط.",
                     "victim":"شركة الكابلات الوطنية - خسارة مليوني دولار.",
-                    "culprit":"زياد المحاسب",
+                    "culpritHash": "6eeb3873e5b4a0e434ca5abcd6da6b3c7b6f0978ea19c865900838eae7b3235c",
                     "evidence":[
                         {"name":"مقطع كاميرا خفية","desc":"يُظهر شخصاً يُدخل الرمز السري بعناية."},
                         {"name":"ورقة ملاحظات","desc":"تحتوي تلميحات للرمز القديم."},
@@ -4225,7 +4408,7 @@ const TRANSLATIONS = {
                     "title":"جريمة شاطئ الأندلس",
                     "brief":"عُثر على صياد ميتاً على الرمال عند الفجر بجانب قارب صغير محركه لا يزال يعمل.",
                     "victim":"الضحية: إبراهيم الصياد (50 سنة).",
-                    "culprit":"حمزة الشاب",
+                    "culpritHash": "84f7f27584d1a45a0602f1da0cd90464ffed7d41864dbbf4f6814c769a9372eb",
                     "evidence":[
                         {"name":"مجداف خشبي مكسور","desc":"ملطخ بالدماء وآثار عراك."},
                         {"name":"شبكة صيد ممزقة","desc":"متناثرة قرب خط الماء."},
@@ -4248,7 +4431,7 @@ const TRANSLATIONS = {
                     "title":"اللوحة الأثرية المفقودة",
                     "brief":"اختفت لوحة نادرة من القصر الملكي القديم دون تفعيل نظام الإنذار.",
                     "victim":"قصر الأمير الراحل - تحفة فنية نادرة.",
-                    "culprit":"ماهر المصمم",
+                    "culpritHash": "f73d9ce84f8fb2b7cd50dbd4b0711480f908618ea84af76fc7fc99fd3d911e35",
                     "evidence":[
                         {"name":"أداة تعطيل الإنذار","desc":"جهاز تعطيل عالي التقنية."},
                         {"name":"قفاز قماشي","desc":"يحمل غبار القصر القديم."},
@@ -4271,7 +4454,7 @@ const TRANSLATIONS = {
                     "title":"مقتل الممثل الشهير",
                     "brief":"عُثر على ممثل بارز ميتاً في غرفة الاستراحة بالمسرح بعد عرضه الأخير.",
                     "victim":"الضحية: رأفت رامي (45 سنة).",
-                    "culprit":"باسم الممثل البديل",
+                    "culpritHash": "99da79ecc265915ed1d0fc3a6a53eeb8772ddd2af07d58b030aa8146eb9c6137",
                     "evidence":[
                         {"name":"نص مسرحي ممزق","desc":"ملاحظات قاسية حول الدور الرئيسي."},
                         {"name":"حبل إكسسوار","desc":"إكسسوار مزيف تحوّل إلى أداة خنق حقيقية."},
@@ -4294,7 +4477,7 @@ const TRANSLATIONS = {
                     "title":"سطو قطار الذهب",
                     "brief":"اختفت شحنة سبائك ذهب بقيمة مليون دولار من قطار شحن سريع في منتصف رحلته الليلية بين المدن.",
                     "victim":"شركة النقل السريع - سبائك ذهب.",
-                    "culprit":"سامح سائق القطار",
+                    "culpritHash": "c7e5d0f43c1d7d141842f8fa0a23013ce2b9b0b75f0cfe242cdc92538a87d0fb",
                     "evidence":[
                         {"name":"رافعة هيدروليكية","desc":"مخبأة بجانب سكة الحديد."},
                         {"name":"جهاز لاسلكي","desc":"يستخدم تردد أمن شركة القطارات."},
@@ -4317,7 +4500,7 @@ const TRANSLATIONS = {
                     "title":"موت عالم الآثار",
                     "brief":"عُثر على عالم آثار شهير ميتاً داخل مقبرة حديثة الفتح مع صندوق تحف مكسور.",
                     "victim":"الضحية: الدكتور فاضل (58 سنة).",
-                    "culprit":"ماهر المهرّب",
+                    "culpritHash": "477fff58f9f171f993f573c77a56012b59018cd1c07519895c229546c0853c0f",
                     "evidence":[
                         {"name":"فأس حفريات","desc":"ملطخ بدماء الضحية وبصماته."},
                         {"name":"تمثال ذهبي صغير","desc":"سقط من القاتل أثناء هروبه."},
@@ -4340,7 +4523,7 @@ const TRANSLATIONS = {
                     "title":"الطائرة الخاصة المفقودة",
                     "brief":"اختفت طائرة أعمال خاصة فوق مجال جوي جبلي وعر قرب غابة صنوبر كثيفة.",
                     "victim":"طائرة خاصة - 4 ركاب.",
-                    "culprit":"سامر مساعد الطيار",
+                    "culpritHash": "1473c2b31bd2c48d6063bd2fbb95128594d2849009c4369308484d081d71f0dc",
                     "evidence":[
                         {"name":"صندوق رحلة محطم","desc":"يُظهر عبثاً متعمداً بنظام الطيار الآلي."},
                         {"name":"وقود ملوث","desc":"أُضيفت مادة كيميائية تسببت في توقف المحرك."},
@@ -4363,7 +4546,7 @@ const TRANSLATIONS = {
                     "title":"السمّ الخفي",
                     "brief":"سُمّم رجل أعمال ثري داخل مكتبه المحصّن باستخدام مركب بيولوجي نادر لا يمكن كشفه.",
                     "victim":"الضحية: فؤاد المعتصم (60 سنة).",
-                    "culprit":"الدكتور زياد",
+                    "culpritHash": "79cca0c23b2e44b87b46c283658420f853c13decb290b3afb53e38f6c3a0d090",
                     "evidence":[
                         {"name":"قطارة طبية","desc":"تحتوي قطرات دقيقة من سم عصبي."},
                         {"name":"كأس ماء","desc":"مخلوط بمركب بيولوجي عديم الرائحة."},
@@ -4386,7 +4569,7 @@ const TRANSLATIONS = {
                     "title":"سطو المتحف المحلي",
                     "brief":"اختفت تماثيل برونزية أثرية من صندوق عرض المتحف المحلي دون كسر الأقفال.",
                     "victim":"المتحف المحلي - 3 تماثيل.",
-                    "culprit":"رامي أمين المتحف",
+                    "culpritHash": "f7bbcbb61ad2380b9bdc8d61f44a6ceca1d041a9c664ce24d5210abec501fdf5",
                     "evidence":[
                         {"name":"مجموعة مفاتيح عادية","desc":"تفتح صندوق العرض الزجاجي بسهولة."},
                         {"name":"علامة حبر أزرق","desc":"على مقبض خزانة العرض."},
@@ -4409,7 +4592,7 @@ const TRANSLATIONS = {
                     "title":"جريمة المنزل المسكون",
                     "brief":"عُثر على رجل مسنّ مقتولاً في منزل مهجور بالغابة مع إغلاق الباب الأمامي من الداخل.",
                     "victim":"الضحية: صالح (75 سنة).",
-                    "culprit":"نبيل ابن الأخ",
+                    "culpritHash": "53d07ed060f37af5e1959e283aeaf343238f76817ed9b81838ca66bf629dfb1e",
                     "evidence":[
                         {"name":"مفتاح احتياطي","desc":"مخبأ تحت دواسة الباب."},
                         {"name":"هراوة خشبية","desc":"ملطخة بالدماء وآثار عراك."},
@@ -4432,7 +4615,7 @@ const TRANSLATIONS = {
                     "title":"الوثيقة الدبلوماسية",
                     "brief":"اختفت وثيقة دبلوماسية سرية للغاية من حقيبة السفير أثناء حفل استقبال مزدحم.",
                     "victim":"السفارة الأجنبية - وثيقة سرية.",
-                    "culprit":"دانيال المراسل",
+                    "culpritHash": "dd82446de5206683407979c78c546060c5dbea3511e621741e4d0f51f1707da1",
                     "evidence":[
                         {"name":"حقيبة مطابقة","desc":"استُبدلت بمهارة بالحقيبة الأصلية."},
                         {"name":"دعوة مزوّرة","desc":"تحمل اسم ضيف مزيف."},
@@ -4455,7 +4638,7 @@ const TRANSLATIONS = {
                     "title":"اغتيال ناطحة السحاب",
                     "brief":"عُثر على رجل أعمال ميتاً بسهم مسموم داخل مكتبه الزجاجي في الطابق الخمسين.",
                     "victim":"الضحية: غسان الملك (65 سنة).",
-                    "culprit":"زياد المنافس",
+                    "culpritHash": "6e81ef595ed048a63299a13aa130642c4df1a8194c6fbb626c7202e1da417b61",
                     "evidence":[
                         {"name":"سهم مسموم دقيق","desc":"أُطلق من نافذة مبنى مقابل."},
                         {"name":"قوس احترافي","desc":"مثبت على حامل ثلاثي في المبنى المقابل."},
@@ -4472,6 +4655,7 @@ const TRANSLATIONS = {
                     "explain":"استأجر زياد المنافس القناص جهاد لتنفيذ عملية الاغتيال طويلة المدى من المبنى المقابل.",
                     "hints":["تلميح 1: افحص السهم المسموم الدقيق والقوس الاحترافي المثبت في المبنى المقابل.","تلميح 2: تفقد العقد الملغى الذي يوضح الخسائر المالية الضخمة للمنافس الرئيسي بالسوق.","تلميح 3: استأجر زياد المنافس القناص جهاد في المبنى المقابل المهجور لتنفيذ اغتيال الناطحة."]
                 }
-            ]
+            ],
+            difficultyLabels: {easy: "سهل", medium: "متوسط", hard: "صعب", extreme: "مستحيل"}
         }
     };

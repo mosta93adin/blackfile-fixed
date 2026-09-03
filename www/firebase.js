@@ -46,7 +46,7 @@ export async function loginOrSignupWithEmail(email, password, confirmPassword) {
   try {
     return await signInWithEmailAndPassword(auth, email, password);
   } catch (error) {
-    const noAccountYet = error?.code === 'auth/user-not-found' || error?.code === 'auth/invalid-credential';
+    const noAccountYet = error?.code === 'auth/user-not-found';
     if (noAccountYet) {
       // إصلاح: كان الحساب كيتنشأ مباشرة هنا بلا ما نتأكدو من تطابق
       // "Password" مع "Confirm Password" — الفحص القديم فـ app.js كان
@@ -70,36 +70,36 @@ export async function resetPassword(email) {
 // تسجيل الدخول بـ Google الأصلي (native) عبر @capacitor-firebase/authentication.
 // هاد الطريقة كتبدل signInWithRedirect اللي ماخدامش داخل WebView ديال Capacitor
 // (كانت كتحاول ترجع لـ localhost فالهاتف وما لقاتش سيرفر → ERR_CONNECTION_REFUSED).
-export async function loginWithGoogle() {
+// txx: optional translator function (key) => string. When provided, error alerts
+// are shown in the user's current language. Falls back to English when not passed.
+export async function loginWithGoogle(txx) {
+  const translate = (typeof txx === 'function') ? txx : null;
   try {
     await initializeAuthPersistence();
 
     const FirebaseAuthentication = window?.Capacitor?.Plugins?.FirebaseAuthentication;
     if (!FirebaseAuthentication) {
-      throw new Error('FirebaseAuthentication plugin غير موجود. تأكد من npm install @capacitor-firebase/authentication ثم npx cap sync android.');
+      throw new Error('FirebaseAuthentication plugin not found. Run: npm install @capacitor-firebase/authentication && npx cap sync android');
     }
 
-    // يفتح نافذة تسجيل دخول Google الأصلية ديال أندرويد (مو WebView)
+    // Opens native Android Google sign-in (not WebView)
     const result = await FirebaseAuthentication.signInWithGoogle();
 
     const idToken = result?.credential?.idToken;
     if (!idToken) {
-      throw new Error('لم يتم استلام idToken من Google.');
+      throw new Error('No idToken received from Google.');
     }
 
-    // نربط النتيجة الأصلية مع Firebase JS SDK باش يبان المستخدم فـ onAuthStateChanged
+    // Link native result with Firebase JS SDK so user appears in onAuthStateChanged
     const credential = GoogleAuthProvider.credential(idToken);
     await signInWithCredential(auth, credential);
   } catch (error) {
     console.error('Google sign-in failed:', error);
-    alert('حدث خطأ أثناء تسجيل الدخول: ' + error.message);
+    // Use localized alert — pass the translator from app.js so errors show in
+    // the user's selected language. Falls back to English when unavailable.
+    const msg = (translate && translate('loginGoogleFailedFallback')) || 'Google sign-in failed.';
+    alert(msg + ' ' + (error.message || ''));
   }
-}
-
-// أُبقيت عليها بلا فعل حتى لا ينكسر app.js اللي كيستدعيها عند الإقلاع.
-// ماعادش ضرورية مع الطريقة الأصلية (native) لأن signInWithGoogle كيرجع النتيجة مباشرة.
-export async function checkRedirectResult() {
-  return null;
 }
 
 export {
@@ -114,5 +114,4 @@ if (typeof window !== 'undefined') {
   window.loginOrSignupWithEmail = loginOrSignupWithEmail;
   window.resetPassword = resetPassword;
   window.loginWithGoogle = loginWithGoogle;
-  window.checkRedirectResult = checkRedirectResult;
 }

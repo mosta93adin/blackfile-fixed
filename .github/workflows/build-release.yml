@@ -1,0 +1,104 @@
+name: Build Release APK
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ "v*" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+      - name: Install Dependencies
+        run: |
+          npm install
+          npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/filesystem @capacitor/share
+      - name: Add & Sync Capacitor Android
+        run: |
+          chmod +x ./node_modules/.bin/* || true
+          if [ ! -d "android" ]; then
+            npx @capacitor/cli add android
+          fi
+          npx @capacitor/cli sync android
+      - name: Restore google-services.json (if missing, decode from secret)
+        run: |
+          if [ ! -f "android/app/google-services.json" ]; then
+            echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > android/app/google-services.json
+          fi
+          # Verify the file is not empty (fails gracefully with clear error)
+          if [ ! -s "android/app/google-services.json" ] || [ $(wc -c < "android/app/google-services.json") -lt 100 ]; then
+            echo "ERROR: GOOGLE_SERVICES_JSON_BASE64 secret مفقود أو فارغ — ملف google-services.json غير صالح"
+            exit 1
+          fi
+      - name: Add required permissions to AndroidManifest
+        run: |
+          for PERM in "RECORD_AUDIO" "MODIFY_AUDIO_SETTINGS" "ACCESS_NETWORK_STATE" "POST_NOTIFICATIONS"; do
+            if ! grep -q "android.permission.$PERM" android/app/src/main/AndroidManifest.xml; then
+              sed -i "/<application/i\\    <uses-permission android:name=\"android.permission.$PERM\" />" android/app/src/main/AndroidManifest.xml
+            fi
+          done
+      - name: Decode Release Keystore
+        run: |
+          echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Verify Icon Exists
+        run: |
+          if [ ! -f "resources/icon.png" ]; then
+            echo "ERROR: resources/icon.png missing"
+            exit 1
+          fi
+      - name: Generate Android App Icons
+        run: |
+          npx capacitor-assets generate --android --iconBackgroundColor '#0e1015' --iconBackgroundColorSplash '#0e1015'
+      - name: Build Release APK with Gradle
+        env:
+          RELEASE_KEYSTORE_PATH: android/app/release.keystore
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease
+      - name: Verify APK Signature (CN=Othmane ettoumi)
+        run: |
+          CERT_INFO=$(keytool -printcert -jarfile android/app/build/outputs/apk/release/app-release.apk 2>&1)
+          echo "$CERT_INFO"
+          if ! echo "$CERT_INFO" | grep -q "CN=Othmane ettoumi"; then
+            echo "ERROR: APK signature Owner is not CN=Othmane ettoumi. Release build rejected."
+            exit 1
+          fi
+          echo "APK signature verified: CN=Othmane ettoumi"
+      - name: Upload Release APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
