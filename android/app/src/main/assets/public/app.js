@@ -729,6 +729,14 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
             .replace(/'/g, '&#39;');
     }
 
+    // Sanitize notes: strip all HTML tags to prevent stored XSS.
+    // Even though textarea.value is safe, we sanitize before saving so that
+    // if notes are ever rendered elsewhere (e.g. a preview pane), they are clean.
+    function sanitizeNotes(text) {
+        if (typeof text !== 'string') return '';
+        return text.replace(/<[^>]*>/g, '');
+    }
+
     // تحديث ترجمات مستويات الصعوبة لتشمل جميع اللغات الجديدة
     function getCaseTier(idx) { return Math.floor(idx / 5); }
     const UNLOCK_THRESHOLD = 2;
@@ -1156,7 +1164,9 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
     function saveNotes() {
         // Fix: Actually read and persist notes to userProfile/localStorage
         const notesEl = document.getElementById('notes-text');
-        const text = notesEl ? notesEl.value : '';
+        const rawText = notesEl ? notesEl.value : '';
+        // Sanitize: strip HTML tags to prevent stored XSS
+        const text = sanitizeNotes(rawText);
         if (!userProfile.notes) userProfile.notes = {};
         userProfile.notes[currentCaseIndex] = text;
         const saved = saveUserProfile();
