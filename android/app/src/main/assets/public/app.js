@@ -1,5 +1,5 @@
-import { auth as firebaseAuth, db, checkRedirectResult, initializeAuthPersistence, loginWithGoogle as loginWithGoogleRedirect, loginOrSignupWithEmail, resetPassword, onAuthStateChanged } from './firebase.js';
-import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { auth as firebaseAuth, db, initializeAuthPersistence, loginWithGoogle as loginWithGoogleRedirect, loginOrSignupWithEmail, resetPassword, onAuthStateChanged } from './firebase.js';
+import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDocs, serverTimestamp, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // The Black File — app logic (UI, game state, achievements, multiplayer, accessibility, etc.)
 // Depends on translations.js being loaded first (uses the global TRANSLATIONS).
@@ -7,11 +7,27 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
 // -- بيانات اللعبة والترجمات الشاملة (20 قضية كاملة بـ 8 لغات: الإنجليزية، العربية، الدارجة المغربية، الفرنسية، الإسبانية، الإيطالية، الألمانية، البرتغالية) ---
     
 
-        let currentLang = 'en';
+        // إصلاح: اللغة المختارة ما كانتش كتنحفظ فأي مكان — فكل مرة كيتسد
+        // التطبيق (أو يتسجل خروج ويدخل من جديد) كانت كترجع لـ 'en' الافتراضية
+        // بغض النظر عن اللغة اللي بدلها المستخدم قبل. دابا كنقراوها من
+        // localStorage عند الإقلاع، وكنحفظوها فـ changeLang().
+        const LANG_STORAGE_KEY = 'tf_lang';
+        function loadSavedLang() {
+            try {
+                const saved = localStorage.getItem(LANG_STORAGE_KEY);
+                if (saved && TRANSLATIONS[saved]) return saved;
+            } catch (e) { /* storage blocked — fall back to default */ }
+            return 'en';
+        }
+        let currentLang = loadSavedLang();
     let currentCaseIndex = 0;
     let selectedSuspect = null;
     let askedQuestions = {};
     let activeFilter = 'all';
+    // Cache for server-validated solved cases (Firestore). null = not loaded / offline.
+    let cloudSolvedCases = null;
+    // True only after loadCloudProgress() completes (online). Until then, isCaseUnlocked returns false.
+    let cloudProgressLoaded = false;
 
     const VOICE_LOCALES = { 
         en: 'en-US', 
@@ -247,12 +263,8 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         document.getElementById('txt-pro-rank-label').textContent = t.proRankLabel;
         const achLabelEl = document.getElementById('txt-pro-ach-label');
         if (achLabelEl) achLabelEl.textContent = t.achLabel;
-        const obTitle = document.getElementById('txt-onboard-title');
-        const obBody = document.getElementById('txt-onboard-body');
-        const obBtn = document.getElementById('txt-onboard-btn');
-        if (obTitle) obTitle.textContent = t.onboardTitle;
-        if (obBody) obBody.textContent = t.onboardBody;
-        if (obBtn) obBtn.textContent = t.onboardBtn;
+        // ملاحظة: شاشة "دليل اللعبة" (modal-onboard) أصبحت قابلة للترجمة الآن
+        // (بناءً على طلب المستخدم)، مربوطة بمفاتيح guide* أسفله.
         document.getElementById('txt-pro-close').textContent = t.proClose;
         document.getElementById('txt-pro-save').textContent = t.proSave;
         document.getElementById('txt-mp-title').textContent = t.mpTitle;
@@ -301,12 +313,15 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         showLoader();
         setTimeout(() => {
             currentLang = TRANSLATIONS[lang] ? lang : 'en';
+            try { localStorage.setItem(LANG_STORAGE_KEY, currentLang); } catch (e) { /* storage blocked — language just won't persist */ }
             const body = document.getElementById('body-tag');
             if (currentLang === 'ar' || currentLang === 'ary') {
                 body.setAttribute('dir', 'rtl');
             } else {
                 body.setAttribute('dir', 'ltr');
             }
+            document.documentElement.setAttribute('dir', (currentLang === 'ar' || currentLang === 'ary') ? 'rtl' : 'ltr');
+            document.documentElement.setAttribute('lang', currentLang);
             updateUITexts();
             updateExtraUITexts();
             renderMenu(activeFilter);
@@ -322,9 +337,9 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         const target = document.getElementById(screenId);
         if (target) target.classList.add('active');
         if (screenId === 'scr-investigation') {
-            startAmbient();
+            // تمت إزالة الصوت المحيطي (ambient drone) نهائياً بطلب المستخدم — كان مزعجاً
+            // في السماعات عند الدخول لأي قضية.
         } else {
-            stopAmbient();
             stopCaseTimer();
         }
         // اجعل زر الرجوع (فيزيائي على أندرويد أو سحبة الرجوع على iOS) يرجع لشاشة القائمة
@@ -358,10 +373,10 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         e.preventDefault();
         const activeScreen = document.querySelector('.screen.active');
         if (activeScreen && activeScreen.id === 'scr-menu' && !document.querySelector('.modal-bg.active')) {
-            if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+            if (window.Capacitor?.Plugins?.App) {
                 window.Capacitor.Plugins.App.exitApp();
-            } else if (navigator.app && navigator.app.exitApp) {
-                navigator.app.exitApp();
+            } else {
+                console.log('Exit app not supported on this platform');
             }
         } else {
             history.back();
@@ -390,7 +405,13 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
     // Called when a Timed Challenge run's clock reaches zero: forces the
     // attempt to end as a failed case (instead of silently doing nothing).
     function handleCaseTimeout() {
-        if (raceActive) return; // race mode has its own win/lose flow
+        if (raceActive) {
+            // Fix: في وضع السباق، نخفي المؤقت ونوقفه فعلياً قبل الخروج الصامت
+            const timerEl = document.getElementById('inv-timer');
+            if (timerEl) timerEl.style.display = 'none';
+            stopCaseTimer();
+            return;
+        }
         const scrInv = document.getElementById('scr-investigation');
         if (!scrInv || !scrInv.classList.contains('active')) return; // already left this case
 
@@ -433,7 +454,7 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         el.textContent = '⏱ ' + m + ':' + s;
     }
 
-    const HINTS_BY_DIFFICULTY = { easy: 4, medium: 3, hard: 2, extreme: 1 };
+    const HINTS_BY_DIFFICULTY = { easy: 3, medium: 3, hard: 2, extreme: 1 };
     const TIMER_SECONDS_BY_DIFFICULTY = { easy: 900, medium: 600, hard: 420, extreme: 240 };
 
     function getMaxHintsForCase(idx) {
@@ -456,79 +477,6 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         if (btn) btn.style.opacity = left <= 0 ? '0.5' : '1';
     }
 
-    let ambientNodes = null;
-
-    function startAmbient() {
-        if (soundMuted || ambientNodes) return;
-        try {
-            const ctx = getAudioCtx();
-            if (!ctx) return;
-            const masterGain = ctx.createGain();
-            masterGain.gain.setValueAtTime(0.0001, ctx.currentTime);
-            masterGain.gain.linearRampToValueAtTime(0.03, ctx.currentTime + 2);
-            masterGain.connect(ctx.destination);
-            const osc1 = ctx.createOscillator();
-            osc1.type = 'sine';
-            osc1.frequency.value = 55;
-            const osc2 = ctx.createOscillator();
-            osc2.type = 'sine';
-            osc2.frequency.value = 82.5;
-            osc1.connect(masterGain);
-            osc2.connect(masterGain);
-            osc1.start();
-            osc2.start();
-
-            // Subtle filtered noise + slow-drifting filter for a tense "detective" texture
-            let noiseSource = null, noiseFilter = null, noiseGain = null, lfo = null, lfoGain = null;
-            try {
-                const bufferSize = ctx.sampleRate * 2;
-                const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-                const output = noiseBuffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) { output[i] = (Math.random() * 2 - 1) * 0.6; }
-                noiseSource = ctx.createBufferSource();
-                noiseSource.buffer = noiseBuffer;
-                noiseSource.loop = true;
-                noiseFilter = ctx.createBiquadFilter();
-                noiseFilter.type = 'lowpass';
-                noiseFilter.frequency.value = 400;
-                noiseFilter.Q.value = 0.7;
-                noiseGain = ctx.createGain();
-                noiseGain.gain.value = 0.025;
-                lfo = ctx.createOscillator();
-                lfo.type = 'sine';
-                lfo.frequency.value = 0.05;
-                lfoGain = ctx.createGain();
-                lfoGain.gain.value = 150;
-                lfo.connect(lfoGain);
-                lfoGain.connect(noiseFilter.frequency);
-                noiseSource.connect(noiseFilter);
-                noiseFilter.connect(noiseGain);
-                noiseGain.connect(masterGain);
-                noiseSource.start();
-                lfo.start();
-            } catch (e) { /* noise layer is optional polish - ignore if unsupported */ }
-
-            ambientNodes = { ctx, masterGain, osc1, osc2, noiseSource, lfo };
-        } catch (e) { /* silent - non-critical ambience */ }
-    }
-
-    function stopAmbient() {
-        if (!ambientNodes) return;
-        try {
-            const { ctx, masterGain, osc1, osc2, noiseSource, lfo } = ambientNodes;
-            const now = ctx.currentTime;
-            masterGain.gain.cancelScheduledValues(now);
-            masterGain.gain.setValueAtTime(masterGain.gain.value, now);
-            masterGain.gain.linearRampToValueAtTime(0.0001, now + 0.5);
-            setTimeout(() => {
-                try { osc1.stop(); osc2.stop(); } catch (e) {}
-                try { if (noiseSource) noiseSource.stop(); } catch (e) {}
-                try { if (lfo) lfo.stop(); } catch (e) {}
-            }, 600);
-        } catch (e) { /* silent */ }
-        ambientNodes = null;
-    }
-
     function resumeLastCase() {
         if (typeof userProfile.lastCaseIndex === 'number' && userProfile.lastCaseIndex !== null) {
             openBrief(userProfile.lastCaseIndex);
@@ -548,9 +496,37 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         banner.style.display = 'block';
     }
 
-    function exportProgress() {
+    async function exportProgress() {
         try {
-            const blob = new Blob([JSON.stringify(userProfile, null, 2)], { type: 'application/json' });
+            const jsonData = JSON.stringify(userProfile, null, 2);
+            // إذا كنا داخل WebView أندرويد (Capacitor)، نستخدم Filesystem + Share
+            if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+                const Filesystem = window.Capacitor.Plugins?.Filesystem;
+                const Share = window.Capacitor.Plugins?.Share;
+                if (!Filesystem || !Share) {
+                    throw new Error('Capacitor Filesystem/Share plugin not available');
+                }
+                await Filesystem.writeFile({
+                    path: 'black-file-progress.json',
+                    data: jsonData,
+                    directory: 'Cache',
+                    encoding: 'utf8'
+                });
+                const fileUri = await Filesystem.getUri({
+                    path: 'black-file-progress.json',
+                    directory: 'Cache'
+                });
+                await Share.share({
+                    title: 'The Black File - Progress Export',
+                    text: 'My detective progress export',
+                    url: fileUri.uri,
+                    dialogTitle: 'Save or share your progress'
+                });
+                playClickSound();
+                return;
+            }
+            // سلوك المتصفح: تحميل الملف عبر Blob
+            const blob = new Blob([jsonData], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -560,7 +536,9 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             playClickSound();
-        } catch (e) { /* silent */ }
+        } catch (e) {
+            alert((typeof txx === 'function' && txx('importInvalidFileText')) || 'Export failed.');
+        }
     }
 
     function importProgress(event) {
@@ -586,7 +564,7 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
                 renderResumeBanner();
                 playClickSound();
             } catch (e) {
-                alert('Invalid progress file.');
+                alert(txx('importInvalidFileText'));
             }
         };
         reader.readAsText(file);
@@ -756,12 +734,24 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
     const UNLOCK_THRESHOLD = 2;
 
     function isCaseUnlocked(idx) {
+        // Use server-validated data when available; fallback to local for offline mode
+        // SECURITY: If online and cloud data not yet loaded, return false (locked) to prevent race window
+        let solvedCases;
+        if (cloudSolvedCases !== null) {
+            solvedCases = cloudSolvedCases;
+        } else if (!cloudProgressLoaded && firebaseAuth.currentUser && !isOfflineMode()) {
+            // Online + not yet loaded = treat as locked until server data arrives
+            return false;
+        } else {
+            // Offline mode or no user: use local data
+            solvedCases = userProfile.solvedCases;
+        }
         const tier = getCaseTier(idx);
         if (tier === 0) return true;
         const start = (tier - 1) * 5;
         let solvedInPrevTier = 0;
         for (let i = start; i < start + 5; i++) {
-            if (userProfile.solvedCases.includes(i)) solvedInPrevTier++;
+            if (solvedCases.includes(i)) solvedInPrevTier++;
         }
         return solvedInPrevTier >= UNLOCK_THRESHOLD;
     }
@@ -770,26 +760,22 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         activeFilter = filter;
         const list = document.getElementById('case-list');
         list.innerHTML = '';
-                const data = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+        const data = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
         let cases = data.cases;
         // فوضع "بدون إنترنت" (Guest/Offline)، نوريو غير أول 10 قضايا
         if (isOfflineMode()) {
             cases = cases.slice(0, 10);
+            // إضافة بانر تنبيهي يوضح سبب ظهور 10 قضايا فقط
+            const banner = document.createElement('div');
+            banner.id = 'offline-info-banner';
+            banner.className = 'offline-info-banner';
+            banner.innerHTML = `<span class="offline-banner-icon">📡</span><span>${escapeHtml(txx('offlineLimitedCasesMsg'))}</span>`;
+            list.appendChild(banner);
         }
 
         cases.forEach((c, idx) => {
             const diffClass = 'diff-' + c.difficulty;
-            const diffTextMap = {
-                en: {easy:'Easy',medium:'Medium',hard:'Hard',extreme:'Extreme'},
-                ar: {easy:'سهل',medium:'متوسط',hard:'صعب',extreme:'خبير'},
-                ary: {easy:'ساهل',medium:'متوسط',hard:'صعيب',extreme:'محترف'},
-                fr: {easy:'Facile',medium:'Moyen',hard:'Difficile',extreme:'Extrême'},
-                es: {easy:'Fácil',medium:'Medio',hard:'Difícil',extreme:'Extremo'},
-                it: {easy:'Facile',medium:'Medio',hard:'Difficile',extreme:'Estremo'},
-                de: {easy:'Leicht',medium:'Mittel',hard:'Schwer',extreme:'Extrem'},
-                pt: {easy:'Fácil',medium:'Médio',hard:'Difícil',extreme:'Extremo'}
-            };
-            const diffText = (diffTextMap[currentLang] || diffTextMap.en)[c.difficulty];
+            const diffText = (translations[currentLang]?.difficultyLabels || translations.en.difficultyLabels)[c.difficulty];
 
             if (filter !== 'all' && c.difficulty !== filter) return;
 
@@ -807,7 +793,7 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
                 <h4 style="margin:8px 0 6px 0; color:var(--gold);">${idx + 1}. ${escapeHtml(c.title)} ${unlocked ? '' : '🔒'}</h4>
                 <p style="font-size:12.5px; color:var(--paper-dim); margin:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${unlocked ? escapeHtml(c.brief) : '🔒'}</p>
             `;
-            if (unlocked) { card.onclick = () => openBrief(idx); }
+            if (unlocked) { card.dataset.action = 'openBrief'; card.dataset.caseIdx = idx; }
             list.appendChild(card);
         });
     }
@@ -866,7 +852,6 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         document.getElementById('inv-case-title').textContent = c.title;
         caseStartTime = Date.now();
         if (!raceActive) consumeEnergyUsage();
-        ensureShuffledCulprit(currentCaseIndex, c);
 
         const timedToggle = document.getElementById('brief-timed-toggle');
         const timerEl = document.getElementById('inv-timer');
@@ -887,7 +872,7 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
             const div = document.createElement('div');
             div.className = 'pick';
             div.innerHTML = `<b>${getEvidenceIcon(ev.name)} ${escapeHtml(ev.name)}</b>`;
-            div.onclick = () => openEvidenceModal(ev.name, ev.desc);
+            div.dataset.action = 'openEvidence'; div.dataset.evName = ev.name; div.dataset.evDesc = ev.desc;
             evList.appendChild(div);
         });
 
@@ -898,7 +883,7 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
             const div = document.createElement('div');
             div.className = 'pick';
             div.innerHTML = `<b>${getSuspectIcon(sus.role)} ${escapeHtml(sus.name)}</b> <span style="font-size:11px; color:var(--paper-dim);">(${escapeHtml(sus.role)})</span>`;
-            div.onclick = () => openSuspectModal(i);
+            div.dataset.action = 'openSuspect'; div.dataset.suspectIdx = i;
             susList.appendChild(div);
         });
 
@@ -936,18 +921,9 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
                 ansDiv.innerHTML = `<b>${escapeHtml(data.answerLabel)}</b> ${escapeHtml(qa.a)}`;
                 btn.appendChild(ansDiv);
             }
-            btn.onclick = () => {
-                askedQuestions[qKey] = true;
-                btn.classList.add('asked');
-                if (!btn.querySelector('.ans')) {
-                    const ansDiv = document.createElement('div');
-                    ansDiv.className = 'ans';
-                    ansDiv.style.marginTop = '6px';
-                    ansDiv.innerHTML = `<b>${escapeHtml(data.answerLabel)}</b> ${escapeHtml(qa.a)}`;
-                    btn.appendChild(ansDiv);
-                }
-                playClickSound();
-            };
+            btn.dataset.action = 'askQuestion';
+            btn.dataset.qKey = qKey;
+            btn.dataset.answer = qa.a;
             qDiv.appendChild(btn);
         });
 
@@ -971,12 +947,8 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
             const div = document.createElement('div');
             div.className = 'pick';
             div.innerHTML = `<b>${getSuspectIcon(sus.role)} ${escapeHtml(sus.name)}</b> <span style="font-size:11px; color:var(--paper-dim);">(${escapeHtml(sus.role)})</span>`;
-            div.onclick = () => {
-                document.querySelectorAll('#accuse-suspects-list .pick').forEach(p => p.classList.remove('selected'));
-                div.classList.add('selected');
-                selectedSuspect = sus.name;
-                playClickSound();
-            };
+            div.dataset.action = 'selectAccusedSuspect';
+            div.dataset.susName = sus.name;
             list.appendChild(div);
         });
 
@@ -984,7 +956,16 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         playClickSound();
     }
 
-    function submitAccusation() {
+    // SALT must match the one used in tools/hash.js to hash culprit names
+    const CULPRIT_SALT = 'blackfile-detective-2026-CHANGE-THIS';
+    async function sha256(text) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(text);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+    async function submitAccusation() {
         const data = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
         if (!selectedSuspect) {
             alert(data.selectSuspectAlert);
@@ -992,8 +973,8 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         }
         closeModal('modal-accuse');
         const c = data.cases[currentCaseIndex];
-        const effectiveCulprit = shuffledCulprit[currentCaseIndex] || c.culprit;
-        const isCorrect = selectedSuspect === effectiveCulprit;
+        const suspectHash = await sha256(CULPRIT_SALT + selectedSuspect.toLowerCase());
+        const isCorrect = suspectHash === c.culpritHash;
         stopCaseTimer();
         const elapsedMs = Date.now() - (caseStartTime || Date.now());
 
@@ -1001,28 +982,34 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         const resTitle = document.getElementById('res-title');
         const resDesc = document.getElementById('res-desc');
 
-        userProfile.attempts += 1;
+        const alreadySolved = userProfile.solvedCases.includes(currentCaseIndex);
+        // Fix: Do not count attempts/correctAttempts for already-solved cases to prevent accuracy inflation
+        if (!alreadySolved) {
+            userProfile.attempts += 1;
+        }
 
         let explainText = c.explain;
-        if (shuffledCulprit[currentCaseIndex]) {
-            const susObj = c.suspects.find(s => s.name === effectiveCulprit);
-            explainText = txx('shuffledExplain').replace('{name}', effectiveCulprit).replace('{role}', susObj ? susObj.role : '');
-        }
 
         if (isCorrect) {
             resIcon.textContent = "🏆";
             resTitle.textContent = data.resultSolvedTitle;
             resTitle.style.color = "var(--teal)";
             resDesc.innerHTML = `${escapeHtml(data.resultSolvedDesc)}<br><br><b>${escapeHtml(data.caseExplanationLabel)}</b><br>${escapeHtml(explainText)}`;
-            const alreadySolved = userProfile.solvedCases.includes(currentCaseIndex);
-            if (!alreadySolved) {
+            // Fix: Only record solved case if it's unlocked (prevents race mode bypass)
+            if (!alreadySolved && isCaseUnlocked(currentCaseIndex)) {
                 userProfile.solvedCases.push(currentCaseIndex);
+                await pushSolvedCaseToCloud(currentCaseIndex);
             }
             userProfile.solved = userProfile.solvedCases.length;
-            userProfile.correctAttempts += 1;
-            userProfile.streakCurrent += 1;
-            if (userProfile.streakCurrent > userProfile.streakBest) userProfile.streakBest = userProfile.streakCurrent;
-            if (!getHintsUsed(currentCaseIndex)) userProfile.noHintSolve = true;
+            if (!alreadySolved) {
+                userProfile.correctAttempts += 1;
+            }
+            // Fix: Only update streak for new solves to prevent streak farming
+            if (!alreadySolved) {
+                userProfile.streakCurrent += 1;
+                if (userProfile.streakCurrent > userProfile.streakBest) userProfile.streakBest = userProfile.streakCurrent;
+                if (!getHintsUsed(currentCaseIndex)) userProfile.noHintSolve = true;
+            }
             playSuccessSound();
         } else {
             resIcon.textContent = "❌";
@@ -1091,6 +1078,46 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         }
     }
 
+    // -- Cloud progress sync (Firestore as source of truth for solvedCases) --
+
+    async function loadCloudProgress() {
+        const uid = firebaseAuth.currentUser?.uid;
+        if (!uid) { cloudSolvedCases = null; cloudProgressLoaded = true; return; }
+        try {
+            const snap = await getDoc(doc(db, 'playerProgress', uid));
+            if (snap.exists() && snap.data().solvedCases) {
+                cloudSolvedCases = snap.data().solvedCases;
+            } else {
+                cloudSolvedCases = [];
+            }
+        } catch (e) {
+            console.warn('Cloud progress load failed (offline?):', e);
+            cloudSolvedCases = null; // fallback to local
+        } finally {
+            cloudProgressLoaded = true;
+            // Re-render menu if visible to reflect correct unlock status
+            const caseList = document.getElementById('case-list');
+            if (caseList && activeFilter) renderMenu(activeFilter);
+        }
+    }
+
+    async function pushSolvedCaseToCloud(idx) {
+        const uid = firebaseAuth.currentUser?.uid;
+        if (!uid) return;
+        try {
+            await setDoc(doc(db, 'playerProgress', uid), {
+                solvedCases: arrayUnion(idx),
+                updatedAt: serverTimestamp()
+            }, { merge: true });
+            // Update local cache
+            if (cloudSolvedCases && !cloudSolvedCases.includes(idx)) {
+                cloudSolvedCases.push(idx);
+            }
+        } catch (e) {
+            console.warn('Cloud push failed (will sync later):', e);
+        }
+    }
+
     async function openLeaderboardModal() {
         document.getElementById('modal-leaderboard').classList.add('active');
         const listEl = document.getElementById('lb-list');
@@ -1106,23 +1133,39 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
                 const data = d.data();
                 const row = document.createElement('div');
                 row.style.cssText = 'display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;';
-                row.innerHTML = `<span>#${rank} ${escapeHtml(data.displayName)}</span><span style="color:var(--gold);">${data.casesSolved} قضية</span>`;
+                row.innerHTML = `<span>#${rank} ${escapeHtml(data.displayName)}</span><span style="color:var(--gold);">${data.casesSolved} ${txx('lbCaseUnit')}</span>`;
                 listEl.appendChild(row);
                 rank++;
             });
         } catch (e) {
-            loadingEl.textContent = 'تعذر تحميل القائمة، تحقق من الاتصال.';
+            loadingEl.textContent = txx('lbLoadFailedText');
         }
     }
 
     function openNotesModal() {
         document.getElementById('modal-notes').classList.add('active');
+        // Fix: Load saved notes for current case
+        const notesEl = document.getElementById('notes-text');
+        if (notesEl) {
+            const savedNotes = (userProfile.notes && userProfile.notes[currentCaseIndex]) || '';
+            notesEl.value = savedNotes;
+        }
         playClickSound();
     }
 
     function saveNotes() {
+        // Fix: Actually read and persist notes to userProfile/localStorage
+        const notesEl = document.getElementById('notes-text');
+        const text = notesEl ? notesEl.value : '';
+        if (!userProfile.notes) userProfile.notes = {};
+        userProfile.notes[currentCaseIndex] = text;
+        const saved = saveUserProfile();
         closeModal('modal-notes');
         playClickSound();
+        // Visual feedback so user knows the save actually happened
+        if (saved) {
+            showToast(txx('notesSaved') || 'Notes saved ✅');
+        }
     }
 
     function openHintsModal() {
@@ -1144,6 +1187,12 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         playClickSound();
     }
 
+    /**
+     * إعادة المحاولة لنفس القضية
+     * ⚠️ تنبيه مهم: إعادة المحاولة تستهلك طاقة يومية جديدة إذا كان وضع المحاولات المحدودة مفعّلاً
+     * (لأن startInvestigation() تستدعي consumeEnergyUsage() عند raceActive = false)
+     * إذا كنت تريد إعادة نفس المحاولة بدون استهلاك طاقة، استخدم resumeLastCase() بدلاً من ذلك
+     */
     function restartCase() {
         startInvestigation();
     }
@@ -1518,6 +1567,9 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
     const MP_JOIN_MAX_ATTEMPTS = 5;
     const MP_JOIN_WINDOW_MS = 60000;
 
+    // ملاحظة أمنية: هذه دالة رادع من طرف العميل فقط — يمكن تجاوزها بتعديل
+    // الكود أو مسح localStorage. الحماية الحقيقية من الإساءة موجودة في
+    // firestore.rules (الخطوة 1) التي تمنع الكتابة المفرطة على الخادم.
     function mpCheckJoinRateLimit() {
         const now = Date.now();
         let attempts = [];
@@ -1599,11 +1651,8 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
                 const el = document.createElement('div');
                 el.textContent = id;
                 el.style.cssText = 'padding:6px; cursor:pointer; border-bottom:1px solid var(--line);';
-                el.onclick = () => {
-                    const roomInput = document.getElementById('mp-roomcode');
-                    if (roomInput) roomInput.value = id;
-                    joinMultiplayerRoom();
-                };
+                el.dataset.action = 'selectRoomCode';
+                el.dataset.roomId = id;
                 list.appendChild(el);
             });
         } catch (e) {
@@ -1701,10 +1750,19 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         });
     }
 
+    // تُستدعى الآن من showGameUI() بعد نجاح تسجيل الدخول (online أو offline)
+    // بدل DOMContentLoaded، حتى لا تظهر شاشة الدليل فوق شاشة تسجيل الدخول
+    // قبل أن يدخل المستخدم فعلياً للعبة.
+    // متغير جلسة لمنع ظهور دليل اللعبة أكثر من مرة في نفس الجلسة
+    // (حتى لو كان localStorage محجوباً مثل التصفح الخاص)
+    let onboardingShownThisSession = false;
+
     function showOnboardingIfNeeded() {
         try {
             if (localStorage.getItem('tf_onboarded') === 'true') return;
         } catch (e) { /* if storage blocked, show once per session anyway */ }
+        if (onboardingShownThisSession) return;
+        onboardingShownThisSession = true;
         const modal = document.getElementById('modal-onboard');
         if (modal) modal.classList.add('active');
     }
@@ -1716,16 +1774,29 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         playClickSound();
     }
 
+    // يسمح بإعادة فتح دليل اللعبة يدوياً من الإعدادات في أي وقت
+    // (بدون التأثير على منطق "أول مرة" الخاص بـ showOnboardingIfNeeded).
+    function openGameGuide() {
+        const modal = document.getElementById('modal-onboard');
+        if (modal) modal.classList.add('active');
+        playClickSound();
+    }
+
     let isDragging = false, widgetStartX = 0, widgetStartY = 0, widgetLeft = 0, widgetTop = 0;
         window.addEventListener('DOMContentLoaded', () => {
         // إصلاح: كان body-tag بلا dir attribute عند أول تحميل، فكانت
         // selectors ديال CSS (body[dir="ltr"]/[dir="rtl"]) ما كتخدمش
         // حتى تبدل اللغة — هادشي كان سبب تداخل settings/profile.
         document.getElementById('body-tag').setAttribute('dir', (currentLang === 'ar' || currentLang === 'ary') ? 'rtl' : 'ltr');
+        document.documentElement.setAttribute('dir', (currentLang === 'ar' || currentLang === 'ary') ? 'rtl' : 'ltr');
+        document.documentElement.setAttribute('lang', currentLang);
+        // مزامنة قائمة اللغة فالإعدادات مع اللغة المحفوظة فعلياً (كانت دايماً كتبان
+        // "English" فالقائمة حتى لو كانت اللغة الفعلية عربية مثلاً).
+        const langSelectEl = document.getElementById('lang-select');
+        if (langSelectEl) langSelectEl.value = currentLang;
         loadUserData();
         updateUITexts();
         renderMenu('all');
-        showOnboardingIfNeeded();
         applyAccessSettings();
         updateExtraUITexts();
         setupDailyReminderCheck();
@@ -1801,8 +1872,8 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
     // ---- small text dictionary for the new UI (falls back to English) ----
     const EXTRA_TRANGS = {
         en: {
+            appTitle: "The Black File",
             listen: "Listen", energyExhausted: "You've used all your investigations for today. Come back tomorrow, detective!",
-            shuffledExplain: "This is a replay — the evidence was reshuffled. Based on this run's clues, the trail leads to {name} ({role}).",
             statsTitle: "📊 Detailed Detective Statistics", statCasesSolved: "Cases Solved", statAvgHints: "Avg. Hints Used", statFastest: "Fastest Solve", statAccuracy: "Overall Accuracy",
             noAttempts: "No attempts yet", chartEmpty: "Solve a few cases to see your accuracy trend here.",
             reportPeriod: "Last 7 Days", reportSolved: "Solved", reportAttempts: "Attempts", reportAccuracy: "Accuracy", reportRank: "Rank",
@@ -1838,11 +1909,22 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
             saveWarningMsg: "⚠️ Your progress can't be saved right now (private browsing or storage blocked). Keep playing, but it may not be kept.",
             timeUpTitle: "⏰ Time's Up!", timeUpDesc: "You ran out of time for this Timed Challenge — the case is marked as unsolved.",
             noMoreHints: "You've used all your hints for this case — time to trust your instincts, detective!",
-            reportFooter: "The Black File — Detective Report Card"
+            reportFooter: "The Black File — Detective Report Card",
+            modeMpTitle: "Multiplayer Challenge", modeMpSub: "Play with a friend remotely",
+            modeRaceTitle: "Race Mode", modeRaceSub: "Race to solve the case",
+            modeVoiceTitle: "Voice Call", modeVoiceSub: "Talk during the investigation",
+            proSolvedLabel: "Cases Solved:", proAccuracyLabel: "Accuracy Rate:",
+            proExportBtn: "⬇ Export", proImportBtn: "⬆ Import",
+            mpPublicToggleLabel: "Make room public (anyone can join)", mpBrowsePublicBtn: "🔎 Browse Public Rooms",
+            loginHint: "PULL THE STRING TO TOGGLE LOGIN", loginTitle: "Welcome Back", loginEmailPlaceholder: "Email address", loginPasswordPlaceholder: "Password", loginConfirmPasswordPlaceholder: "Confirm Password (new accounts only)", loginForgotPassword: "Forgot Password?", loginSignInBtn: "SIGN IN", loginOrDivider: "or", loginGoogleBtn: "Continue with Google", loginOfflineBtn: "Play Offline", lbCaseUnit: "cases solved", lbLoadingText: "Loading...", lbLoadFailedText: "Could not load the leaderboard. Please check your connection.", importInvalidFileText: "Invalid progress file.", roomJoinRateLimited: "Too many join attempts. Please wait a minute.", mpNoPublicRooms: "No public rooms right now.", mpPublicRoomsFailed: "Could not load public rooms.",
+            loginFillFieldsAlert: "Please enter your email and password.", loginSigningInFallback: "Signing in...", loginPasswordMismatchAlert: "The two passwords don't match!", loginAuthFailedFallback: "Authentication failed. Please try again.", loginEnterEmailFirstAlert: "Please enter your email address first, then tap \"Forgot Password?\" again.", loginResetLinkSentAlert: "A password reset link has been sent to {email}.", loginResetFailedFallback: "Could not send the reset email. Please try again.", loginConnectingGoogleFallback: "Connecting to Google...", loginGoogleFailedFallback: "Google sign-in failed.",
+            offlineLimitedCasesMsg: "You're playing offline — only the first 10 cases are available. Sign in to unlock all 20 cases.",
+            syncWarning: "⚠️ Your progress is saved locally only on this device. Signing in only saves the number of solved cases on the leaderboard, not all your data.",
+            raceInterruptConfirm: "You're in the middle of an investigation. Leave it and start the race?"
         },
         ar: {
+            appTitle: "الملف الأسود",
             listen: "استمع", energyExhausted: "استعملتي كل محاولاتك ديال اليوم. ارجع غدا يا محقق!",
-            shuffledExplain: "هادي إعادة لعب — الأدلة تبدلات. حسب معطيات هاد الجولة، الخيط كيوصل ل{name} ({role}).",
             statsTitle: "📊 إحصائيات المحقق المفصّلة", statCasesSolved: "القضايا المحلولة", statAvgHints: "متوسط التلميحات", statFastest: "أسرع حل", statAccuracy: "الدقة الإجمالية",
             noAttempts: "مازال ما كاينة محاولات", chartEmpty: "حل شي قضايا باش يبان ليك تطور الدقة هنا.",
             reportPeriod: "آخر 7 أيام", reportSolved: "محلولة", reportAttempts: "محاولات", reportAccuracy: "الدقة", reportRank: "الرتبة",
@@ -1878,11 +1960,22 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
             saveWarningMsg: "⚠️ ما قدرناش نحفظو تقدمك دابا (التصفح الخاص أو التخزين ممنوع). كمّل اللعب، لكن ممكن ما يتحفظش.",
             timeUpTitle: "⏰ خلص الوقت!", timeUpDesc: "خلص الوقت المحدد لهاد التحدي — القضية اتسجلت كغير محلولة.",
             noMoreHints: "استعملتي كل التلميحات ديال هاد القضية — دابا الوقت باش تعتمد على حدسك يا محقق!",
-            reportFooter: "الملف الأسود — بطاقة تقرير المحقق"
+            reportFooter: "الملف الأسود — بطاقة تقرير المحقق",
+            modeMpTitle: "تحدي متعدد اللاعبين", modeMpSub: "العب مع صديق عن بعد",
+            modeRaceTitle: "وضع السباق", modeRaceSub: "سباق حل القضية",
+            modeVoiceTitle: "مكالمة صوتية", modeVoiceSub: "تواصل صوتياً أثناء التحقيق",
+            proSolvedLabel: "القضايا المحلولة:", proAccuracyLabel: "نسبة الدقة:",
+            proExportBtn: "⬇ تصدير", proImportBtn: "⬆ استيراد",
+            mpPublicToggleLabel: "اجعل الغرفة عامة (يمكن لأي لاعب الانضمام)", mpBrowsePublicBtn: "🔎 تصفح الغرف العامة",
+            loginHint: "اسحب الخيط لإظهار أو إخفاء تسجيل الدخول", loginTitle: "مرحباً بعودتك", loginEmailPlaceholder: "البريد الإلكتروني", loginPasswordPlaceholder: "كلمة المرور", loginConfirmPasswordPlaceholder: "تأكيد كلمة المرور (للحسابات الجديدة فقط)", loginForgotPassword: "هل نسيت كلمة المرور؟", loginSignInBtn: "تسجيل الدخول", loginOrDivider: "أو", loginGoogleBtn: "المتابعة عبر جوجل", loginOfflineBtn: "اللعب بدون إنترنت", lbCaseUnit: "قضية محلولة", lbLoadingText: "جاري التحميل...", lbLoadFailedText: "تعذر تحميل القائمة، تحقق من الاتصال.", importInvalidFileText: "ملف التقدم غير صالح.", roomJoinRateLimited: "عدد كبير جداً من محاولات الانضمام. انتظر دقيقة من فضلك.", mpNoPublicRooms: "لا توجد غرف عامة حالياً.", mpPublicRoomsFailed: "تعذر تحميل الغرف العامة.",
+            loginFillFieldsAlert: "الرجاء إدخال بريدك الإلكتروني وكلمة المرور.", loginSigningInFallback: "جاري تسجيل الدخول...", loginPasswordMismatchAlert: "كلمتا السر غير متطابقتين!", loginAuthFailedFallback: "فشلت عملية تسجيل الدخول. يرجى المحاولة مرة أخرى.", loginEnterEmailFirstAlert: "الرجاء إدخال بريدك الإلكتروني أولاً، ثم اضغط على \"هل نسيت كلمة المرور؟\" مرة أخرى.", loginResetLinkSentAlert: "تم إرسال رابط إعادة تعيين كلمة المرور إلى {email}.", loginResetFailedFallback: "تعذر إرسال بريد إعادة التعيين. يرجى المحاولة مرة أخرى.", loginConnectingGoogleFallback: "جاري الاتصال بـ Google...", loginGoogleFailedFallback: "فشل تسجيل الدخول عبر Google.",
+            offlineLimitedCasesMsg: "تلعب بدون إنترنت — فقط أول 10 قضايا متاحة. سجل الدخول لفتح جميع القضايا الـ 20.",
+            syncWarning: "⚠️ تقدمك محفوظ محليًا فقط على هذا الجهاز. تسجيل الدخول يُحفظ رقم القضايا المحلولة على لوحة المتصدرين فقط، وليس كل بياناتك.",
+            raceInterruptConfirm: "راك فوسط التحقيق. تبغي تخليه وتبدا السباق؟"
         },
         ary: {
+            appTitle: "الملف الأسود",
             listen: "استمع", energyExhausted: "استعملتي كل محاولاتك ديال اليوم. ارجع غدا يا محقق!",
-            shuffledExplain: "هادي إعادة لعب — الأدلة تبدلات. حسب معطيات هاد الجولة، الخيط كيوصل ل{name} ({role}).",
             statsTitle: "📊 إحصائيات المحقق المفصّلة", statCasesSolved: "القضايا المحلولة", statAvgHints: "متوسط التلميحات", statFastest: "أسرع حل", statAccuracy: "الدقة الإجمالية",
             noAttempts: "مازال ما كاينة محاولات", chartEmpty: "حل شي قضايا باش يبان ليك تطور الدقة هنا.",
             reportPeriod: "آخر 7 أيام", reportSolved: "محلولة", reportAttempts: "محاولات", reportAccuracy: "الدقة", reportRank: "الرتبة",
@@ -1918,11 +2011,23 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
             saveWarningMsg: "⚠️ ما قدرناش نحفظو تقدمك دابا (التصفح الخاص أو التخزين ممنوع). كمّل اللعب، لكن ممكن ما يتحفظش.",
             timeUpTitle: "⏰ خلص الوقت!", timeUpDesc: "خلص الوقت المحدد لهاد التحدي — القضية اتسجلت كغير محلولة.",
             noMoreHints: "استعملتي كل التلميحات ديال هاد القضية — دابا الوقت باش تعتمد على حدسك يا محقق!",
-            reportFooter: "الملف الأسود — بطاقة تقرير المحقق"
+            reportFooter: "الملف الأسود — بطاقة تقرير المحقق",
+            modeMpTitle: "تحدي متعدد اللاعبين", modeMpSub: "العب مع صديق عن بعد",
+            modeRaceTitle: "وضع السباق", modeRaceSub: "سباق حل القضية",
+            modeVoiceTitle: "مكالمة صوتية", modeVoiceSub: "تواصل صوتياً أثناء التحقيق",
+            proSolvedLabel: "القضايا المحلولة:", proAccuracyLabel: "نسبة الدقة:",
+            proExportBtn: "⬇ تصدير", proImportBtn: "⬆ استيراد",
+            syncWarning: "⚠️ تقدمك محفوظ محليًا فقط على هاد الجهاز. تسجيل الدخول كيحفظ غير رقم القضايا المحلولة على لوحة المتصدرين، ماشي كل بياناتك.",
+            raceInterruptConfirm: "راك فوسط التحقيق. تبغي تخليه وتبدا السباق؟",
+            lbLoadingText: "جاري التحميل...",
+            mpPublicToggleLabel: "اجعل الغرفة عامة (يمكن لأي لاعب الانضمام)",
+            loginHint: "اسحب الخيط لإظهار أو إخفاء تسجيل الدخول",
+            loginFillFieldsAlert: "الرجاء إدخال بريدك الإلكتروني وكلمة المرور.",
+            offlineLimitedCasesMsg: "تلعب بدون إنترنت — فقط أول 10 قضايا متاحة. سجل الدخول لفتح جميع القضايا الـ 20."
         },
         fr: {
+            appTitle: "Le Dossier Noir",
             listen: "Écouter", energyExhausted: "Vous avez utilisé toutes vos enquêtes du jour. Revenez demain, détective !",
-            shuffledExplain: "Ceci est une rejouabilité — les preuves ont été redistribuées. D'après les indices de cette partie, la piste mène à {name} ({role}).",
             statsTitle: "📊 Statistiques Détaillées du Détective", statCasesSolved: "Affaires Résolues", statAvgHints: "Indices Utilisés (moy.)", statFastest: "Résolution la Plus Rapide", statAccuracy: "Précision Globale",
             noAttempts: "Pas encore de tentatives", chartEmpty: "Résolvez quelques affaires pour voir votre courbe de précision ici.",
             reportPeriod: "7 Derniers Jours", reportSolved: "Résolues", reportAttempts: "Tentatives", reportAccuracy: "Précision", reportRank: "Grade",
@@ -1958,11 +2063,22 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
             saveWarningMsg: "⚠️ Votre progression ne peut pas être sauvegardée actuellement (navigation privée ou stockage bloqué). Continuez à jouer, mais elle risque de ne pas être conservée.",
             timeUpTitle: "⏰ Temps écoulé !", timeUpDesc: "Le temps imparti pour ce Défi Chronométré est écoulé — l'affaire est marquée comme non résolue.",
             noMoreHints: "Vous avez utilisé tous vos indices pour cette affaire — faites confiance à votre instinct, détective !",
-            reportFooter: "Le Dossier Noir — Fiche de Rapport du Détective"
+            reportFooter: "Le Dossier Noir — Fiche de Rapport du Détective",
+            modeMpTitle: "Défi multijoueur", modeMpSub: "Jouez avec un ami à distance",
+            modeRaceTitle: "Mode Course", modeRaceSub: "Course pour résoudre l'affaire",
+            modeVoiceTitle: "Appel vocal", modeVoiceSub: "Parlez pendant l'enquête",
+            proSolvedLabel: "Affaires résolues :", proAccuracyLabel: "Taux de précision :",
+            proExportBtn: "⬇ Exporter", proImportBtn: "⬆ Importer",
+            mpPublicToggleLabel: "Rendre la salle publique (tout le monde peut rejoindre)", mpBrowsePublicBtn: "🔎 Parcourir les salles publiques",
+            loginHint: "TIREZ LA CORDE POUR AFFICHER LA CONNEXION", loginTitle: "Content de vous revoir", loginEmailPlaceholder: "Adresse e-mail", loginPasswordPlaceholder: "Mot de passe", loginConfirmPasswordPlaceholder: "Confirmer le mot de passe (nouveaux comptes uniquement)", loginForgotPassword: "Mot de passe oublié ?", loginSignInBtn: "SE CONNECTER", loginOrDivider: "ou", loginGoogleBtn: "Continuer avec Google", loginOfflineBtn: "Jouer hors ligne", lbCaseUnit: "affaires résolues", lbLoadingText: "Chargement...", lbLoadFailedText: "Impossible de charger le classement. Vérifiez votre connexion.", importInvalidFileText: "Fichier de progression invalide.", roomJoinRateLimited: "Trop de tentatives de connexion. Veuillez patienter une minute.", mpNoPublicRooms: "Aucune salle publique pour le moment.", mpPublicRoomsFailed: "Impossible de charger les salles publiques.",
+            loginFillFieldsAlert: "Veuillez saisir votre e-mail et votre mot de passe.", loginSigningInFallback: "Connexion en cours...", loginPasswordMismatchAlert: "Les deux mots de passe ne correspondent pas !", loginAuthFailedFallback: "Échec de l'authentification. Veuillez réessayer.", loginEnterEmailFirstAlert: "Veuillez d'abord saisir votre adresse e-mail, puis appuyez à nouveau sur « Mot de passe oublié ? ».", loginResetLinkSentAlert: "Un lien de réinitialisation du mot de passe a été envoyé à {email}.", loginResetFailedFallback: "Impossible d'envoyer l'e-mail de réinitialisation. Veuillez réessayer.", loginConnectingGoogleFallback: "Connexion à Google...", loginGoogleFailedFallback: "Échec de la connexion avec Google.",
+            offlineLimitedCasesMsg: "Vous jouez hors ligne — seules les 10 premières affaires sont disponibles. Connectez-vous pour débloquer les 20 affaires.",
+            syncWarning: "⚠️ Votre progression est sauvegardée localement uniquement sur cet appareil. La connexion ne sauvegarde que le nombre d'affaires résolues sur le classement, pas toutes vos données.",
+            raceInterruptConfirm: "Vous êtes en plein milieu d'une enquête. L'abandonner pour commencer la course ?"
         },
         es: {
+            appTitle: "El Archivo Negro",
             listen: "Escuchar", energyExhausted: "Has usado todas tus investigaciones de hoy. ¡Vuelve mañana, detective!",
-            shuffledExplain: "Esto es una repetición — las pruebas se reorganizaron. Según las pistas de esta partida, el rastro lleva a {name} ({role}).",
             statsTitle: "📊 Estadísticas Detalladas del Detective", statCasesSolved: "Casos Resueltos", statAvgHints: "Pistas Usadas (prom.)", statFastest: "Resolución Más Rápida", statAccuracy: "Precisión General",
             noAttempts: "Aún sin intentos", chartEmpty: "Resuelve algunos casos para ver aquí tu tendencia de precisión.",
             reportPeriod: "Últimos 7 Días", reportSolved: "Resueltos", reportAttempts: "Intentos", reportAccuracy: "Precisión", reportRank: "Rango",
@@ -1998,11 +2114,22 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
             saveWarningMsg: "⚠️ Tu progreso no se puede guardar ahora mismo (navegación privada o almacenamiento bloqueado). Sigue jugando, pero podría no conservarse.",
             timeUpTitle: "⏰ ¡Se acabó el tiempo!", timeUpDesc: "Se te acabó el tiempo en este Desafío Cronometrado — el caso queda marcado como no resuelto.",
             noMoreHints: "Has usado todas tus pistas para este caso — ¡confía en tu instinto, detective!",
-            reportFooter: "El Archivo Negro — Ficha de Informe del Detective"
+            reportFooter: "El Archivo Negro — Ficha de Informe del Detective",
+            modeMpTitle: "Desafío multijugador", modeMpSub: "Juega con un amigo a distancia",
+            modeRaceTitle: "Modo Carrera", modeRaceSub: "Carrera para resolver el caso",
+            modeVoiceTitle: "Llamada de voz", modeVoiceSub: "Habla durante la investigación",
+            proSolvedLabel: "Casos resueltos:", proAccuracyLabel: "Tasa de precisión:",
+            proExportBtn: "⬇ Exportar", proImportBtn: "⬆ Importar",
+            mpPublicToggleLabel: "Hacer la sala pública (cualquiera puede unirse)", mpBrowsePublicBtn: "🔎 Explorar salas públicas",
+            loginHint: "TIRA DEL CORDÓN PARA MOSTRAR EL INICIO DE SESIÓN", loginTitle: "Bienvenido de nuevo", loginEmailPlaceholder: "Correo electrónico", loginPasswordPlaceholder: "Contraseña", loginConfirmPasswordPlaceholder: "Confirmar contraseña (solo cuentas nuevas)", loginForgotPassword: "¿Olvidaste tu contraseña?", loginSignInBtn: "INICIAR SESIÓN", loginOrDivider: "o", loginGoogleBtn: "Continuar con Google", loginOfflineBtn: "Jugar sin conexión", lbCaseUnit: "casos resueltos", lbLoadingText: "Cargando...", lbLoadFailedText: "No se pudo cargar la clasificación. Comprueba tu conexión.", importInvalidFileText: "Archivo de progreso no válido.", roomJoinRateLimited: "Demasiados intentos de unión. Espera un minuto, por favor.", mpNoPublicRooms: "No hay salas públicas en este momento.", mpPublicRoomsFailed: "No se pudieron cargar las salas públicas.",
+            loginFillFieldsAlert: "Por favor, introduce tu correo y contraseña.", loginSigningInFallback: "Iniciando sesión...", loginPasswordMismatchAlert: "¡Las dos contraseñas no coinciden!", loginAuthFailedFallback: "Error de autenticación. Inténtalo de nuevo.", loginEnterEmailFirstAlert: "Introduce primero tu correo electrónico y vuelve a pulsar en \"¿Olvidaste tu contraseña?\".", loginResetLinkSentAlert: "Se ha enviado un enlace para restablecer la contraseña a {email}.", loginResetFailedFallback: "No se pudo enviar el correo de restablecimiento. Inténtalo de nuevo.", loginConnectingGoogleFallback: "Conectando con Google...", loginGoogleFailedFallback: "Error al iniciar sesión con Google.",
+            offlineLimitedCasesMsg: "Estás jugando sin conexión — solo los primeros 10 casos están disponibles. Inicia sesión para desbloquear los 20 casos.",
+            syncWarning: "⚠️ Tu progreso se guarda localmente solo en este dispositivo. Iniciar sesión solo guarda el número de casos resueltos en la clasificación, no todos tus datos.",
+            raceInterruptConfirm: "Estás en medio de una investigación. ¿Abandonarla para empezar la carrera?"
         },
         it: {
+            appTitle: "Il File Nero",
             listen: "Ascolta", energyExhausted: "Hai usato tutte le tue indagini di oggi. Torna domani, detective!",
-            shuffledExplain: "Questa è una ripetizione — le prove sono state rimescolate. In base agli indizi di questa partita, la pista porta a {name} ({role}).",
             statsTitle: "📊 Statistiche Dettagliate del Detective", statCasesSolved: "Casi Risolti", statAvgHints: "Indizi Usati (media)", statFastest: "Risoluzione Più Veloce", statAccuracy: "Precisione Complessiva",
             noAttempts: "Ancora nessun tentativo", chartEmpty: "Risolvi alcuni casi per vedere qui il tuo andamento di precisione.",
             reportPeriod: "Ultimi 7 Giorni", reportSolved: "Risolti", reportAttempts: "Tentativi", reportAccuracy: "Precisione", reportRank: "Grado",
@@ -2038,11 +2165,22 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
             saveWarningMsg: "⚠️ I tuoi progressi non possono essere salvati ora (navigazione privata o archiviazione bloccata). Continua a giocare, ma potrebbero non essere conservati.",
             timeUpTitle: "⏰ Tempo scaduto!", timeUpDesc: "Il tempo per questa Sfida a Tempo è scaduto — il caso è segnato come irrisolto.",
             noMoreHints: "Hai usato tutti gli indizi per questo caso — è ora di fidarti del tuo istinto, detective!",
-            reportFooter: "Il File Nero — Scheda Rapporto del Detective"
+            reportFooter: "Il File Nero — Scheda Rapporto del Detective",
+            modeMpTitle: "Sfida multigiocatore", modeMpSub: "Gioca con un amico a distanza",
+            modeRaceTitle: "Modalità Corsa", modeRaceSub: "Gara per risolvere il caso",
+            modeVoiceTitle: "Chiamata vocale", modeVoiceSub: "Parla durante l'indagine",
+            proSolvedLabel: "Casi risolti:", proAccuracyLabel: "Tasso di precisione:",
+            proExportBtn: "⬇ Esporta", proImportBtn: "⬆ Importa",
+            mpPublicToggleLabel: "Rendi la stanza pubblica (chiunque può unirsi)", mpBrowsePublicBtn: "🔎 Sfoglia stanze pubbliche",
+            loginHint: "TIRA IL FILO PER MOSTRARE L'ACCESSO", loginTitle: "Bentornato", loginEmailPlaceholder: "Indirizzo email", loginPasswordPlaceholder: "Password", loginConfirmPasswordPlaceholder: "Conferma password (solo nuovi account)", loginForgotPassword: "Password dimenticata?", loginSignInBtn: "ACCEDI", loginOrDivider: "oppure", loginGoogleBtn: "Continua con Google", loginOfflineBtn: "Gioca offline", lbCaseUnit: "casi risolti", lbLoadingText: "Caricamento...", lbLoadFailedText: "Impossibile caricare la classifica. Controlla la connessione.", importInvalidFileText: "File di avanzamento non valido.", roomJoinRateLimited: "Troppi tentativi di accesso alla stanza. Attendi un minuto.", mpNoPublicRooms: "Nessuna stanza pubblica al momento.", mpPublicRoomsFailed: "Impossibile caricare le stanze pubbliche.",
+            loginFillFieldsAlert: "Inserisci la tua email e password.", loginSigningInFallback: "Accesso in corso...", loginPasswordMismatchAlert: "Le due password non coincidono!", loginAuthFailedFallback: "Autenticazione non riuscita. Riprova.", loginEnterEmailFirstAlert: "Inserisci prima il tuo indirizzo email, poi tocca di nuovo \"Password dimenticata?\".", loginResetLinkSentAlert: "Un link per reimpostare la password è stato inviato a {email}.", loginResetFailedFallback: "Impossibile inviare l'email di reimpostazione. Riprova.", loginConnectingGoogleFallback: "Connessione a Google...", loginGoogleFailedFallback: "Accesso con Google non riuscito.",
+            offlineLimitedCasesMsg: "Stai giocando offline — sono disponibili solo i primi 10 casi. Accedi per sbloccare tutti e 20 i casi.",
+            syncWarning: "⚠️ I tuoi progressi sono salvati localmente solo su questo dispositivo. L'accesso salva solo il numero di casi risolti in classifica, non tutti i tuoi dati.",
+            raceInterruptConfirm: "Sei nel mezzo di un'indagine. Lasciarla e iniziare la gara?"
         },
         de: {
+            appTitle: "Die Schwarze Akte",
             listen: "Anhören", energyExhausted: "Du hast alle heutigen Ermittlungen aufgebraucht. Komm morgen wieder, Detektiv!",
-            shuffledExplain: "Dies ist eine Wiederholung — die Beweise wurden neu gemischt. Basierend auf den Hinweisen dieser Runde führt die Spur zu {name} ({role}).",
             statsTitle: "📊 Detaillierte Detektiv-Statistiken", statCasesSolved: "Gelöste Fälle", statAvgHints: "Ø Genutzte Hinweise", statFastest: "Schnellste Lösung", statAccuracy: "Gesamtgenauigkeit",
             noAttempts: "Noch keine Versuche", chartEmpty: "Löse ein paar Fälle, um hier deinen Genauigkeitstrend zu sehen.",
             reportPeriod: "Letzte 7 Tage", reportSolved: "Gelöst", reportAttempts: "Versuche", reportAccuracy: "Genauigkeit", reportRank: "Rang",
@@ -2078,11 +2216,22 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
             saveWarningMsg: "⚠️ Dein Fortschritt kann gerade nicht gespeichert werden (privater Modus oder Speicher blockiert). Spiel weiter, aber er bleibt eventuell nicht erhalten.",
             timeUpTitle: "⏰ Zeit abgelaufen!", timeUpDesc: "Die Zeit für diese zeitlich begrenzte Herausforderung ist abgelaufen — der Fall gilt als ungelöst.",
             noMoreHints: "Du hast alle Hinweise für diesen Fall verbraucht — jetzt heißt es, deinem Instinkt zu vertrauen, Detektiv!",
-            reportFooter: "Die Schwarze Akte — Detektiv-Berichtskarte"
+            reportFooter: "Die Schwarze Akte — Detektiv-Berichtskarte",
+            modeMpTitle: "Mehrspieler-Duell", modeMpSub: "Spiele mit einem Freund aus der Ferne",
+            modeRaceTitle: "Rennmodus", modeRaceSub: "Wettlauf um den Fall zu lösen",
+            modeVoiceTitle: "Sprachanruf", modeVoiceSub: "Sprich während der Ermittlung",
+            proSolvedLabel: "Gelöste Fälle:", proAccuracyLabel: "Trefferquote:",
+            proExportBtn: "⬇ Exportieren", proImportBtn: "⬆ Importieren",
+            mpPublicToggleLabel: "Raum öffentlich machen (jeder kann beitreten)", mpBrowsePublicBtn: "🔎 Öffentliche Räume durchsuchen",
+            loginHint: "AN DER SCHNUR ZIEHEN, UM DEN LOGIN EIN-/AUSZUBLENDEN", loginTitle: "Willkommen zurück", loginEmailPlaceholder: "E-Mail-Adresse", loginPasswordPlaceholder: "Passwort", loginConfirmPasswordPlaceholder: "Passwort bestätigen (nur für neue Konten)", loginForgotPassword: "Passwort vergessen?", loginSignInBtn: "ANMELDEN", loginOrDivider: "oder", loginGoogleBtn: "Mit Google fortfahren", loginOfflineBtn: "Offline spielen", lbCaseUnit: "gelöste Fälle", lbLoadingText: "Wird geladen...", lbLoadFailedText: "Bestenliste konnte nicht geladen werden. Prüfe deine Verbindung.", importInvalidFileText: "Ungültige Fortschrittsdatei.", roomJoinRateLimited: "Zu viele Beitrittsversuche. Bitte eine Minute warten.", mpNoPublicRooms: "Momentan keine öffentlichen Räume.", mpPublicRoomsFailed: "Öffentliche Räume konnten nicht geladen werden.",
+            loginFillFieldsAlert: "Bitte E-Mail und Passwort eingeben.", loginSigningInFallback: "Anmeldung läuft...", loginPasswordMismatchAlert: "Die beiden Passwörter stimmen nicht überein!", loginAuthFailedFallback: "Authentifizierung fehlgeschlagen. Bitte erneut versuchen.", loginEnterEmailFirstAlert: "Bitte zuerst deine E-Mail-Adresse eingeben und dann erneut auf \"Passwort vergessen?\" tippen.", loginResetLinkSentAlert: "Ein Link zum Zurücksetzen des Passworts wurde an {email} gesendet.", loginResetFailedFallback: "Die Reset-E-Mail konnte nicht gesendet werden. Bitte erneut versuchen.", loginConnectingGoogleFallback: "Verbindung mit Google wird hergestellt...", loginGoogleFailedFallback: "Google-Anmeldung fehlgeschlagen.",
+            offlineLimitedCasesMsg: "Du spielst offline — nur die ersten 10 Fälle sind verfügbar. Melde dich an, um alle 20 Fälle freizuschalten.",
+            syncWarning: "⚠️ Dein Fortschritt wird nur lokal auf diesem Gerät gespeichert. Die Anmeldung speichert nur die Anzahl der gelösten Fälle in der Bestenliste, nicht alle deine Daten.",
+            raceInterruptConfirm: "Du bitten mitten in einer Ermittlung. Die Ermittlung verlassen und das Rennen starten?"
         },
         pt: {
+            appTitle: "O Arquivo Negro",
             listen: "Ouvir", energyExhausted: "Já usaste todas as tuas investigações de hoje. Volta amanhã, detetive!",
-            shuffledExplain: "Isto é uma repetição — as provas foram reorganizadas. Com base nas pistas desta ronda, o rasto leva a {name} ({role}).",
             statsTitle: "📊 Estatísticas Detalhadas do Detetive", statCasesSolved: "Casos Resolvidos", statAvgHints: "Dicas Usadas (média)", statFastest: "Resolução Mais Rápida", statAccuracy: "Precisão Geral",
             noAttempts: "Ainda sem tentativas", chartEmpty: "Resolve alguns casos para veres aqui a tua tendência de precisão.",
             reportPeriod: "Últimos 7 Dias", reportSolved: "Resolvidos", reportAttempts: "Tentativas", reportAccuracy: "Precisão", reportRank: "Patente",
@@ -2118,18 +2267,158 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
             saveWarningMsg: "⚠️ O seu progresso não pode ser guardado agora (navegação privada ou armazenamento bloqueado). Continue a jogar, mas pode não ser mantido.",
             timeUpTitle: "⏰ Tempo Esgotado!", timeUpDesc: "O tempo deste Desafio Cronometrado esgotou-se — o caso fica marcado como não resolvido.",
             noMoreHints: "Já usou todas as dicas para este caso — hora de confiar no seu instinto, detetive!",
-            reportFooter: "O Arquivo Negro — Cartão de Relatório do Detetive"
+            reportFooter: "O Arquivo Negro — Cartão de Relatório do Detetive",
+            modeMpTitle: "Desafio multijogador", modeMpSub: "Jogue com um amigo à distância",
+            modeRaceTitle: "Modo Corrida", modeRaceSub: "Corrida para resolver o caso",
+            modeVoiceTitle: "Chamada de voz", modeVoiceSub: "Fale durante a investigação",
+            proSolvedLabel: "Casos resolvidos:", proAccuracyLabel: "Taxa de precisão:",
+            proExportBtn: "⬇ Exportar", proImportBtn: "⬆ Importar",
+            mpPublicToggleLabel: "Tornar a sala pública (qualquer um pode entrar)", mpBrowsePublicBtn: "🔎 Explorar salas públicas",
+            loginHint: "PUXE O CORDÃO PARA MOSTRAR O LOGIN", loginTitle: "Bem-vindo de volta", loginEmailPlaceholder: "Endereço de e-mail", loginPasswordPlaceholder: "Palavra-passe", loginConfirmPasswordPlaceholder: "Confirmar palavra-passe (apenas contas novas)", loginForgotPassword: "Esqueceu a palavra-passe?", loginSignInBtn: "ENTRAR", loginOrDivider: "ou", loginGoogleBtn: "Continuar com o Google", loginOfflineBtn: "Jogar offline", lbCaseUnit: "casos resolvidos", lbLoadingText: "Carregando...", lbLoadFailedText: "Não foi possível carregar a classificação. Verifique a sua ligação.", importInvalidFileText: "Ficheiro de progresso inválido.", roomJoinRateLimited: "Demasiadas tentativas de entrada. Aguarde um minuto.", mpNoPublicRooms: "Sem salas públicas neste momento.", mpPublicRoomsFailed: "Não foi possível carregar as salas públicas.",
+            loginFillFieldsAlert: "Introduza o seu e-mail e palavra-passe.", loginSigningInFallback: "A iniciar sessão...", loginPasswordMismatchAlert: "As duas palavras-passe não coincidem!", loginAuthFailedFallback: "Falha na autenticação. Tente novamente.", loginEnterEmailFirstAlert: "Introduza primeiro o seu e-mail e depois toque novamente em \"Esqueceu a palavra-passe?\".", loginResetLinkSentAlert: "Foi enviado um link de redefinição de palavra-passe para {email}.", loginResetFailedFallback: "Não foi possível enviar o e-mail de redefinição. Tente novamente.", loginConnectingGoogleFallback: "A ligar ao Google...", loginGoogleFailedFallback: "Falha no início de sessão com o Google.",
+            offlineLimitedCasesMsg: "Está a jogar offline — apenas os primeiros 10 casos estão disponíveis. Inicie sessão para desbloquear todos os 20 casos.",
+            syncWarning: "⚠️ O seu progresso é guardado localmente apenas neste dispositivo. Iniciar sessão apenas guarda o número de casos resolvidos na classificação, não todos os seus dados.",
+            raceInterruptConfirm: "Estás no meio de uma investigação. Abandoná-la e começar a corrida?"
         }
     };
-    EXTRA_TRANGS.ary = EXTRA_TRANGS.ar;
+    // تم حذف السطر الذي كان يمحي ترجمة الدارجة المغربية (EXTRA_TRANGS.ary = EXTRA_TRANGS.ar)
+    // للحفاظ على ترجمة الدارجة المغربية كما هي معرّفة أعلاه
+
+    // إصلاح: مفاتيح شاشة "دليل اللعبة" (modal-onboard) كانت مستعملة في updateUITexts()
+    // (setText('txt-guide-...', 'guide...')) لكنها ما كانتش موجودة فـ EXTRA_TRANGS —
+    // txx() كانت كترجع '' لكل واحدة منهم، فكانت الشاشة كتبان فارغة بالكامل (كل الصناديق
+    // + الزر الأصفر بلا نص) فأي لغة. هادي كانت السبب فالمشكلة اللي تسجلات فالتقرير.
+    const GUIDE_TRANGS = {
+        en: {
+            guideTitle: "Welcome, Detective", guideSubtitle: "A quick guide to everything in The Black File",
+            guideSettingsBtn: "Game Guide",
+            lbSettingsBtn: "Leaderboard", lbModalTitle: "🏆 Leaderboard", lbModalClose: "Close", helpGroupLabel: "Help",
+            displayGroupLabel: "Display", progressGroupLabel: "Progress", langRegionGroupLabel: "Language & Region", soundLabel: "Sound", alibiLabel: "Alibi:", chatDemoName: "Inspector John:", chatDemoMsg: "Welcome to the network, detectives! Any new leads on the latest case?",
+            guideRowArchiveTitle: "Case Archives (20 Crimes)", guideRowArchiveDesc: "Pick a case by difficulty and start investigating.",
+            guideRowFlowTitle: "How an Investigation Works", guideRowFlowDesc: "Read the case brief, examine the evidence, and question every suspect.",
+            guideRowNotesTitle: "Detective Notes & Hints", guideRowNotesDesc: "Jot down notes and use hints only when stuck.",
+            guideRowAccuseTitle: "Final Accusation", guideRowAccuseDesc: "Choose wisely: an innocent accusation lets the culprit escape!",
+            guideRowProfileTitle: "Detective Profile", guideRowProfileDesc: "Your rank, cases solved, accuracy rate, and achievements.",
+            guideRowChatTitle: "Friends Chat", guideRowChatDesc: "Text or talk with your friends while you play.",
+            guideRowFriendsTitle: "Play with Friends", guideRowFriendsDesc: "Multiplayer Challenge, Race Mode, and Voice Call.",
+            guideRowLbTitle: "Leaderboard", guideRowLbDesc: "Compare your results with other detectives — inside Settings.",
+            guideRowSettingsTitle: "Settings", guideRowSettingsDesc: "Sound, accessibility, stats, secret file, language, and this guide.",
+            guideBtn: "Let's Investigate →"
+        },
+        ar: {
+            guideTitle: "أهلاً أيها المحقق", guideSubtitle: "دليل سريع لكل شيء في الملف الأسود",
+            guideSettingsBtn: "دليل اللعبة",
+            lbSettingsBtn: "قائمة المتصدرين", lbModalTitle: "🏆 قائمة المتصدرين", lbModalClose: "إغلاق", helpGroupLabel: "المساعدة",
+            displayGroupLabel: "العرض", progressGroupLabel: "التقدم", langRegionGroupLabel: "اللغة والمنطقة", soundLabel: "الصوت", alibiLabel: "حجة الغياب:", chatDemoName: "المحقق جون:", chatDemoMsg: "أهلاً بكم في الشبكة أيها المحققون! هل من أدلة جديدة حول آخر قضية؟",
+            guideRowArchiveTitle: "أرشيف القضايا (20 جريمة)", guideRowArchiveDesc: "اختر قضية حسب الصعوبة وابدأ التحقيق.",
+            guideRowFlowTitle: "كيف يسير التحقيق", guideRowFlowDesc: "اقرأ ملخص القضية، افحص الأدلة، واستجوب كل مشتبه به.",
+            guideRowNotesTitle: "ملاحظات المحقق والتلميحات", guideRowNotesDesc: "دوّن ملاحظاتك واستعمل التلميحات فقط عند الحاجة.",
+            guideRowAccuseTitle: "توجيه الاتهام النهائي", guideRowAccuseDesc: "اختر بحكمة: اتهام بريء يترك الجاني الحقيقي يفلت!",
+            guideRowProfileTitle: "ملف المحقق", guideRowProfileDesc: "رتبتك، عدد القضايا المحلولة، نسبة الدقة، والإنجازات.",
+            guideRowChatTitle: "دردشة الأصدقاء", guideRowChatDesc: "تواصل كتابةً أو صوتياً مع أصدقائك أثناء اللعب.",
+            guideRowFriendsTitle: "اللعب مع الأصدقاء", guideRowFriendsDesc: "تحدي متعدد اللاعبين، وضع السباق، ومكالمة صوتية.",
+            guideRowLbTitle: "قائمة المتصدرين", guideRowLbDesc: "قارن نتائجك مع محققين آخرين — داخل الإعدادات.",
+            guideRowSettingsTitle: "الإعدادات", guideRowSettingsDesc: "الصوت، الوصولية، الإحصائيات، الملف السري، اللغة، وهذا الدليل.",
+            guideBtn: "لنبدأ التحقيق ←"
+        },
+        fr: {
+            guideTitle: "Bienvenue, Détective", guideSubtitle: "Un guide rapide de tout ce que contient Le Dossier Noir",
+            guideSettingsBtn: "Guide du jeu",
+            lbSettingsBtn: "Classement", lbModalTitle: "🏆 Classement", lbModalClose: "Fermer", helpGroupLabel: "Aide",
+            displayGroupLabel: "Affichage", progressGroupLabel: "Progression", langRegionGroupLabel: "Langue et région", soundLabel: "Son", alibiLabel: "Alibi :", chatDemoName: "Inspecteur John :", chatDemoMsg: "Bienvenue sur le réseau, détectives ! Des nouvelles pistes sur la dernière affaire ?",
+            guideRowArchiveTitle: "Archives des affaires (20 crimes)", guideRowArchiveDesc: "Choisissez une affaire selon sa difficulté et lancez l'enquête.",
+            guideRowFlowTitle: "Déroulement d'une enquête", guideRowFlowDesc: "Lisez le résumé, examinez les preuves et interrogez chaque suspect.",
+            guideRowNotesTitle: "Notes et indices du détective", guideRowNotesDesc: "Prenez des notes et n'utilisez les indices qu'en cas de besoin.",
+            guideRowAccuseTitle: "Accusation finale", guideRowAccuseDesc: "Choisissez avec soin : accuser un innocent laisse le vrai coupable filer !",
+            guideRowProfileTitle: "Profil du détective", guideRowProfileDesc: "Votre rang, affaires résolues, taux de réussite et succès.",
+            guideRowChatTitle: "Discussion entre amis", guideRowChatDesc: "Écrivez ou parlez avec vos amis pendant que vous jouez.",
+            guideRowFriendsTitle: "Jouer avec des amis", guideRowFriendsDesc: "Défi multijoueur, mode course et appel vocal.",
+            guideRowLbTitle: "Classement", guideRowLbDesc: "Comparez vos résultats avec d'autres détectives — dans les Paramètres.",
+            guideRowSettingsTitle: "Paramètres", guideRowSettingsDesc: "Son, accessibilité, statistiques, dossier secret, langue, et ce guide.",
+            guideBtn: "Commençons l'enquête →"
+        },
+        es: {
+            guideTitle: "Bienvenido, Detective", guideSubtitle: "Una guía rápida de todo lo que hay en El Expediente Negro",
+            guideSettingsBtn: "Guía del juego",
+            lbSettingsBtn: "Clasificación", lbModalTitle: "🏆 Clasificación", lbModalClose: "Cerrar", helpGroupLabel: "Ayuda",
+            displayGroupLabel: "Pantalla", progressGroupLabel: "Progreso", langRegionGroupLabel: "Idioma y región", soundLabel: "Sonido", alibiLabel: "Coartada:", chatDemoName: "Inspector John:", chatDemoMsg: "¡Bienvenidos a la red, detectives! ¿Alguna pista nueva sobre el último caso?",
+            guideRowArchiveTitle: "Archivo de casos (20 crímenes)", guideRowArchiveDesc: "Elige un caso según su dificultad y comienza a investigar.",
+            guideRowFlowTitle: "Cómo funciona una investigación", guideRowFlowDesc: "Lee el resumen del caso, examina las pruebas e interroga a cada sospechoso.",
+            guideRowNotesTitle: "Notas y pistas del detective", guideRowNotesDesc: "Toma notas y usa las pistas solo cuando te atasques.",
+            guideRowAccuseTitle: "Acusación final", guideRowAccuseDesc: "Elige con cuidado: ¡acusar a un inocente deja escapar al culpable!",
+            guideRowProfileTitle: "Perfil de detective", guideRowProfileDesc: "Tu rango, casos resueltos, precisión y logros.",
+            guideRowChatTitle: "Chat de amigos", guideRowChatDesc: "Escribe o habla con tus amigos mientras juegas.",
+            guideRowFriendsTitle: "Jugar con amigos", guideRowFriendsDesc: "Desafío multijugador, modo carrera y llamada de voz.",
+            guideRowLbTitle: "Clasificación", guideRowLbDesc: "Compara tus resultados con otros detectives — dentro de Ajustes.",
+            guideRowSettingsTitle: "Ajustes", guideRowSettingsDesc: "Sonido, accesibilidad, estadísticas, expediente secreto, idioma y esta guía.",
+            guideBtn: "Empecemos a investigar →"
+        },
+        it: {
+            guideTitle: "Benvenuto, Investigatore", guideSubtitle: "Una guida rapida a tutto ciò che contiene Il Fascicolo Nero",
+            guideSettingsBtn: "Guida al gioco",
+            lbSettingsBtn: "Classifica", lbModalTitle: "🏆 Classifica", lbModalClose: "Chiudi", helpGroupLabel: "Aiuto",
+            displayGroupLabel: "Schermo", progressGroupLabel: "Progressi", langRegionGroupLabel: "Lingua e regione", soundLabel: "Audio", alibiLabel: "Alibi:", chatDemoName: "Ispettore John:", chatDemoMsg: "Benvenuti nella rete, investigatori! Novità sull'ultimo caso?",
+            guideRowArchiveTitle: "Archivio dei casi (20 delitti)", guideRowArchiveDesc: "Scegli un caso in base alla difficoltà e inizia le indagini.",
+            guideRowFlowTitle: "Come funziona un'indagine", guideRowFlowDesc: "Leggi il riassunto, esamina le prove e interroga ogni sospettato.",
+            guideRowNotesTitle: "Appunti e indizi dell'investigatore", guideRowNotesDesc: "Prendi appunti e usa gli indizi solo se necessario.",
+            guideRowAccuseTitle: "Accusa finale", guideRowAccuseDesc: "Scegli con cura: accusare un innocente lascia fuggire il vero colpevole!",
+            guideRowProfileTitle: "Profilo investigatore", guideRowProfileDesc: "Il tuo grado, i casi risolti, la precisione e i risultati.",
+            guideRowChatTitle: "Chat con gli amici", guideRowChatDesc: "Scrivi o parla con i tuoi amici mentre giochi.",
+            guideRowFriendsTitle: "Gioca con gli amici", guideRowFriendsDesc: "Sfida multigiocatore, modalità gara e chiamata vocale.",
+            guideRowLbTitle: "Classifica", guideRowLbDesc: "Confronta i tuoi risultati con altri investigatori — dentro Impostazioni.",
+            guideRowSettingsTitle: "Impostazioni", guideRowSettingsDesc: "Audio, accessibilità, statistiche, fascicolo segreto, lingua e questa guida.",
+            guideBtn: "Iniziamo le indagini →"
+        },
+        de: {
+            guideTitle: "Willkommen, Detektiv", guideSubtitle: "Ein schneller Leitfaden zu allem in der Schwarzen Akte",
+            guideSettingsBtn: "Spielanleitung",
+            lbSettingsBtn: "Bestenliste", lbModalTitle: "🏆 Bestenliste", lbModalClose: "Schließen", helpGroupLabel: "Hilfe",
+            displayGroupLabel: "Anzeige", progressGroupLabel: "Fortschritt", langRegionGroupLabel: "Sprache & Region", soundLabel: "Ton", alibiLabel: "Alibi:", chatDemoName: "Inspektor John:", chatDemoMsg: "Willkommen im Netzwerk, Detektive! Neue Spuren zum aktuellen Fall?",
+            guideRowArchiveTitle: "Fallarchiv (20 Verbrechen)", guideRowArchiveDesc: "Wähle einen Fall nach Schwierigkeit und beginne die Ermittlung.",
+            guideRowFlowTitle: "Ablauf einer Ermittlung", guideRowFlowDesc: "Lies die Fallzusammenfassung, untersuche die Beweise und befrage jeden Verdächtigen.",
+            guideRowNotesTitle: "Notizen & Hinweise", guideRowNotesDesc: "Mach dir Notizen und nutze Hinweise nur, wenn du nicht weiterkommst.",
+            guideRowAccuseTitle: "Endgültige Anklage", guideRowAccuseDesc: "Wähle mit Bedacht: Eine falsche Anklage lässt den wahren Täter entkommen!",
+            guideRowProfileTitle: "Detektivprofil", guideRowProfileDesc: "Dein Rang, gelöste Fälle, Trefferquote und Erfolge.",
+            guideRowChatTitle: "Freundes-Chat", guideRowChatDesc: "Schreibe oder sprich mit deinen Freunden, während ihr spielt.",
+            guideRowFriendsTitle: "Mit Freunden spielen", guideRowFriendsDesc: "Mehrspieler-Herausforderung, Rennmodus und Sprachanruf.",
+            guideRowLbTitle: "Bestenliste", guideRowLbDesc: "Vergleiche deine Ergebnisse mit anderen Detektiven — in den Einstellungen.",
+            guideRowSettingsTitle: "Einstellungen", guideRowSettingsDesc: "Sound, Barrierefreiheit, Statistiken, Geheimakte, Sprache und diese Anleitung.",
+            guideBtn: "Auf zur Ermittlung →"
+        },
+        pt: {
+            guideTitle: "Bem-vindo, Detetive", guideSubtitle: "Um guia rápido de tudo o que há no Ficheiro Negro",
+            guideSettingsBtn: "Guia do jogo",
+            lbSettingsBtn: "Classificação", lbModalTitle: "🏆 Classificação", lbModalClose: "Fechar", helpGroupLabel: "Ajuda",
+            displayGroupLabel: "Exibição", progressGroupLabel: "Progresso", langRegionGroupLabel: "Idioma e região", soundLabel: "Som", alibiLabel: "Álibi:", chatDemoName: "Inspetor John:", chatDemoMsg: "Bem-vindos à rede, detetives! Alguma pista nova sobre o último caso?",
+            guideRowArchiveTitle: "Arquivo de casos (20 crimes)", guideRowArchiveDesc: "Escolha um caso pela dificuldade e comece a investigar.",
+            guideRowFlowTitle: "Como funciona uma investigação", guideRowFlowDesc: "Leia o resumo do caso, examine as provas e interrogue cada suspeito.",
+            guideRowNotesTitle: "Notas e dicas do detetive", guideRowNotesDesc: "Anote notas e use as dicas apenas quando precisar.",
+            guideRowAccuseTitle: "Acusação final", guideRowAccuseDesc: "Escolha com cuidado: acusar um inocente deixa o verdadeiro culpado escapar!",
+            guideRowProfileTitle: "Perfil do detetive", guideRowProfileDesc: "A sua patente, casos resolvidos, taxa de acerto e conquistas.",
+            guideRowChatTitle: "Chat com amigos", guideRowChatDesc: "Escreva ou fale com os seus amigos enquanto joga.",
+            guideRowFriendsTitle: "Jogar com amigos", guideRowFriendsDesc: "Desafio multijogador, modo corrida e chamada de voz.",
+            guideRowLbTitle: "Classificação", guideRowLbDesc: "Compare os seus resultados com outros detetives — dentro de Definições.",
+            guideRowSettingsTitle: "Definições", guideRowSettingsDesc: "Som, acessibilidade, estatísticas, ficheiro secreto, idioma e este guia.",
+            guideBtn: "Vamos investigar →"
+        }
+    };
+    GUIDE_TRANGS.ary = GUIDE_TRANGS.ar;
+    Object.keys(GUIDE_TRANGS).forEach(lang => {
+        if (EXTRA_TRANGS[lang]) Object.assign(EXTRA_TRANGS[lang], GUIDE_TRANGS[lang]);
+    });
     function txx(key) {
         const dict = EXTRA_TRANGS[currentLang] || EXTRA_TRANGS.en;
-        return (dict[key] !== undefined ? dict[key] : EXTRA_TRANGS.en[key]) || '';
+        if (dict[key] !== undefined) return dict[key];
+        if (EXTRA_TRANGS.en[key] !== undefined) return EXTRA_TRANGS.en[key];
+        // Fallback: return key name wrapped in brackets so missing translations are visible
+        return '[' + key + ']';
     }
 
     function todayStr() {
         const d = new Date();
-        return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return d.getFullYear() + '-' + m + '-' + day;
     }
 
     // ---- accessibility & comfort settings ----
@@ -2228,15 +2517,37 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
     }
 
     // ---- Text-to-Speech ----
-    function speakText(text) {
-        if (!('speechSynthesis' in window) || !text) return;
-        try {
+    // ملاحظة مهمة: 'speechSynthesis' in window كترجع true حتى فـ Android WebView
+    // (اللي هو المتصفح الداخلي لتطبيق Capacitor) — لاكن هاد الـ WebView ماعندوش
+    // محرك TTS مربوط بشكل افتراضي، فـ speak() كتخدم بلا ما تصدر أي صوت ولا خطأ.
+    // هادشي هو السبب الحقيقي فزر "استمع" ما كيديرش والدة صوت. الحل الجذري هو
+    // استعمال Capacitor plugin أصلي (مثلاً @capacitor-community/text-to-speech)
+    // اللي كيهضر مباشرة مع محرك TTS ديال Android، بدل الاعتماد على speechSynthesis
+    // ديال الويب فقط. هنا زدنا فقط تنبيه بسيط للمستخدم بدل الفشل الصامت.
+    async function speakText(text) {
+    if (!text) return;
+    const lang = (typeof VOICE_LOCALES !== 'undefined' && VOICE_LOCALES[currentLang]) ? VOICE_LOCALES[currentLang] : 'en-US';
+    
+    try {
+        if (window.Capacitor && window.Capacitor.isPluginAvailable('TextToSpeech')) {
+            await window.Capacitor.Plugins.TextToSpeech.speak({
+                text: text,
+                lang: lang,
+                rate: 1.0,
+                pitch: 1.0,
+                volume: 1.0,
+                category: 'ambient'
+            });
+        } else if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
             const u = new SpeechSynthesisUtterance(text);
-            u.lang = VOICE_LOCALES[currentLang] || 'en-US';
+            u.lang = lang;
             window.speechSynthesis.speak(u);
-        } catch (e) {}
+        }
+    } catch (error) {
+        console.error('TTS Error:', error);
     }
+}
     function speakBrief() {
         const data = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
         const c = data.cases[currentCaseIndex];
@@ -2250,14 +2561,9 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
     }
 
     // ---- replay: cases always keep their originally-authored culprit ----
-    // (previously this randomly reassigned the culprit on replay, which broke
-    // the case because the evidence/alibis/dialogue only make sense for the
-    // one culprit the case was written around)
+    // The evidence/alibis/dialogue only make sense for the one culprit the case was written around.
+    // (Shuffling the culprit on replay was removed because it broke case logic.)
     let caseStartTime = Date.now();
-    let shuffledCulprit = {};
-    function ensureShuffledCulprit(idx, c) {
-        delete shuffledCulprit[idx];
-    }
 
     // ---- detailed stats & chart ----
     function openStatsScreen() {
@@ -2373,6 +2679,7 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         const text = `${userProfile.name} — ${computeRank()} | ${txx('reportSolved')}: ${stats.solved} | ${txx('reportAccuracy')}: ${stats.acc}%`;
         if (canvas && navigator.canShare && navigator.share) {
             canvas.toBlob((blob) => {
+                if (!blob) { fallbackShareText(text); return; }
                 const file = new File([blob], 'detective-report-card.png', { type: 'image/png' });
                 if (navigator.canShare({ files: [file] })) {
                     navigator.share({ files: [file], text }).catch(() => {});
@@ -2446,9 +2753,21 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
             if (statusBox) statusBox.textContent = txx('raceWaitingFriend');
             return;
         }
+        // Fix: Only pick from unlocked cases to prevent progression bypass
         const unsolved = [];
-        for (let i = 0; i < 20; i++) { if (!userProfile.solvedCases.includes(i)) unsolved.push(i); }
-        const pool = unsolved.length ? unsolved : Array.from({length:20}, (_,i)=>i);
+        for (let i = 0; i < 20; i++) {
+            if (!userProfile.solvedCases.includes(i) && isCaseUnlocked(i)) unsolved.push(i);
+        }
+        // Fallback: if no unlocked unsolved cases, pick from all unlocked cases
+        const pool = unsolved.length ? unsolved : (() => {
+            const unlocked = [];
+            for (let i = 0; i < 20; i++) { if (isCaseUnlocked(i)) unlocked.push(i); }
+            return unlocked;
+        })();
+        if (!pool.length) {
+            if (statusBox) statusBox.textContent = txx('raceWaitingFriend');
+            return;
+        }
         const chosenIdx = pool[Math.floor(Math.random() * pool.length)];
         mpConnection.send({ type: 'race_invite', caseIndex: chosenIdx, ts: Date.now() });
         if (statusBox) statusBox.textContent = txx('raceInvited');
@@ -2467,6 +2786,9 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         currentCaseIndex = caseIndex;
         userProfile.lastCaseIndex = caseIndex;
         closeMultiplayerModal();
+        // Fix: تعطيل المؤقت قبل بدء السباق حتى لا يرث حالة المؤقت من القضية السابقة
+        const timedToggle = document.getElementById('brief-timed-toggle');
+        if (timedToggle) timedToggle.checked = false;
         startInvestigation();
         const bar = document.getElementById('race-bar');
         if (bar) bar.classList.add('active');
@@ -2496,11 +2818,36 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
     function handleRaceMessage(data) {
         const statusBox = document.getElementById('race-status-box');
         if (data.type === 'race_invite') {
+            // Fix: Validate that the case is unlocked before accepting the race
+            if (!isCaseUnlocked(data.caseIndex)) {
+                if (statusBox) statusBox.textContent = txx('raceReceived') + ' (locked case ignored)';
+                mpConnection.send({ type: 'race_reject', reason: 'case_locked', ts: Date.now() });
+                return;
+            }
+            // Fix: إذا كان المستخدم فتحقيق نشط وماحلش القضية، نأمنه قبل قطع التحقيق
+            const scrInv = document.getElementById('scr-investigation');
+            const caseNotSolved = !Array.isArray(userProfile.solvedCases) || !userProfile.solvedCases.includes(currentCaseIndex);
+            if (scrInv && scrInv.classList.contains('active') && caseNotSolved) {
+                const confirmed = confirm(txx('raceInterruptConfirm'));
+                if (!confirmed) {
+                    mpConnection.send({ type: 'race_reject', reason: 'user_busy', ts: Date.now() });
+                    return;
+                }
+            }
             if (statusBox) statusBox.textContent = txx('raceReceived');
             beginRace(data.caseIndex);
         } else if (data.type === 'race_finish') {
             raceOpponentFinished = true;
-            opponentRaceMs = (typeof data.ms === 'number') ? data.ms : Infinity;
+            // Sanity check: reject unrealistically fast solve times (< 3000ms = 3s)
+            // as likely cheating. This won't stop advanced cheating (client-side
+            // validation in a P2P architecture without a central arbiter server),
+            // but it prevents the simplest form. A proper fix would require a
+            // central arbitration server, which is outside the current PeerJS design.
+            if (typeof data.ms === 'number' && data.ms >= 3000) {
+                opponentRaceMs = data.ms;
+            } else {
+                opponentRaceMs = Infinity; // Treat as invalid / connection error
+            }
             declareRaceResultIfReady();
         } else if (data.type === 'race_wrong') {
             if (statusBox) statusBox.textContent = txx('raceOpponentWrong');
@@ -2534,7 +2881,19 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
 
         if (raceIAmFinished && raceOpponentFinished) {
             raceResultDeclared = true;
-            const iWon = myRaceMs <= opponentRaceMs; // tie goes to whoever answered (rare, symmetric edge case)
+            let iWon;
+            if (myRaceMs < opponentRaceMs) {
+                iWon = true;
+            } else if (myRaceMs > opponentRaceMs) {
+                iWon = false;
+            } else {
+                // Exact tie (same ms, or both Infinity): break deterministically
+                // using peer IDs so both sides compute the same result.
+                // The peer with the lexicographically smaller ID wins the tie.
+                const myId = (mpPeer && mpPeer.id) ? mpPeer.id : '';
+                const oppId = (mpConnection && mpConnection.peer) ? mpConnection.peer : '';
+                iWon = myId <= oppId;
+            }
             const msg = iWon ? txx('raceYouWon') : txx('raceYouLost');
             if (barText) barText.textContent = msg;
             alert(msg);
@@ -2563,7 +2922,7 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
             await LocalNotifications.cancel({ notifications: [{ id: DAILY_REMINDER_ID }] });
             await LocalNotifications.schedule({
                 notifications: [{
-                    title: txx('appTitle') || 'The Black File',
+                    title: (TRANSLATIONS[currentLang] || TRANSLATIONS.en).appTitle || 'The Black File',
                     body: txx('reminderMsg'),
                     id: DAILY_REMINDER_ID,
                     schedule: { on: { hour: 20, minute: 0 }, repeats: true }
@@ -2614,6 +2973,40 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         const setPlainText = (id, key) => { const el = document.getElementById(id); if (el) el.textContent = txx(key).replace(/^[^\w\s]+\s*/u, ''); };
         setPlainText('txt-stats-btn', 'statsBtnLabel');
         setPlainText('txt-story-btn', 'storyBtnLabel');
+        setText('txt-showcase-label', 'showcaseLabel');
+        setText('txt-lb-settings-btn', 'lbSettingsBtn');
+        setText('txt-lb-title', 'lbModalTitle');
+        setText('txt-lb-close', 'lbModalClose');
+        setText('txt-help-group-label', 'helpGroupLabel');
+        setText('txt-display-group-label', 'displayGroupLabel');
+        setText('txt-progress-group-label', 'progressGroupLabel');
+        setText('txt-langregion-group-label', 'langRegionGroupLabel');
+        setText('txt-sound-label', 'soundLabel');
+        setText('txt-alibi-label', 'alibiLabel');
+        setText('txt-chat-demo-name', 'chatDemoName');
+        setText('txt-chat-demo-msg', 'chatDemoMsg');
+        setText('txt-guide-settings-btn', 'guideSettingsBtn');
+        setText('txt-guide-title', 'guideTitle');
+        setText('txt-guide-subtitle', 'guideSubtitle');
+        setText('txt-guide-archive-title', 'guideRowArchiveTitle');
+        setText('txt-guide-archive-desc', 'guideRowArchiveDesc');
+        setText('txt-guide-flow-title', 'guideRowFlowTitle');
+        setText('txt-guide-flow-desc', 'guideRowFlowDesc');
+        setText('txt-guide-notes-title', 'guideRowNotesTitle');
+        setText('txt-guide-notes-desc', 'guideRowNotesDesc');
+        setText('txt-guide-accuse-title', 'guideRowAccuseTitle');
+        setText('txt-guide-accuse-desc', 'guideRowAccuseDesc');
+        setText('txt-guide-profile-title', 'guideRowProfileTitle');
+        setText('txt-guide-profile-desc', 'guideRowProfileDesc');
+        setText('txt-guide-chat-title', 'guideRowChatTitle');
+        setText('txt-guide-chat-desc', 'guideRowChatDesc');
+        setText('txt-guide-friends-title', 'guideRowFriendsTitle');
+        setText('txt-guide-friends-desc', 'guideRowFriendsDesc');
+        setText('txt-guide-lb-title', 'guideRowLbTitle');
+        setText('txt-guide-lb-desc', 'guideRowLbDesc');
+        setText('txt-guide-settings-title', 'guideRowSettingsTitle');
+        setText('txt-guide-settings-desc', 'guideRowSettingsDesc');
+        setText('txt-guide-btn', 'guideBtn');
         setPlainText('txt-access-btn', 'accessBtnLabel');
         { const el = document.getElementById('txt-settings-title'); if (el) el.textContent = txx('settingsTitle').replace(/^[^\w\s]+\s*/u, ''); }
         setText('txt-settings-close', 'accessClose');
@@ -2641,12 +3034,42 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         setText('txt-race-title', 'raceTitle');
         setText('txt-race-desc', 'raceDesc');
         setText('txt-race-start', 'raceStart');
+        setText('txt-mode-mp', 'modeMpTitle');
+        setText('txt-mode-mp-sub', 'modeMpSub');
+        setText('txt-mode-race', 'modeRaceTitle');
+        setText('txt-mode-race-sub', 'modeRaceSub');
+        setText('txt-mode-voice', 'modeVoiceTitle');
+        setText('txt-mode-voice-sub', 'modeVoiceSub');
+        setText('txt-pro-solved-label', 'proSolvedLabel');
+        setText('txt-pro-acc-label', 'proAccuracyLabel');
+        setText('txt-pro-export-btn', 'proExportBtn');
+        setText('txt-pro-import-btn', 'proImportBtn');
         setText('txt-tts-listen', 'listen');
         setText('txt-tts-listen-2', 'listen');
+        setText('lb-loading', 'lbLoadingText');
+        setText('txt-mp-public', 'mpPublicToggleLabel');
+        setText('txt-mp-browse', 'mpBrowsePublicBtn');
+        applyLoginScreenTexts();
         renderEnergyRemaining();
         if (document.getElementById('scr-stats').classList.contains('active')) renderStatsScreen();
         if (document.getElementById('scr-story').classList.contains('active')) renderStoryScreen();
     }
+
+function applyLoginScreenTexts() {
+    const setTxt = (id, key) => { const el = document.getElementById(id); if (el) el.textContent = txx(key); };
+    const setPh = (id, key) => { const el = document.getElementById(id); if (el) el.placeholder = txx(key); };
+    document.querySelectorAll('.lamp-login-wrapper .hint').forEach(el => { el.textContent = txx('loginHint'); });
+    setTxt('login-title', 'loginTitle');
+    setPh('email', 'loginEmailPlaceholder');
+    setPh('password', 'loginPasswordPlaceholder');
+    setPh('confirm-password', 'loginConfirmPasswordPlaceholder');
+    setTxt('forgot-link', 'loginForgotPassword');
+    setTxt('submit-btn', 'loginSignInBtn');
+    setTxt('txt-login-or', 'loginOrDivider');
+    setTxt('txt-google-btn-label', 'loginGoogleBtn');
+    setTxt('offline-btn', 'loginOfflineBtn');
+    setTxt('sync-warning', 'syncWarning');
+}
 
 // ---- Service worker registration ----
 // تسجيل الـ Service Worker ليعمل التطبيق دون اتصال بعد أول فتح
@@ -2773,7 +3196,16 @@ function setOfflineMode(value) {
   } catch (e) { /* ignore: storage may be blocked */ }
 }
 
+function showBootLoadingUI() {
+  const wrapper = document.getElementById('lamp-wrapper');
+  const appRoot = document.querySelector('.app');
+  if (wrapper) { wrapper.style.display = 'none'; wrapper.setAttribute('aria-hidden', 'true'); }
+  if (appRoot) { appRoot.style.display = 'none'; }
+  if (typeof showLoader === 'function') showLoader();
+}
+
 function showLoginUI() {
+  if (typeof hideLoader === 'function') hideLoader();
   const wrapper = document.getElementById('lamp-wrapper');
   const appRoot = document.querySelector('.app');
   if (wrapper) {
@@ -2786,6 +3218,7 @@ function showLoginUI() {
 }
 
 function showGameUI() {
+  if (typeof hideLoader === 'function') hideLoader();
   const wrapper = document.getElementById('lamp-wrapper');
   const appRoot = document.querySelector('.app');
   if (wrapper) {
@@ -2802,6 +3235,11 @@ function showGameUI() {
       console.error('Unable to show the game menu:', error);
     }
   }
+  // أول ما تظهر واجهة اللعبة فعلياً (بعد تسجيل دخول أونلاين أو اختيار
+  // اللعب أوفلاين) نعرض دليل اللعبة لمرة واحدة فقط.
+  if (typeof showOnboardingIfNeeded === 'function') {
+    showOnboardingIfNeeded();
+  }
 }
 
 // نقطة الدخول الوحيدة الموثوقة لحالة الواجهة (تسجيل دخول أو لعب داخل التطبيق).
@@ -2809,7 +3247,12 @@ function showGameUI() {
 // لتفادي مشكلة إعادته لشاشة الدخول بعد نجاح التسجيل (سباق مع onAuthStateChanged).
 function syncAuthUI(user) {
   if (user) {
-    setOfflineMode(false); // مستخدم حقيقي مسجّل الدخول يلغي وضع الضيف تلقائياً
+    setOfflineMode(false);
+    // Reset cloud progress cache for new user (prevents stale data from previous user)
+    cloudSolvedCases = null;
+    cloudProgressLoaded = false;
+    // Load server-validated progress (solvedCases) from Firestore
+    void loadCloudProgress();
     showGameUI();
   } else if (isOfflineMode()) {
     showGameUI();
@@ -2833,22 +3276,16 @@ async function bootstrapAuthFlow() {
     console.error('Firebase persistence setup failed:', error);
   }
 
+  // تحقق من وجود مستخدم مسجل الدخول حالياً (من جلسة محفوظة)
+  // مع إعطاء الأولوية لوضع أوفلاين المحفوظ مسبقاً.
   try {
-    const result = await checkRedirectResult();
-    if (result && result.user) {
-      // نتيجة إعادة توجيه Google ناجحة: أدخل المستخدم للعبة فوراً.
-      syncAuthUI(result.user);
-    } else if (firebaseAuth.currentUser) {
-      // onAuthStateChanged قد يكون أظهر واجهة اللعبة بالفعل قبل وصولنا هنا
-      // (خصوصاً بعد إعادة تحميل الصفحة إثر Redirect من Google).
-      // لا نستدعي syncAuthUI(null) هنا أبداً في هذه الحالة، تفادياً لإعادة
-      // المستخدم لشاشة تسجيل الدخول رغم نجاح الدخول (هذا كان سبب الخلل).
+    if (firebaseAuth.currentUser) {
+      // مستخدم مسجل الدخول فعلياً: أدخله للعبة فوراً.
       syncAuthUI(firebaseAuth.currentUser);
     }
-    // إن لم توجد نتيجة Redirect ولا مستخدم حالي، نترك onAuthStateChanged
-    // (المسجَّل بالفعل) هو من يقرر الحالة الصحيحة للواجهة.
+    // إن لم يوجد مستخدم حالي، نترك onAuthStateChanged هو من يقرر الحالة الصحيحة.
   } catch (error) {
-    console.error('Redirect auth handling failed:', error);
+    console.error('Auth bootstrap failed:', error);
     // فقط في حال عدم وجود مستخدم حالي بالفعل ولسنا في وضع "بدون إنترنت"،
     // نعرض شاشة تسجيل الدخول كحالة افتراضية آمنة.
     if (!firebaseAuth.currentUser && !isOfflineMode()) {
@@ -2859,10 +3296,15 @@ async function bootstrapAuthFlow() {
 
 // الحالة الابتدائية قبل تهيئة Firebase: أعطِ الأولوية لوضع "بدون إنترنت"
 // المحفوظ مسبقاً حتى لا يظهر وميض شاشة تسجيل الدخول لمن اختاره سابقاً.
+// إصلاح: لا نعرض شاشة "اسحب الخيط" مباشرة لمن ليس في وضع أوفلاين، لأن هذا
+// كان يسبب وميضها لمدة ثانية لكل مستخدم مسجّل دخوله فعلياً (فالانتظار غير
+// المتزامن لتأكيد Firebase لجلسته المحفوظة كان يبان كـ"وميض" قبل ما تختفي).
+// بدل ذلك نعرض شاشة تحميل محايدة (دائرة تحميل) وننتظر onAuthStateChanged/
+// bootstrapAuthFlow ليقررا الحالة الصحيحة (لعبة أو تسجيل دخول) دفعة وحدة.
 if (isOfflineMode()) {
   showGameUI();
 } else {
-  showLoginUI();
+  showBootLoadingUI();
 }
 
 onAuthStateChanged(firebaseAuth, (user) => {
@@ -2882,7 +3324,7 @@ if (loginForm) {
     const submitBtn = document.getElementById('submit-btn');
 
     if (!email || !password) {
-      alert("Please enter your email and password.");
+      alert(txx('loginFillFieldsAlert'));
       return;
     }
 
@@ -2894,15 +3336,15 @@ if (loginForm) {
     if (submitBtn) submitBtn.disabled = true;
     try {
       if (typeof loginOrSignupWithEmail === 'function') {
-        await loginOrSignupWithEmail(email, password, confirmPassword);
+        await loginOrSignupWithEmail(txx, email, password, confirmPassword);
       } else {
-        alert("جاري تسجيل الدخول...");
+        alert(txx('loginSigningInFallback'));
       }
     } catch (err) {
       if (err?.code === 'auth/password-mismatch') {
-        alert("كلمتا السر غير متطابقتين!");
+        alert(txx('loginPasswordMismatchAlert'));
       } else {
-        alert(err?.message || "Authentication failed. Please try again.");
+        alert(err?.message || txx('loginAuthFailedFallback'));
       }
     } finally {
       if (submitBtn) submitBtn.disabled = false;
@@ -2918,17 +3360,17 @@ if (forgotLink) {
     const emailInput = document.getElementById('email');
     const email = emailInput ? emailInput.value.trim() : '';
     if (!email) {
-      alert('Please enter your email address first, then tap "Forgot Password?" again.');
+      alert(txx('loginEnterEmailFirstAlert'));
       if (emailInput) emailInput.focus();
       return;
     }
     try {
       if (typeof resetPassword === 'function') {
         await resetPassword(email);
-        alert('A password reset link has been sent to ' + email + '.');
+        alert(txx('loginResetLinkSentAlert').replace('{email}', email));
       }
     } catch (err) {
-      alert(err?.message || 'Could not send the reset email. Please try again.');
+      alert(err?.message || txx('loginResetFailedFallback'));
     }
   });
 }
@@ -2939,15 +3381,15 @@ if (googleBtn) {
     try {
       showLoginUI();
       if (typeof loginWithGoogleRedirect === 'function') {
-        await loginWithGoogleRedirect();
+        await loginWithGoogleRedirect(txx);
       } else if (typeof window.loginWithGoogle === 'function') {
-        await window.loginWithGoogle();
+        await window.loginWithGoogle(txx);
       } else {
-        alert("جاري الاتصال بـ Google...");
+        alert(txx('loginConnectingGoogleFallback'));
       }
     } catch (err) {
       showLoginUI();
-      alert(err?.message || "Google sign-in failed.");
+      alert(err?.message || txx('loginGoogleFailedFallback'));
     }
   });
 }
@@ -2990,6 +3432,7 @@ const GLOBAL_UI_HANDLERS = {
   leaveMultiplayerRoom,
   joinMultiplayerRoom,
   closeOnboarding,
+  openGameGuide,
   openAccessModal,
   closeAccessModal,
   openSettingsModal,
@@ -3012,3 +3455,211 @@ const GLOBAL_UI_HANDLERS = {
 };
 
 Object.assign(window, GLOBAL_UI_HANDLERS);
+
+// ========================================
+// Event Delegation: data-action attributes
+// Replaces inline onclick handlers for better security and maintainability
+// ========================================
+document.addEventListener('click', (e) => {
+  const target = e.target.closest('[data-action]');
+  if (!target) return;
+  
+  const action = target.dataset.action;
+  
+  // Simple direct actions (no arguments)
+  const directActions = {
+    'openProfileModal': openProfileModal,
+    'closeProfileModal': closeProfileModal,
+    'toggleChatWidget': toggleChatWidget,
+    'openMultiplayerModal': openMultiplayerModal,
+    'closeMultiplayerModal': closeMultiplayerModal,
+    'browsePublicRooms': browsePublicRooms,
+    'leaveMultiplayerRoom': leaveMultiplayerRoom,
+    'createMultiplayerRoom': createMultiplayerRoom,
+    'joinMultiplayerRoom': joinMultiplayerRoom,
+    'openSettingsModal': openSettingsModal,
+    'closeSettingsModal': closeSettingsModal,
+    'toggleMute': toggleMute,
+    'closeAccessModal': closeAccessModal,
+    'startInvestigation': startInvestigation,
+    'openNotesModal': openNotesModal,
+    'openHintsModal': openHintsModal,
+    'openAccusationModal': openAccusationModal,
+    'submitAccusation': submitAccusation,
+    'restartCase': restartCase,
+    'resumeLastCase': resumeLastCase,
+    'speakBrief': speakBrief,
+    'speakSuspect': speakSuspect,
+    'downloadReportCard': downloadReportCard,
+    'shareReportCard': shareReportCard,
+    'toggleVoiceCall': toggleVoiceCall,
+    'toggleVoiceInput': toggleVoiceInput,
+    'sendChatMessage': sendChatMessage,
+    'saveProfile': saveProfile,
+    'saveNotes': saveNotes,
+    'exportProgress': exportProgress,
+    'closeOnboarding': closeOnboarding,
+    'startQuickRace': startQuickRace,
+    'toggleHighContrast': () => toggleHighContrast(target.checked),
+    'toggleColorBlind': () => toggleColorBlind(target.checked),
+    'toggleTTS': () => toggleTTS(target.checked),
+    'toggleEnergyMode': () => toggleEnergyMode(target.checked),
+    'toggleDailyReminder': () => toggleDailyReminder(target.checked),
+  };
+  
+  if (directActions[action]) {
+    directActions[action]();
+    return;
+  }
+  
+  // Actions with arguments (action_arg format)
+  if (action.startsWith('show_')) {
+    const screen = action.replace('show_', 'scr-');
+    show(screen);
+    return;
+  }
+  
+  // closeModal with data-modal attribute
+  if (action === 'closeModal') {
+    const modal = target.dataset.modal;
+    if (modal) closeModal(modal);
+    return;
+  }
+  
+  if (action.startsWith('closeModal_')) {
+    const modal = action.replace('closeModal_', 'modal-');
+    closeModal(modal);
+    return;
+  }
+  
+  if (action.startsWith('filterCases_')) {
+    const filter = action.replace('filterCases_', '');
+    filterCases(filter, target);
+    return;
+  }
+  
+  // setFontSize with data-fs attribute
+  if (action === 'setFontSize') {
+    const fs = target.dataset.fs;
+    if (fs) setFontSize(fs);
+    return;
+  }
+  
+  // triggerImportFile - triggers file input click
+  if (action === 'triggerImportFile') {
+    const fileInput = document.getElementById('import-file-input');
+    if (fileInput) fileInput.click();
+    return;
+  }
+  
+  // Compound actions (action1_action2 format)
+  if (action === 'closeSettingsModal_openAccessModal') {
+    closeSettingsModal();
+    openAccessModal();
+    return;
+  }
+  if (action === 'closeSettingsModal_openStatsScreen') {
+    closeSettingsModal();
+    openStatsScreen();
+    return;
+  }
+  if (action === 'closeSettingsModal_openStoryScreen') {
+    closeSettingsModal();
+    openStoryScreen();
+    return;
+  }
+  if (action === 'closeSettingsModal_openLeaderboardModal') {
+    closeSettingsModal();
+    openLeaderboardModal();
+    return;
+  }
+  if (action === 'closeSettingsModal_openGameGuide') {
+    closeSettingsModal();
+    openGameGuide();
+    return;
+  }
+
+  // --- Cases 1-3: Simple actions with arguments ---
+  if (action === 'openBrief') {
+    openBrief(parseInt(target.dataset.caseIdx));
+    return;
+  }
+  if (action === 'openEvidence') {
+    openEvidenceModal(target.dataset.evName, target.dataset.evDesc);
+    return;
+  }
+  if (action === 'openSuspect') {
+    openSuspectModal(parseInt(target.dataset.suspectIdx));
+    return;
+  }
+
+  // --- Case 4: Ask question (multi-line logic moved here) ---
+  if (action === 'askQuestion') {
+    const qKey = target.dataset.qKey;
+    askedQuestions[qKey] = true;
+    target.classList.add('asked');
+    if (!target.querySelector('.ans')) {
+      const ansDiv = document.createElement('div');
+      ansDiv.className = 'ans';
+      ansDiv.style.marginTop = '6px';
+      const label = (TRANSLATIONS[currentLang] || TRANSLATIONS.en).answerLabel;
+      ansDiv.innerHTML = `<b>${escapeHtml(label)}</b> ${escapeHtml(target.dataset.answer)}`;
+      target.appendChild(ansDiv);
+    }
+    playClickSound();
+    return;
+  }
+
+  // --- Case 5: Select accused suspect ---
+  if (action === 'selectAccusedSuspect') {
+    document.querySelectorAll('#accuse-suspects-list .pick').forEach(p => p.classList.remove('selected'));
+    target.classList.add('selected');
+    selectedSuspect = target.dataset.susName;
+    playClickSound();
+    return;
+  }
+
+  // --- Case 6: Select room code ---
+  if (action === 'selectRoomCode') {
+    const roomInput = document.getElementById('mp-roomcode');
+    if (roomInput) roomInput.value = target.dataset.roomId;
+    joinMultiplayerRoom();
+    return;
+  }
+});
+
+// Handle change events for select/checkbox inputs with data-action
+document.addEventListener('change', (e) => {
+  const target = e.target.closest('[data-action]');
+  if (!target) return;
+  
+  const action = target.dataset.action;
+  
+  if (action === 'changeLang') {
+    changeLang(target.value);
+    return;
+  }
+  
+  if (action === 'importProgress') {
+    importProgress(e);
+    return;
+  }
+  
+  if (action === 'setEnergyLimit') {
+    setEnergyLimit(target.value);
+    return;
+  }
+});
+
+// Handle keydown events for inputs with data-action
+document.addEventListener('keydown', (e) => {
+  const target = e.target.closest('[data-action]');
+  if (!target) return;
+  
+  const action = target.dataset.action;
+  
+  if (action === 'chatInputEnter' && e.key === 'Enter') {
+    sendChatMessage();
+    return;
+  }
+});

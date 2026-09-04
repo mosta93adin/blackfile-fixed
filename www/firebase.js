@@ -42,7 +42,7 @@ export async function initializeAuthPersistence() {
 // Only falls back to creating a brand-new account when Firebase reports that
 // no account exists yet for this email, so returning users are never forced
 // through the "create account" path just to log back in.
-export async function loginOrSignupWithEmail(email, password, confirmPassword) {
+export async function loginOrSignupWithEmail(txx, email, password, confirmPassword) {
   try {
     return await signInWithEmailAndPassword(auth, email, password);
   } catch (error) {
@@ -53,7 +53,8 @@ export async function loginOrSignupWithEmail(email, password, confirmPassword) {
       // ميت (dead code) لأن هاد الدالة ماكانتش كترمي أي خطأ فهاد الحالة.
       // دابا كنفحصو التطابق هنا، قبل إنشاء الحساب فعلياً.
       if (typeof confirmPassword === 'string' && password !== confirmPassword) {
-        const mismatchError = new Error('كلمتا السر غير متطابقتين!');
+        const msg = (typeof txx === 'function' && txx('loginPasswordMismatchAlert')) || 'Passwords do not match!';
+        const mismatchError = new Error(msg);
         mismatchError.code = 'auth/password-mismatch';
         throw mismatchError;
       }

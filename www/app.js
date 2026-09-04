@@ -1,5 +1,5 @@
 import { auth as firebaseAuth, db, initializeAuthPersistence, loginWithGoogle as loginWithGoogleRedirect, loginOrSignupWithEmail, resetPassword, onAuthStateChanged } from './firebase.js';
-import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDocs, serverTimestamp, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // The Black File — app logic (UI, game state, achievements, multiplayer, accessibility, etc.)
 // Depends on translations.js being loaded first (uses the global TRANSLATIONS).
@@ -24,6 +24,10 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
     let selectedSuspect = null;
     let askedQuestions = {};
     let activeFilter = 'all';
+    // Cache for server-validated solved cases (Firestore). null = not loaded / offline.
+    let cloudSolvedCases = null;
+    // True only after loadCloudProgress() completes (online). Until then, isCaseUnlocked returns false.
+    let cloudProgressLoaded = false;
 
     const VOICE_LOCALES = { 
         en: 'en-US', 
@@ -730,12 +734,24 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
     const UNLOCK_THRESHOLD = 2;
 
     function isCaseUnlocked(idx) {
+        // Use server-validated data when available; fallback to local for offline mode
+        // SECURITY: If online and cloud data not yet loaded, return false (locked) to prevent race window
+        let solvedCases;
+        if (cloudSolvedCases !== null) {
+            solvedCases = cloudSolvedCases;
+        } else if (!cloudProgressLoaded && firebaseAuth.currentUser && !isOfflineMode()) {
+            // Online + not yet loaded = treat as locked until server data arrives
+            return false;
+        } else {
+            // Offline mode or no user: use local data
+            solvedCases = userProfile.solvedCases;
+        }
         const tier = getCaseTier(idx);
         if (tier === 0) return true;
         const start = (tier - 1) * 5;
         let solvedInPrevTier = 0;
         for (let i = start; i < start + 5; i++) {
-            if (userProfile.solvedCases.includes(i)) solvedInPrevTier++;
+            if (solvedCases.includes(i)) solvedInPrevTier++;
         }
         return solvedInPrevTier >= UNLOCK_THRESHOLD;
     }
@@ -777,7 +793,7 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
                 <h4 style="margin:8px 0 6px 0; color:var(--gold);">${idx + 1}. ${escapeHtml(c.title)} ${unlocked ? '' : '🔒'}</h4>
                 <p style="font-size:12.5px; color:var(--paper-dim); margin:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${unlocked ? escapeHtml(c.brief) : '🔒'}</p>
             `;
-            if (unlocked) { card.onclick = () => openBrief(idx); }
+            if (unlocked) { card.dataset.action = 'openBrief'; card.dataset.caseIdx = idx; }
             list.appendChild(card);
         });
     }
@@ -856,7 +872,7 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
             const div = document.createElement('div');
             div.className = 'pick';
             div.innerHTML = `<b>${getEvidenceIcon(ev.name)} ${escapeHtml(ev.name)}</b>`;
-            div.onclick = () => openEvidenceModal(ev.name, ev.desc);
+            div.dataset.action = 'openEvidence'; div.dataset.evName = ev.name; div.dataset.evDesc = ev.desc;
             evList.appendChild(div);
         });
 
@@ -867,7 +883,7 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
             const div = document.createElement('div');
             div.className = 'pick';
             div.innerHTML = `<b>${getSuspectIcon(sus.role)} ${escapeHtml(sus.name)}</b> <span style="font-size:11px; color:var(--paper-dim);">(${escapeHtml(sus.role)})</span>`;
-            div.onclick = () => openSuspectModal(i);
+            div.dataset.action = 'openSuspect'; div.dataset.suspectIdx = i;
             susList.appendChild(div);
         });
 
@@ -905,18 +921,9 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
                 ansDiv.innerHTML = `<b>${escapeHtml(data.answerLabel)}</b> ${escapeHtml(qa.a)}`;
                 btn.appendChild(ansDiv);
             }
-            btn.onclick = () => {
-                askedQuestions[qKey] = true;
-                btn.classList.add('asked');
-                if (!btn.querySelector('.ans')) {
-                    const ansDiv = document.createElement('div');
-                    ansDiv.className = 'ans';
-                    ansDiv.style.marginTop = '6px';
-                    ansDiv.innerHTML = `<b>${escapeHtml(data.answerLabel)}</b> ${escapeHtml(qa.a)}`;
-                    btn.appendChild(ansDiv);
-                }
-                playClickSound();
-            };
+            btn.dataset.action = 'askQuestion';
+            btn.dataset.qKey = qKey;
+            btn.dataset.answer = qa.a;
             qDiv.appendChild(btn);
         });
 
@@ -940,12 +947,8 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
             const div = document.createElement('div');
             div.className = 'pick';
             div.innerHTML = `<b>${getSuspectIcon(sus.role)} ${escapeHtml(sus.name)}</b> <span style="font-size:11px; color:var(--paper-dim);">(${escapeHtml(sus.role)})</span>`;
-            div.onclick = () => {
-                document.querySelectorAll('#accuse-suspects-list .pick').forEach(p => p.classList.remove('selected'));
-                div.classList.add('selected');
-                selectedSuspect = sus.name;
-                playClickSound();
-            };
+            div.dataset.action = 'selectAccusedSuspect';
+            div.dataset.susName = sus.name;
             list.appendChild(div);
         });
 
@@ -995,6 +998,7 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
             // Fix: Only record solved case if it's unlocked (prevents race mode bypass)
             if (!alreadySolved && isCaseUnlocked(currentCaseIndex)) {
                 userProfile.solvedCases.push(currentCaseIndex);
+                await pushSolvedCaseToCloud(currentCaseIndex);
             }
             userProfile.solved = userProfile.solvedCases.length;
             if (!alreadySolved) {
@@ -1074,6 +1078,46 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         }
     }
 
+    // -- Cloud progress sync (Firestore as source of truth for solvedCases) --
+
+    async function loadCloudProgress() {
+        const uid = firebaseAuth.currentUser?.uid;
+        if (!uid) { cloudSolvedCases = null; cloudProgressLoaded = true; return; }
+        try {
+            const snap = await getDoc(doc(db, 'playerProgress', uid));
+            if (snap.exists() && snap.data().solvedCases) {
+                cloudSolvedCases = snap.data().solvedCases;
+            } else {
+                cloudSolvedCases = [];
+            }
+        } catch (e) {
+            console.warn('Cloud progress load failed (offline?):', e);
+            cloudSolvedCases = null; // fallback to local
+        } finally {
+            cloudProgressLoaded = true;
+            // Re-render menu if visible to reflect correct unlock status
+            const caseList = document.getElementById('case-list');
+            if (caseList && activeFilter) renderMenu(activeFilter);
+        }
+    }
+
+    async function pushSolvedCaseToCloud(idx) {
+        const uid = firebaseAuth.currentUser?.uid;
+        if (!uid) return;
+        try {
+            await setDoc(doc(db, 'playerProgress', uid), {
+                solvedCases: arrayUnion(idx),
+                updatedAt: serverTimestamp()
+            }, { merge: true });
+            // Update local cache
+            if (cloudSolvedCases && !cloudSolvedCases.includes(idx)) {
+                cloudSolvedCases.push(idx);
+            }
+        } catch (e) {
+            console.warn('Cloud push failed (will sync later):', e);
+        }
+    }
+
     async function openLeaderboardModal() {
         document.getElementById('modal-leaderboard').classList.add('active');
         const listEl = document.getElementById('lb-list');
@@ -1115,9 +1159,13 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         const text = notesEl ? notesEl.value : '';
         if (!userProfile.notes) userProfile.notes = {};
         userProfile.notes[currentCaseIndex] = text;
-        saveUserProfile();
+        const saved = saveUserProfile();
         closeModal('modal-notes');
         playClickSound();
+        // Visual feedback so user knows the save actually happened
+        if (saved) {
+            showToast(txx('notesSaved') || 'Notes saved ✅');
+        }
     }
 
     function openHintsModal() {
@@ -1603,11 +1651,8 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
                 const el = document.createElement('div');
                 el.textContent = id;
                 el.style.cssText = 'padding:6px; cursor:pointer; border-bottom:1px solid var(--line);';
-                el.onclick = () => {
-                    const roomInput = document.getElementById('mp-roomcode');
-                    if (roomInput) roomInput.value = id;
-                    joinMultiplayerRoom();
-                };
+                el.dataset.action = 'selectRoomCode';
+                el.dataset.roomId = id;
                 list.appendChild(el);
             });
         } catch (e) {
@@ -2877,7 +2922,7 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
             await LocalNotifications.cancel({ notifications: [{ id: DAILY_REMINDER_ID }] });
             await LocalNotifications.schedule({
                 notifications: [{
-                    title: txx('appTitle') || 'The Black File',
+                    title: (TRANSLATIONS[currentLang] || TRANSLATIONS.en).appTitle || 'The Black File',
                     body: txx('reminderMsg'),
                     id: DAILY_REMINDER_ID,
                     schedule: { on: { hour: 20, minute: 0 }, repeats: true }
@@ -3202,7 +3247,12 @@ function showGameUI() {
 // لتفادي مشكلة إعادته لشاشة الدخول بعد نجاح التسجيل (سباق مع onAuthStateChanged).
 function syncAuthUI(user) {
   if (user) {
-    setOfflineMode(false); // مستخدم حقيقي مسجّل الدخول يلغي وضع الضيف تلقائياً
+    setOfflineMode(false);
+    // Reset cloud progress cache for new user (prevents stale data from previous user)
+    cloudSolvedCases = null;
+    cloudProgressLoaded = false;
+    // Load server-validated progress (solvedCases) from Firestore
+    void loadCloudProgress();
     showGameUI();
   } else if (isOfflineMode()) {
     showGameUI();
@@ -3286,7 +3336,7 @@ if (loginForm) {
     if (submitBtn) submitBtn.disabled = true;
     try {
       if (typeof loginOrSignupWithEmail === 'function') {
-        await loginOrSignupWithEmail(email, password, confirmPassword);
+        await loginOrSignupWithEmail(txx, email, password, confirmPassword);
       } else {
         alert(txx('loginSigningInFallback'));
       }
@@ -3526,6 +3576,54 @@ document.addEventListener('click', (e) => {
   if (action === 'closeSettingsModal_openGameGuide') {
     closeSettingsModal();
     openGameGuide();
+    return;
+  }
+
+  // --- Cases 1-3: Simple actions with arguments ---
+  if (action === 'openBrief') {
+    openBrief(parseInt(target.dataset.caseIdx));
+    return;
+  }
+  if (action === 'openEvidence') {
+    openEvidenceModal(target.dataset.evName, target.dataset.evDesc);
+    return;
+  }
+  if (action === 'openSuspect') {
+    openSuspectModal(parseInt(target.dataset.suspectIdx));
+    return;
+  }
+
+  // --- Case 4: Ask question (multi-line logic moved here) ---
+  if (action === 'askQuestion') {
+    const qKey = target.dataset.qKey;
+    askedQuestions[qKey] = true;
+    target.classList.add('asked');
+    if (!target.querySelector('.ans')) {
+      const ansDiv = document.createElement('div');
+      ansDiv.className = 'ans';
+      ansDiv.style.marginTop = '6px';
+      const label = (TRANSLATIONS[currentLang] || TRANSLATIONS.en).answerLabel;
+      ansDiv.innerHTML = `<b>${escapeHtml(label)}</b> ${escapeHtml(target.dataset.answer)}`;
+      target.appendChild(ansDiv);
+    }
+    playClickSound();
+    return;
+  }
+
+  // --- Case 5: Select accused suspect ---
+  if (action === 'selectAccusedSuspect') {
+    document.querySelectorAll('#accuse-suspects-list .pick').forEach(p => p.classList.remove('selected'));
+    target.classList.add('selected');
+    selectedSuspect = target.dataset.susName;
+    playClickSound();
+    return;
+  }
+
+  // --- Case 6: Select room code ---
+  if (action === 'selectRoomCode') {
+    const roomInput = document.getElementById('mp-roomcode');
+    if (roomInput) roomInput.value = target.dataset.roomId;
+    joinMultiplayerRoom();
     return;
   }
 });

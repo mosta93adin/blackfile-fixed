@@ -1,38 +1,116 @@
-rules_version = '2';
+// ⚠️ ملاحظة مهمة: هذه القواعد لا تُنشر تلقائيًا من الكود.
+// يجب نشرها يدويًا عبر الأمر:
+//   firebase deploy --only firestore:rules
+// وإلا ستبقى قواعد Firestore الافتراضية سارية (قراءة/كتابة حرة لكل مستخدم مصادق).
 
+rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Leaderboard: publicly readable, each detective owns a single row.
-    match /leaderboard/{uid} {
-      allow read: if true;
-      allow write: if request.auth != null
-        && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['displayName', 'casesSolved', 'avgHints', 'fastestMs', 'updatedAt'])
-        && request.resource.data.displayName is string
-        && request.resource.data.displayName.size() <= 40
-        && request.resource.data.casesSolved is int
-        && request.resource.data.casesSolved >= 0
-        && request.resource.data.casesSolved <= 1000
-        && request.resource.data.avgHints is number
-        && request.resource.data.avgHints >= 0
-        && (request.resource.data.fastestMs == null || request.resource.data.fastestMs is int);
+    // -- Helper functions --
+
+    // True only when the request comes from the authenticated user whose
+    // UID matches the document ID being written.
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
     }
 
-    // Multiplayer rooms: signed-in players can browse, only the host writes.
-    match /rooms/{code} {
-      allow read: if request.auth != null;
+    // Validate leaderboard document fields — strict allow-list prevents
+    // privilege-escalation attempts (e.g. injecting isAdmin: true).
+    function isValidLeaderboardData(data) {
+      return data.keys().hasOnly(['displayName', 'casesSolved', 'avgHints', 'fastestMs', 'updatedAt'])
+          && data.displayName is string
+          && data.displayName.size() > 0
+          && data.displayName.size() <= 50
+          && data.casesSolved is int
+          && data.casesSolved >= 0
+          && data.casesSolved <= 20
+          && data.avgHints is number
+          && data.avgHints >= 0
+          && (data.fastestMs is number || data.fastestMs == null)
+          && (data.updatedAt is timestamp || data.updatedAt == null);
+    }
+
+    // Validate player progress document — strict allow-list + limit solvedCases to 0..19
+    function isValidPlayerProgressData(data) {
+      return data.keys().hasOnly(['solvedCases', 'updatedAt'])
+          && data.solvedCases is list
+          && data.solvedCases.size() <= 20
+          && (
+              // Every element must be an int in range [0, 19]
+              data.solvedCases.toSet().toList()
+                  .filter(e -> !(e is int && e >= 0 && e <= 19)).size() == 0
+          )
+          && (data.updatedAt is timestamp || data.updatedAt == null);
+    }
+
+    // Validate room document fields.
+    function isValidRoomData(data) {
+      return data.keys().hasOnly(['hostUid', 'hostName', 'isPublic', 'status', 'players', 'settings', 'createdAt', 'updatedAt'])
+          && data.hostUid is string
+          && data.hostName is string
+          && data.hostName.size() > 0
+          && data.hostName.size() <= 50
+          && data.isPublic is bool
+          && data.status is string
+          && (data.status == 'waiting' || data.status == 'playing' || data.status == 'finished');
+    }
+
+    // -- مجموعة leaderboard --
+    // كل مستند يمثل لاعبًا واحدًا بـ id مطابق لـ uid المصادق.
+    // السماح بالكتابة فقط لصاحب المستند، مع التحقق الصارم من صحة الحقول.
+    match /leaderboard/{uid} {
+      allow read: if true; // اللوحة عامة للعرض
+
+      allow create: if isOwner(uid)
+                    && isValidLeaderboardData(request.resource.data);
+
+      allow update: if isOwner(uid)
+                    && isValidLeaderboardData(request.resource.data);
+
+      allow delete: if false; // لا يسمح لأي مستخدم بحذف متصدرين
+    }
+
+    // -- مجموعة rooms (غرف اللعب الجماعي) --
+    match /rooms/{roomId} {
+      // القراءة عامة فقط للغرف isPublic == true، أو لصاحب الغرفة مهما كانت خاصة
+      allow read: if resource.data.isPublic == true
+                  || (request.auth != null && resource.data.hostUid == request.auth.uid);
+
+      // السماح بإنشاء غرفة فقط إذا كان hostUid مطابقًا للمستخدم المصادق
       allow create: if request.auth != null
-        && request.resource.data.keys().hasOnly(['isPublic', 'hostUid', 'createdAt'])
-        && request.resource.data.hostUid == request.auth.uid
-        && request.resource.data.isPublic is bool
-        && code.size() >= 4
-        && code.size() <= 32;
-      allow update: if false;
-      // Host cleans up its own room; anyone may prune rooms older than 2 hours.
+                    && request.resource.data.hostUid == request.auth.uid
+                    && isValidRoomData(request.resource.data);
+
+      // السماح بالحذف فقط لصاحب الغرفة الأصلي (resource.data هي البيانات الحالية)
       allow delete: if request.auth != null
-        && (resource.data.hostUid == request.auth.uid
-            || resource.data.createdAt < request.time - duration.value(2, 'h'));
+                    && resource.data.hostUid == request.auth.uid;
+
+      // تحديثات الغرفة: فقط صاحب الغرفة يمكنه التعديل، مع التحقق من الحقول
+      allow update: if request.auth != null
+                    && resource.data.hostUid == request.auth.uid
+                    && isValidRoomData(request.resource.data);
+    }
+
+    // -- مجموعة playerProgress (تقدم اللاعب: القضايا المحلولة) --
+    // كل مستند يمثل لاعبًا واحدًا بـ id مطابق لـ uid المصادق.
+    // السماح بالكتابة فقط لصاحب المستند، مع التحقق الصارم من صحة الحقول (solvedCases فقط، أرقام 0..19).
+    // هذا يمنع التلاعب بفتح الحالات (case unlocking) لأن التحقق كيصير عند السيرفر.
+    match /playerProgress/{uid} {
+      allow read: if isOwner(uid);
+
+      allow create: if isOwner(uid)
+                    && isValidPlayerProgressData(request.resource.data);
+
+      allow update: if isOwner(uid)
+                    && isValidPlayerProgressData(request.resource.data);
+
+      allow delete: if false;
+    }
+
+    // رفض كل شيء آخر افتراضيًا
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
