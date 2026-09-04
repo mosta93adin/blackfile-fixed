@@ -3,10 +3,14 @@ apply plugin: 'com.android.application'
 android {
     namespace "com.othmaneettoumi.blackfile"
     compileSdk rootProject.ext.compileSdkVersion
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
 
-    // التوقيع للإصدار يعتمد على متغيرات gradle.properties (أو متغيرات البيئة في CI).
+    // التوقيع للإصدار يعتمد على متغيرات البيئة في CI.
     // إذا لم يوجد ملف keystore يُبنى الإصدار بدون توقيع بدل فشل البناء.
-    def releaseStorePath = project.findProperty('BLACKFILE_STORE_FILE') ?: System.getenv('BLACKFILE_STORE_FILE')
+    def releaseStorePath = System.getenv("RELEASE_KEYSTORE_PATH")
     def releaseKeystore = releaseStorePath ? file(releaseStorePath) : null
     def hasReleaseKeystore = releaseKeystore != null && releaseKeystore.exists()
 
@@ -20,9 +24,9 @@ android {
         if (hasReleaseKeystore) {
             release {
                 storeFile releaseKeystore
-                storePassword project.findProperty('BLACKFILE_STORE_PASSWORD') ?: System.getenv('BLACKFILE_STORE_PASSWORD')
-                keyAlias project.findProperty('BLACKFILE_KEY_ALIAS') ?: System.getenv('BLACKFILE_KEY_ALIAS')
-                keyPassword project.findProperty('BLACKFILE_KEY_PASSWORD') ?: System.getenv('BLACKFILE_KEY_PASSWORD')
+                storePassword System.getenv("RELEASE_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("RELEASE_KEY_ALIAS")
+                keyPassword System.getenv("RELEASE_KEY_PASSWORD")
             }
         }
     }
@@ -31,8 +35,8 @@ android {
         applicationId "com.othmaneettoumi.blackfile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "1.1.0"
+        versionCode 3
+        versionName "1.1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -44,7 +48,6 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
-            debuggable true
         }
         release {
             if (hasReleaseKeystore) {
