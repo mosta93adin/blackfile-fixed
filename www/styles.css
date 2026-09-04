@@ -1,3 +1,67 @@
+/* ==========================================================================
+   RESPONSIVE FOUNDATION (mobile-first)
+   Breakpoints:
+     - Mobile:   0 – 480px
+     - Tablet:   481px – 1024px
+     - Desktop:  > 1024px (content capped by .app { max-width: var(--content-max) })
+   Breakpoint rules live at EOF so they win the cascade over base styles.
+   ========================================================================== */
+
+:root {
+  /* Fluid page gutter: never below 12px on phones, grows on large screens */
+  --page-gutter: clamp(12px, 3vw, 32px);
+  /* Max content width on desktop / tablet-landscape */
+  --content-max: 1100px;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+
+/* NOTE: .app max-width per-breakpoint is declared at EOF (desktop section)
+   because the base .app rule below sets max-width: 900px and later rules win
+   the cascade. --content-max is applied only inside @media (min-width: 1025px). */
+
+/* ==========================================================================
+   TOUCH TARGETS (≥44px) — only enforced on coarse pointers (phones/tablets)
+   so desktop hover precision is unaffected. Uses min-height/min-width
+   (invisible hit-area expansion) instead of changing visible sizes.
+   ========================================================================== */
+@media (pointer: coarse) {
+  .btn,
+  .btn-sm,
+  .pick,
+  .q-btn,
+  .mode-card,
+  .settings-row,
+  .settings-select,
+  select,
+  .eye-btn,
+  .tts-btn,
+  .settings-modal-x,
+  .modal-close,
+  #chat-input,
+  #mic-btn,
+  #call-btn {
+    min-height: 44px;
+  }
+  .btn-sm,
+  .tts-btn,
+  .eye-btn,
+  #mic-btn,
+  #call-btn {
+    min-width: 44px;
+    padding-inline: 10px;
+  }
+  /* input font-size ≥16px prevents iOS Safari auto-zoom on focus */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+}
+
 :root {
         --ink: #0e1015;
         --panel: #171a22;
@@ -12,7 +76,7 @@
         --paper-dim: #a7a297;
     }
     * { box-sizing: border-box; }
-    body { background: var(--ink); color: var(--paper); font-family: system-ui, sans-serif; margin: 0; padding: 12px; line-height: 1.5; }
+    body { background: var(--ink); color: var(--paper); font-family: system-ui, sans-serif; margin: 0; padding: 12px; padding-top: max(12px, env(safe-area-inset-top)); padding-right: max(12px, env(safe-area-inset-right)); padding-bottom: max(12px, env(safe-area-inset-bottom)); padding-left: max(12px, env(safe-area-inset-left)); line-height: 1.5; }
     .app { max-width: 900px; margin: 0 auto; }
     .header { display: flex; justify-content: space-between; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
     .brand { display: flex; align-items: center; gap: 12px; }
@@ -72,7 +136,7 @@
     .pick:hover { border-color: var(--gold); }
     .pick.selected { border-color: var(--gold); background: var(--card-2); box-shadow: 0 0 10px rgba(201,162,75,0.2); }
     .footer-note { text-align: center; font-size: 12px; color: var(--paper-dim); margin-top: 25px; border-top: 1px dashed var(--line); padding-top: 15px; }
-    .visual-banner { width: 100%; height: 160px; border-radius: 8px; background: linear-gradient(135deg, #11141d, #252b3a); border: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 12px; position: relative; overflow: hidden; }
+    .visual-banner { width: 100%; height: clamp(120px, 18vw, 200px); border-radius: 8px; background: linear-gradient(135deg, #11141d, #252b3a); border: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 12px; position: relative; overflow: hidden; }
     .visual-banner::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, rgba(201,162,75,0.05) 0 2px, transparent 2px 22px); animation: bannerDrift 12s linear infinite; }
     .visual-banner::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 120%, rgba(201,162,75,0.18), transparent 60%); }
     @keyframes bannerDrift { from { transform: translate(0,0); } to { transform: translate(-40px,-40px); } }
@@ -155,7 +219,7 @@
     body[dir="ltr"] #chat-widget { right: 20px; }
     body[dir="rtl"] #chat-widget { left: 20px; }
     #chat-header { background: var(--card-2); padding: 10px 14px; cursor: move; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); font-weight: bold; font-size: 13px; color: var(--gold); user-select: none; touch-action: none; }
-    #chat-body { height: 200px; padding: 10px; overflow-y: auto; font-size: 12px; display: flex; flex-direction: column; gap: 8px; }
+    #chat-body { height: clamp(180px, 30vh, 280px); padding: 10px; overflow-y: auto; font-size: 12px; display: flex; flex-direction: column; gap: 8px; }
     #chat-footer { padding: 10px; background: var(--card); display: flex; gap: 6px; border-top: 1px solid var(--line); }
     #chat-input { flex: 1; background: var(--ink); border: 1px solid var(--line); padding: 6px 10px; border-radius: 6px; color: var(--paper); font-size: 12px; outline: none; }
     .chat-msg { background: var(--card-2); padding: 6px 10px; border-radius: 6px; max-width: 85%; }
@@ -375,6 +439,19 @@ body[dir="rtl"] .story-frag { border-left: none; border-right: 3px solid var(--g
   cursor: grabbing;
 }
 
+/* Invisible 44x44 hit area around the string handle — the visible handle is
+   only 10x16px, far below the 44px minimum touch target (Apple HIG / Material).
+   The pseudo-element is transparent and keeps the design pixel-perfect. */
+#lamp-wrapper .pull-handle::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+}
+
 #lamp-wrapper.lamp-login-wrapper.on .pull-handle {
   background-color: #fbbf24;
   box-shadow: 0 0 14px rgba(251, 191, 36, 0.95);
@@ -591,6 +668,7 @@ body[dir="rtl"] .story-frag { border-left: none; border-right: 3px solid var(--g
     width: 100%;
     max-width: 360px;
   }
+
 }
 
 @media (max-width: 420px) {
@@ -661,3 +739,143 @@ html, body { overflow-x: hidden; }
 .guide-row-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; margin-top: 1px; }
 .guide-row b { display: block; color: var(--paper); font-size: 13.5px; margin-bottom: 2px; }
 .guide-row p { margin: 0; color: var(--paper-dim); font-size: 12px; line-height: 1.55; }
+
+/* ==========================================================================
+   RESPONSIVE BREAKPOINTS (Phase 1 — multi-platform foundation)
+   Mobile ≤480px | Tablet 481–1024px | Desktop >1024px
+   Declared LAST so breakpoint rules win the cascade over base components.
+   ========================================================================== */
+
+/* ------------------------------------------------------------------ MOBILE */
+@media (max-width: 480px) {
+  :root { --page-gutter: 12px; }
+
+  body { padding: var(--page-gutter); }
+
+  /* Compact header — but preserve the settings FAB footprint reservation
+     (78px) from the base styles so wrapped controls can never render
+     underneath the fixed gear button on narrow phones */
+  .header { padding: 10px 12px; gap: 8px; }
+  body[dir="ltr"] .header { padding-right: 78px; }
+  body[dir="rtl"] .header { padding-left: 78px; }
+  .brand h1, .brand .brand-title { font-size: 16px; }
+
+  /* Mode cards stack vertically with breathing room */
+  #mode-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .mode-card { padding: 16px 12px; }
+
+  /* Cards & buttons get more padding for comfortable touch */
+  .card { padding: 14px; }
+  .btn { width: 100%; padding: 13px 18px; }
+
+  /* Modals become edge-to-edge sheets */
+  .modal {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    min-height: 100vh;
+    border-radius: 0;
+    padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+  }
+  .modal-bg { padding: 0; }
+
+  /* Chat widget docked edge-to-edge at the bottom */
+  #chat-widget {
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: none;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+  body[dir="rtl"] #chat-widget { left: 12px; right: 12px; }
+
+  /* Footer stays legible on small screens */
+  .footer-note { font-size: 11px; }
+}
+
+/* ------------------------------------------------------------------ TABLET */
+@media (min-width: 481px) and (max-width: 1024px) {
+  :root { --page-gutter: clamp(16px, 3.5vw, 28px); }
+
+  body { padding: var(--page-gutter); }
+
+  /* Mode cards: 2 per row on tablets */
+  #mode-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .mode-card { padding: 18px 14px; }
+
+  .visual-banner { height: clamp(150px, 22vw, 230px); }
+
+  /* Chat widget a bit wider, docked with safe-area offset */
+  #chat-widget {
+    width: min(360px, calc(100vw - 2 * var(--page-gutter)));
+    bottom: calc(20px + env(safe-area-inset-bottom));
+  }
+}
+
+/* ----------------------------------------------------------------- DESKTOP */
+@media (min-width: 1025px) {
+  :root { --page-gutter: clamp(24px, 4vw, 48px); }
+
+  body { padding: var(--page-gutter); font-size: 16px; }
+
+  /* Wider, centered content cap for desktop/laptop windows (overrides the
+     base .app { max-width: 900px } because this comes later in the file) */
+  .app {
+    width: 100%;
+    max-width: var(--content-max);
+    margin: 0 auto;
+    padding: 0 8px;
+  }
+
+  /* Mode cards: 3 per row on desktop */
+  #mode-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .mode-card { padding: 20px 16px; }
+
+  /* Keyboard users still get visible focus even though hover leads here */
+  .btn:focus-visible,
+  .btn-sm:focus-visible,
+  .pick:focus-visible,
+  .q-btn:focus-visible,
+  .mode-card:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+}
+
+/* Short-viewport landscape phones: shrink the fixed chat panel so it never
+   covers the whole screen and modals stay scrollable. */
+@media (max-height: 480px) and (orientation: landscape) {
+  #chat-widget { max-height: 70vh; }
+  #chat-body { height: clamp(90px, 22vh, 140px); }
+  .modal { min-height: 100vh; }
+}
+
+/* ==========================================================================
+   ELECTRON / DESKTOP SHELL PARITY (Phase 2 hook)
+   Electron's main process flags the environment via
+   document.documentElement.classList.add('platform-electron') — see
+   electron/index.js. Rules below only apply inside the desktop shell.
+   ========================================================================== */
+html.platform-electron body {
+  /* Desktop apps feel native when text isn't accidentally selectable */
+  user-select: none;
+  -webkit-user-select: none;
+}
+html.platform-electron input,
+html.platform-electron textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
