@@ -80,7 +80,7 @@ jobs:
           npx capacitor-assets generate --android --iconBackgroundColor '#0e1015' --splashBackgroundColor '#0e1015'
       - name: Build Release APK with Gradle
         env:
-          RELEASE_KEYSTORE_PATH: android/app/release.keystore
+          RELEASE_KEYSTORE_PATH: ${{ github.workspace }}/android/app/release.keystore
           RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
