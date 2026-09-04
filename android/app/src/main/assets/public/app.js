@@ -1716,12 +1716,24 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
 
     let mpJoinRetryTimer = null;
 
+    // Validate room code format: CASE-XXX where XXX is 2-3 alphanumeric chars
+    // Examples: CASE-99, CASE-123, CASE-AB1
+    function isValidRoomCode(code) {
+        if (typeof code !== 'string') return false;
+        return /^CASE-[A-Z0-9]{2,3}$/.test(code.trim().toUpperCase());
+    }
+
     function joinMultiplayerRoom() {
         const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
-        const roomCode = document.getElementById('mp-roomcode').value.trim();
+        const roomCode = document.getElementById('mp-roomcode').value.trim().toUpperCase();
         const statusBox = document.getElementById('mp-status-box');
         if (!roomCode) {
             statusBox.textContent = t.roomEnterCode;
+            return;
+        }
+        // Validate room code format
+        if (!isValidRoomCode(roomCode)) {
+            statusBox.textContent = txx('roomInvalidCodeFormat') || 'Invalid room code format. Use CASE-XXX (e.g. CASE-99).';
             return;
         }
         if (typeof Peer === 'undefined') {
