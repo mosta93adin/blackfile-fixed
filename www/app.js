@@ -185,6 +185,21 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         setTimeout(() => { toast.classList.add('out'); setTimeout(() => toast.remove(), 500); }, 3200);
     }
 
+    // Generic toast helper — uses the same achievement-toast UI pattern.
+    // This was previously CALLED (saveNotes / loadCloudProgress) but never
+    // defined, which threw a ReferenceError at runtime. Now defined once here.
+    function showToast(msg, ms = 3000) {
+        try {
+            const container = document.getElementById('achievement-toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'achievement-toast warn';
+            toast.innerHTML = `<span class="ach-toast-icon">⚠️</span><span>${escapeHtml(String(msg))}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.add('out'); setTimeout(() => toast.remove(), 500); }, ms);
+        } catch (e) { /* toast is non-critical — never break game flow */ }
+    }
+
     function renderAchievements() {
         const el = document.getElementById('pro-achievements');
         if (!el) return;
@@ -1088,19 +1103,42 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
 
     // -- Cloud progress sync (Firestore as source of truth for solvedCases) --
 
+    // Timeout helper: rejects after ms so loadCloudProgress never hangs on a
+    // dead connection — catch still falls back to local, finally still flips
+    // cloudProgressLoaded so the UI never stays permanently locked.
+    function withTimeout(promise, ms) {
+        let timer;
+        const timeout = new Promise((_, reject) => {
+            timer = setTimeout(() => reject(new Error('timeout')), ms);
+        });
+        return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+    }
+
     async function loadCloudProgress() {
         const uid = firebaseAuth.currentUser?.uid;
         if (!uid) { cloudSolvedCases = null; cloudProgressLoaded = true; return; }
         try {
-            const snap = await getDoc(doc(db, 'playerProgress', uid));
+            // 8s timeout: if Firestore is unreachable, fall back to local data
+            const snap = await withTimeout(getDoc(doc(db, 'playerProgress', uid)), 8000);
             if (snap.exists() && snap.data().solvedCases) {
-                cloudSolvedCases = snap.data().solvedCases;
+                const raw = snap.data().solvedCases;
+                // Validate: array of integers 0..19 (same constraint as firestore.rules)
+                // — guards against corrupt/tampered cloud data unlocking arbitrary cases.
+                cloudSolvedCases = Array.isArray(raw)
+                    ? raw.filter(n => Number.isInteger(n) && n >= 0 && n <= 19)
+                    : [];
             } else {
                 cloudSolvedCases = [];
             }
         } catch (e) {
             console.warn('Cloud progress load failed (offline?):', e);
             cloudSolvedCases = null; // fallback to local
+            // Best-effort user feedback so the player knows sync failed
+            try {
+                const msg = (typeof txx === 'function' && txx('cloudProgressLoadFailed'))
+                    || '⚠️ Cloud progress unavailable — using local data.';
+                showToast(msg);
+            } catch (toastErr) { /* toast is non-critical */ }
         } finally {
             cloudProgressLoaded = true;
             // Re-render menu if visible to reflect correct unlock status
