@@ -2,6 +2,14 @@
   "name": "the-black-file",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "sync:www": "node scripts/sync-www.js",
+    "cap:sync": "npx cap sync",
+    "electron:run": "npm run sync:www && cd electron && npm run build && npm start",
+    "electron:build-win": "npm run sync:www && node scripts/build-electron.js --win",
+    "electron:build-mac": "npm run sync:www && node scripts/build-electron.js --mac",
+    "electron:build-all": "npm run sync:www && node scripts/build-electron.js --win --mac"
+  },
   "dependencies": {
     "@capacitor-community/text-to-speech": "^5.0.0",
     "@capacitor-firebase/authentication": "^6.3.1",
@@ -13,7 +21,9 @@
     "@capacitor/share": "^6.0.0"
   },
   "devDependencies": {
+    "@capacitor-community/electron": "^5.0.1",
     "@capacitor/assets": "3.0.5",
-    "@capacitor/cli": "^6.0.0"
+    "@capacitor/cli": "^6.0.0",
+    "electron-builder": "^24.13.3"
   }
 }

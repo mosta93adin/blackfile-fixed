@@ -1,0 +1,46 @@
+{
+  "appId": "com.othmaneettoumi.blackfile",
+  "productName": "The Black File",
+  "directories": {
+    "buildResources": "resources"
+  },
+  "files": [
+    "assets/**/*",
+    "build/**/*",
+    "capacitor.config.*",
+    "app/**/*"
+  ],
+  "publish": {
+    "provider": "github"
+  },
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "assets/appIcon.ico",
+    "artifactName": "The-Black-File-Setup-${version}.${ext}"
+  },
+  "nsis": {
+    "allowElevation": true,
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "shortcutName": "The Black File"
+  },
+  "mac": {
+    "category": "public.app-category.games",
+    "target": [
+      {
+        "target": "dmg",
+        "arch": ["x64", "arm64"]
+      }
+    ],
+    "icon": "assets/appIcon.png",
+    "artifactName": "The-Black-File-${version}.${ext}"
+  },
+  "dmg": {
+    "title": "The Black File ${version}"
+  }
+}

@@ -13,3 +13,8 @@ tools/
 *.tmp
 *.bak
 *.log
+
+# Firebase web config (project credentials) — local only, never commit
+www/firebase-config.js
+android/app/src/main/assets/public/firebase-config.js
+electron/app/firebase-config.js
