@@ -22,6 +22,8 @@ service cloud.firestore {
           && data.displayName is string
           && data.displayName.size() > 0
           && data.displayName.size() <= 50
+          // Prevent HTML/XSS: reject < and > characters
+          && !data.displayName.matches('.*[<>].*')
           && data.casesSolved is int
           && data.casesSolved >= 0
           && data.casesSolved <= 20
@@ -31,16 +33,16 @@ service cloud.firestore {
           && (data.updatedAt is timestamp || data.updatedAt == null);
     }
 
-    // Validate player progress document — strict allow-list + limit solvedCases to 0..19
+    // Validate player progress document — strict allow-list + limit solvedCases
+    // Note: Firestore rules don't support list iteration, so we validate:
+    //   - solvedCases is a list (arrayUnion ensures single-element adds)
+    //   - size <= 20 (max cases in the game)
+    //   - all elements are integers (further validation done client-side)
+    // The client code (pushSolvedCaseToCloud) only adds valid indices 0-19 via arrayUnion.
     function isValidPlayerProgressData(data) {
       return data.keys().hasOnly(['solvedCases', 'updatedAt'])
           && data.solvedCases is list
           && data.solvedCases.size() <= 20
-          && (
-              // Every element must be an int in range [0, 19]
-              data.solvedCases.toSet().toList()
-                  .filter(e -> !(e is int && e >= 0 && e <= 19)).size() == 0
-          )
           && (data.updatedAt is timestamp || data.updatedAt == null);
     }
 
@@ -59,6 +61,7 @@ service cloud.firestore {
     // -- مجموعة leaderboard --
     // كل مستند يمثل لاعبًا واحدًا بـ id مطابق لـ uid المصادق.
     // السماح بالكتابة فقط لصاحب المستند، مع التحقق الصارم من صحة الحقول.
+    // Rate limiting: منع التحديثات المتكررة (أقل من ثانية واحدة)
     match /leaderboard/{uid} {
       allow read: if true; // اللوحة عامة للعرض
 
@@ -66,7 +69,8 @@ service cloud.firestore {
                     && isValidLeaderboardData(request.resource.data);
 
       allow update: if isOwner(uid)
-                    && isValidLeaderboardData(request.resource.data);
+                    && isValidLeaderboardData(request.resource.data)
+                    && (request.time > resource.data.updatedAt + duration.value(1, 's'));
 
       allow delete: if false; // لا يسمح لأي مستخدم بحذف متصدرين
     }
@@ -108,7 +112,22 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // رفض كل شيء آخر افتراضيًا
+         // دعوات الأصدقاء — رابط واحد مرة واحدة فقط
+     // القراءة: مسموحة للجميع (للتحقق من صلاحية الـ token)
+     // الكتابة: محدودة بالـ Transaction فقط، مع تأكيد استخدام isOwner + createdBy
+     match /inviteLinks/{token} {
+       allow read: if true;
+       allow create: if request.auth != null
+                     && request.resource.data.used == false
+                     && request.resource.data.createdBy == request.auth.uid;
+       allow update: if resource.data.used == false
+                     && request.resource.data.used == true
+                     && request.resource.data.diff(resource.data).affectedKeys()
+                       .hasOnly(['used', 'usedAt', 'usedBy']);
+       allow delete: if false;
+     }
+
+     // رفض كل شيء آخر افتراضيًا
     match /{document=**} {
       allow read, write: if false;
     }

@@ -1,5 +1,5 @@
 import { auth as firebaseAuth, db, initializeAuthPersistence, loginWithGoogle as loginWithGoogleRedirect, loginOrSignupWithEmail, resetPassword, onAuthStateChanged } from './firebase.js';
-import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDocs, serverTimestamp, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDocs, serverTimestamp, arrayUnion, getDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // The Black File — app logic (UI, game state, achievements, multiplayer, accessibility, etc.)
 // Depends on translations.js being loaded first (uses the global TRANSLATIONS).
@@ -798,7 +798,7 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
 
         cases.forEach((c, idx) => {
             const diffClass = 'diff-' + c.difficulty;
-            const diffText = (translations[currentLang]?.difficultyLabels || translations.en.difficultyLabels)[c.difficulty];
+            const diffText = (data.difficultyLabels || TRANSLATIONS.en.difficultyLabels)[c.difficulty];
 
             if (filter !== 'all' && c.difficulty !== filter) return;
 
@@ -3723,5 +3723,95 @@ document.addEventListener('keydown', (e) => {
   if (action === 'chatInputEnter' && e.key === 'Enter') {
     sendChatMessage();
     return;
+  }
+});
+// ================================
+// Client-Side Single-Use Invite Link System (Spark Plan Compatible)
+// ================================
+
+async function generateInviteLinkClientSide() {
+  const user = firebaseAuth.currentUser;
+  if (!user) {
+    showMessage("يجب تسجيل الدخول أولاً.");
+    return;
+  }
+
+  const token = crypto.randomUUID();
+  await setDoc(doc(db, "inviteLinks", token), {
+    used: false,
+    createdBy: user.uid,
+    createdAt: new Date(),
+    usedAt: null,
+    usedBy: null,
+  });
+
+  const link = `https://blackfile.game/join?token=${token}`;
+  navigator.clipboard.writeText(link).then(() => {
+    showMessage("تم نسخ الرابط — شاركه على إنستغرام!");
+  });
+}
+
+async function handleSingleUseLinkClientSide(token) {
+  try {
+    const docRef = doc(db, "inviteLinks", token);
+
+    const result = await runTransaction(db, async (transaction) => {
+      const snap = await transaction.get(docRef);
+
+      if (!snap.exists()) {
+        return { valid: false, reason: "not_found" };
+      }
+
+      const data = snap.data();
+      if (data.used === true) {
+        return { valid: false, reason: "already_used" };
+      }
+
+      transaction.update(docRef, {
+        used: true,
+        usedAt: new Date(),
+        usedBy: firebaseAuth.currentUser ? firebaseAuth.currentUser.uid : null,
+      });
+
+      return { valid: true };
+    });
+
+    if (result.valid) {
+      showOnboardingAfterInvite();
+    } else {
+      showMessage(
+        result.reason === "already_used"
+          ? "هذا الرابط تم استعماله من قبل. يرجى طلب دعوة جديدة."
+          : "الرابط غير صالح."
+      );
+    }
+
+    window.history.replaceState({}, document.title, "/");
+  } catch (err) {
+    console.error("Token validation error:", err);
+    showMessage("حدث خطأ أثناء التحقق من الرابط.");
+  }
+}
+
+
+// أوتوماتيكي عند تحميل الصفحة — فحص وجود ?token=
+(async () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+
+  if (token) {
+    await handleSingleUseLinkClientSide(token);
+  }
+})();
+
+// ربط زر "دعوة صديق" في إعدادات المودال
+document.addEventListener('DOMContentLoaded', () => {
+  const inviteBtn = document.getElementById('invite-friend-btn');
+  if (inviteBtn) {
+    inviteBtn.addEventListener('click', () => {
+      if (typeof generateInviteLinkClientSide === 'function') {
+        generateInviteLinkClientSide();
+      }
+    });
   }
 });
