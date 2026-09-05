@@ -3,7 +3,8 @@
   "appName": "the-black-file",
   "webDir": "www",
   "server": {
-    "cleartext": false
+    "url": "http://localhost:8080",
+    "cleartext": true
   },
   "android": {
     "webContentsDebuggingEnabled": false

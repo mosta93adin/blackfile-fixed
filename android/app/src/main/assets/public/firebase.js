@@ -85,9 +85,9 @@ export async function loginWithGoogle(txx) {
     if (!FirebaseAuthentication) {
       // Desktop (Electron) / PWA fallback: the native Google sign-in plugin only
       // exists on Android, so use the Firebase JS SDK popup flow instead.
-      // NOTE: the app origin (http://localhost:3000 in dev, capacitor-electron://-
-      // in a packaged Electron build) must be added to Firebase Console →
-      // Authentication → Settings → Authorized domains for this to succeed.
+      // The Electron build serves the app from http://localhost:<port>, which is
+      // already an authorized domain in Firebase by default — no Firebase Console
+      // setup is required for Google sign-in on desktop.
       const provider = new GoogleAuthProvider();
       await setPersistence(auth, browserLocalPersistence);
       await signInWithPopup(auth, provider);

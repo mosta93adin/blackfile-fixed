@@ -126,6 +126,8 @@ make sure the config file exists where the app looks for it:
 > …then fill in your real Firebase project values (same values that are in your
 > Firebase Console → Project settings → Web app SDK config).
 
-For Google sign-in on desktop the app uses the Firebase JS SDK popup; make sure
-`localhost` (dev) or `capacitor-electron://-` (packaged) is in your Firebase
-Console **Authorized domains** under Authentication → Settings.
+For Google sign-in on desktop the app uses the Firebase JS SDK popup. The Electron
+build serves the game from `http://localhost:<port>` (default `8080`), which is
+**already an authorized domain in Firebase by default** — no manual step is needed
+in the Firebase Console. If you ever change the serving origin, keep `localhost`
+(or your custom domain) listed under **Authentication → Settings → Authorized domains**.
