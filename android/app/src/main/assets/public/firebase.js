@@ -5,6 +5,7 @@ import {
   setPersistence,
   browserLocalPersistence,
   signInWithCredential,
+  signInWithPopup,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -12,12 +13,14 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCBZ1-L_wKy94bMaOBaONBhQZfRaH3AejM",
-  authDomain: "lamp-1edaa.firebaseapp.com",
-  projectId: "lamp-1edaa",
-  appId: "1:14062810654:web:c49791d27cef189f1c600f"
-};
+// Firebase configuration — loaded from window.FIREBASE_CONFIG (set by firebase-config.js loaded before this file).
+// For development: copy firebase-config.example.js to firebase-config.js and fill in your values.
+// firebase-config.js is gitignored to prevent secrets leaking.
+const firebaseConfig = (typeof window !== 'undefined') ? window.FIREBASE_CONFIG : undefined;
+
+if (!firebaseConfig || !firebaseConfig.apiKey) {
+  console.error('Firebase config missing. Copy www/firebase-config.example.js to www/firebase-config.js and fill in your values.');
+}
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
@@ -80,7 +83,15 @@ export async function loginWithGoogle(txx) {
 
     const FirebaseAuthentication = window?.Capacitor?.Plugins?.FirebaseAuthentication;
     if (!FirebaseAuthentication) {
-      throw new Error('FirebaseAuthentication plugin not found. Run: npm install @capacitor-firebase/authentication && npx cap sync android');
+      // Desktop (Electron) / PWA fallback: the native Google sign-in plugin only
+      // exists on Android, so use the Firebase JS SDK popup flow instead.
+      // NOTE: the app origin (http://localhost:3000 in dev, capacitor-electron://-
+      // in a packaged Electron build) must be added to Firebase Console →
+      // Authentication → Settings → Authorized domains for this to succeed.
+      const provider = new GoogleAuthProvider();
+      await setPersistence(auth, browserLocalPersistence);
+      await signInWithPopup(auth, provider);
+      return;
     }
 
     // Opens native Android Google sign-in (not WebView)

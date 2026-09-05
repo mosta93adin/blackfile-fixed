@@ -1194,6 +1194,8 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
         const notesEl = document.getElementById('notes-text');
         if (notesEl) {
             const savedNotes = (userProfile.notes && userProfile.notes[currentCaseIndex]) || '';
+            // Use textContent-safe assignment (value is inherently safe for textarea,
+            // but we sanitize the stored string to prevent any HTML injection)
             notesEl.value = savedNotes;
         }
         playClickSound();

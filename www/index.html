@@ -591,6 +591,9 @@
     </div>
 </div>
 
+<!-- Must be a classic (non-module) script so window.FIREBASE_CONFIG is set
+     synchronously before the deferred module scripts (firebase.js / app.js) run -->
+<script src="firebase-config.js"></script>
 <script src="translations.js"></script>
 <script type="module" src="firebase.js"></script>
 <script type="module" src="app.js"></script>

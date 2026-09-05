@@ -1,22 +1,26 @@
-const CACHE_NAME = 'black-file-cache-v5'; // bumped: forces the service worker + all cached files (incl. firebase.js) to refresh
+const CACHE_NAME = 'black-file-cache-v7'; // bumped: added local peerjs.min.js to APP_SHELL for reliable offline multiplayer
 const APP_SHELL = [
   './index.html',
   './styles.css',
   './translations.js',
   './app.js',
   './firebase.js',
+  './peerjs.min.js',
   './manifest.json',
   './assets/icon-192.png',
   './assets/icon-512.png',
   './assets/icon-512-maskable.png',
   './assets/apple-touch-icon.png'
 ];
-// Cached separately with no-cors since it's cross-origin (opaque response,
-// but still lets it load while offline after the first successful fetch).
+// Cached separately with no-cors since they're cross-origin (opaque response,
+// but still lets them load while offline after the first successful fetch).
+// تمت إضافة firebase-firestore.js و firebase-firestore-lite.js لدعم أوفلاين كامل
+// ملاحظة: peerjs.min.js أصبح محلياً ولا حاجة لتخزينه كـ external
 const EXTERNAL = [
-  'https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js',
   'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js',
-  'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js'
+  'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js',
+  'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js'
+  // تم حذف firebase-firestore-lite.js لأنه غير مستخدم ويهدر مساحة
 ];
 
 self.addEventListener('install', (event) => {

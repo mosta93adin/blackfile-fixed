@@ -34,6 +34,20 @@ jobs:
         run: |
           npm install
           npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/filesystem @capacitor/share
+      - name: Restore firebase-config.js (web config used by the WebView)
+        env:
+          FIREBASE_CONFIG_JS_BASE64: ${{ secrets.FIREBASE_CONFIG_JS_BASE64 }}
+        run: |
+          if [ -n "$FIREBASE_CONFIG_JS_BASE64" ]; then
+            echo "$FIREBASE_CONFIG_JS_BASE64" | base64 --decode > www/firebase-config.js
+            echo "firebase-config.js restored from secret."
+          elif [ -f www/firebase-config.js ]; then
+            echo "www/firebase-config.js already present."
+          else
+            echo "WARNING: FIREBASE_CONFIG_JS_BASE64 secret is not set and www/firebase-config.js is missing."
+            echo "         Falling back to the template — Firebase auth will NOT work in this APK."
+            cp www/firebase-config.example.js www/firebase-config.js
+          fi
       - name: Add & Sync Capacitor Android
         run: |
           chmod +x ./node_modules/.bin/* || true
