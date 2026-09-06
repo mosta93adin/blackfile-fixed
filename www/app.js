@@ -1,6 +1,23 @@
 import { auth as firebaseAuth, db, initializeAuthPersistence, loginWithGoogle as loginWithGoogleRedirect, loginOrSignupWithEmail, resetPassword, onAuthStateChanged } from './firebase.js';
 import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDocs, serverTimestamp, arrayUnion, getDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+// --- [Auto-verify invite link on page load] ---
+(function() {
+  const pathParts = window.location.pathname.split('/');
+  if (pathParts.length === 3 && pathParts[1] === 'invite') {
+    const inviteCode = pathParts[2];
+    window.addEventListener('tf-ready', () => {
+      if (typeof verifyInviteToken === 'function') {
+        verifyInviteToken(inviteCode).then(valid => {
+          if (valid) {
+            window.history.replaceState({}, document.title, "/");
+          }
+        });
+      }
+    });
+  }
+})();
+
 // The Black File — app logic (UI, game state, achievements, multiplayer, accessibility, etc.)
 // Depends on translations.js being loaded first (uses the global TRANSLATIONS).
 
@@ -3614,7 +3631,17 @@ document.addEventListener('click', (e) => {
     return;
   }
   
-  // Compound actions (action1_action2 format)
+  // trigger inviteFriend - generate single-use invite link
+if (action === 'inviteFriend') {
+  if (typeof generateInviteLink === 'function') {
+    generateInviteLink();
+  } else {
+    showToast("⚠️ مكتبة الدعوة غير محملة بعد.");
+  }
+  return;
+}
+
+// Compound actions (action1_action2 format)
   if (action === 'closeSettingsModal_openAccessModal') {
     closeSettingsModal();
     openAccessModal();
