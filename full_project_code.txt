@@ -4,7 +4,21 @@
 // ====================================
 
 import { auth as firebaseAuth, db, initializeAuthPersistence, loginWithGoogle as loginWithGoogleRedirect, loginOrSignupWithEmail, resetPassword, onAuthStateChanged } from './firebase.js';
-import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDocs, serverTimestamp, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDocs, serverTimestamp, arrayUnion, getDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { generateInviteLink, verifyInviteToken } from './invite.js';
+
+// --- [Auto-verify invite link on page load] ---
+(function() {
+  const pathParts = window.location.pathname.split('/');
+  if (pathParts.length === 3 && pathParts[1] === 'invite') {
+    const inviteCode = pathParts[2];
+    verifyInviteToken(inviteCode).then(valid => {
+      if (valid) {
+        window.history.replaceState({}, document.title, "/");
+      }
+    });
+  }
+})();
 
 // The Black File — app logic (UI, game state, achievements, multiplayer, accessibility, etc.)
 // Depends on translations.js being loaded first (uses the global TRANSLATIONS).
@@ -803,7 +817,7 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
 
         cases.forEach((c, idx) => {
             const diffClass = 'diff-' + c.difficulty;
-            const diffText = (translations[currentLang]?.difficultyLabels || translations.en.difficultyLabels)[c.difficulty];
+            const diffText = (data.difficultyLabels || TRANSLATIONS.en.difficultyLabels)[c.difficulty];
 
             if (filter !== 'all' && c.difficulty !== filter) return;
 
@@ -985,7 +999,7 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
     }
 
     // SALT must match the one used in tools/hash.js to hash culprit names
-    const CULPRIT_SALT = 'blackfile-detective-2026-CHANGE-THIS';
+    const CULPRIT_SALT = 'TF_8f3a2c9d1e7b4a6f0c5d8e2b9a3f7c1d';
     async function sha256(text) {
         const encoder = new TextEncoder();
         const data = encoder.encode(text);
@@ -1761,11 +1775,11 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
 
     let mpJoinRetryTimer = null;
 
-    // Validate room code format: CASE-XXX where XXX is 2-3 alphanumeric chars
-    // Examples: CASE-99, CASE-123, CASE-AB1
+    // Validate room code format: 7-char alphanumeric (no ambiguous chars O/0/I/1)
+    // Examples: AB3CD9F, XYZ1234 — must match generateRoomCode() output
     function isValidRoomCode(code) {
         if (typeof code !== 'string') return false;
-        return /^CASE-[A-Z0-9]{2,3}$/.test(code.trim().toUpperCase());
+        return /^[A-HJ-NP-Z2-9]{7}$/.test(code.trim().toUpperCase());
     }
 
     function joinMultiplayerRoom() {
@@ -3619,7 +3633,17 @@ document.addEventListener('click', (e) => {
     return;
   }
   
-  // Compound actions (action1_action2 format)
+  // trigger inviteFriend - generate single-use invite link
+if (action === 'inviteFriend') {
+  if (typeof generateInviteLink === 'function') {
+    generateInviteLink();
+  } else {
+    showToast("⚠️ مكتبة الدعوة غير محملة بعد.");
+  }
+  return;
+}
+
+// Compound actions (action1_action2 format)
   if (action === 'closeSettingsModal_openAccessModal') {
     closeSettingsModal();
     openAccessModal();
@@ -4025,6 +4049,26 @@ window.FIREBASE_CONFIG = {
 
 
 // ====================================
+// FILE: www\firebase-config.js
+// ====================================
+
+// Firebase Configuration — LOCAL ONLY (gitignored, never commit)
+// ──────────────────────────────────────────────────────────────
+// Values restored from the original inline config (Web app, project: lamp-1edaa).
+// Loaded by index.html BEFORE firebase.js so window.FIREBASE_CONFIG is set
+// for the Firebase JS SDK. If these values ever change, update this file
+// (and mirror them in your Firebase Console web app settings).
+window.FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCBZ1-L_wKy94bMaOBaONBhQZfRaH3AejM",
+  authDomain: "lamp-1edaa.firebaseapp.com",
+  projectId: "lamp-1edaa",
+  appId: "1:14062810654:web:c49791d27cef189f1c600f",
+  messagingSenderId: "14062810654",
+  storageBucket: "lamp-1edaa.firebasestorage.app"
+};
+
+
+// ====================================
 // FILE: www\firebase.js
 // ====================================
 
@@ -4035,6 +4079,7 @@ import {
   setPersistence,
   browserLocalPersistence,
   signInWithCredential,
+  signInWithPopup,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -4112,7 +4157,15 @@ export async function loginWithGoogle(txx) {
 
     const FirebaseAuthentication = window?.Capacitor?.Plugins?.FirebaseAuthentication;
     if (!FirebaseAuthentication) {
-      throw new Error('FirebaseAuthentication plugin not found. Run: npm install @capacitor-firebase/authentication && npx cap sync android');
+      // Desktop (Electron) / PWA fallback: the native Google sign-in plugin only
+      // exists on Android, so use the Firebase JS SDK popup flow instead.
+      // The Electron build serves the app from http://localhost:<port>, which is
+      // already an authorized domain in Firebase by default — no Firebase Console
+      // setup is required for Google sign-in on desktop.
+      const provider = new GoogleAuthProvider();
+      await setPersistence(auth, browserLocalPersistence);
+      await signInWithPopup(auth, provider);
+      return;
     }
 
     // Opens native Android Google sign-in (not WebView)
@@ -4305,9 +4358,16 @@ if (typeof window !== 'undefined') {
                     <span class="settings-row-text" id="txt-story-btn">Secret File</span>
                     <span class="settings-row-arrow">›</span>
                 </button>
-                <button class="settings-row" data-action="closeSettingsModal_openLeaderboardModal">
+                                <button class="settings-row" data-action="closeSettingsModal_openLeaderboardModal">
                     <span class="settings-row-icon">🏆</span>
                     <span class="settings-row-text" id="txt-lb-settings-btn">Leaderboard</span>
+                    <span class="settings-row-arrow">›</span>
+                </button>
+
+                <!-- Invite Friend: generates a single-use link (client-side) -->
+                <button class="settings-row" id="invite-friend-btn" data-action="inviteFriend">
+                    <span class="settings-row-icon">👥</span>
+                    <span class="settings-row-text" id="txt-invite-friend">Invite Friend</span>
                     <span class="settings-row-arrow">›</span>
                 </button>
             </div>
@@ -4747,11 +4807,144 @@ if (typeof window !== 'undefined') {
     </div>
 </div>
 
+<!-- Must be a classic (non-module) script so window.FIREBASE_CONFIG is set
+     synchronously before the deferred module scripts (firebase.js / app.js) run -->
+<script src="firebase-config.js"></script>
 <script src="translations.js"></script>
 <script type="module" src="firebase.js"></script>
 <script type="module" src="app.js"></script>
+<script type="module" src="invite.js"></script>
 </body>
 </html>
+
+
+// ====================================
+// FILE: www\invite.js
+// ====================================
+
+// invite.js — نظام روابط دعوة مرة واحدة (single-use invite link)
+
+import { db, firebaseAuth } from './firebase.js';
+import {
+  doc,
+  setDoc,
+  runTransaction,
+  getDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// 🧬 إعدادات
+const INVITE_BASE_URL = window.location.origin + '/invite/';
+const CODE_LENGTH = 8;
+
+// ✅ زر توليد رابط الدعوة
+async function generateInviteLink() {
+  const user = firebaseAuth.currentUser;
+  if (!user) {
+    showToast("❌ يجب تسجيل الدخول أولاً لتوليد رابط دعوة.");
+    return;
+  }
+
+  let token;
+  let attempts = 0;
+
+  // 🎯 توليد رمز فريد — إعادة المحاولة إذا كان موجوداً مسبقاً
+  do {
+    token = generateRandomToken(CODE_LENGTH);
+    const docRef = doc(db, 'inviteLinks', token);
+    const snap = await getDoc(docRef);
+    if (!snap.exists()) break; // الرمز غير مكرر
+    attempts++;
+    if (attempts > 10) {
+      showToast("❌ فشل توليد رمز فريد بعد 10 محاولات.");
+      return;
+    }
+  } while (true);
+
+  // ✅ إنشاء الوثيقة
+  await setDoc(doc(db, 'inviteLinks', token), {
+    used: false,
+    createdBy: user.uid,
+    createdAt: serverTimestamp(),
+    usedBy: null,
+    usedAt: null
+  });
+
+  const fullLink = INVITE_BASE_URL + token;
+
+  // ✅ نسخ إلى الحافظة
+  try {
+    await navigator.clipboard.writeText(fullLink);
+    showToast(`✅ تم توليد رابط دعوة مرة واحدة:\n${fullLink}\nتم نسخه تلقائياً.`);
+  } catch (e) {
+    showToast(`✅ رابط الدعوة:\n${fullLink}\n(لم يتم النسخ تلقائياً، انسخه يدوياً)`);
+    prompt("انسخ رابط الدعوة:", fullLink);
+  }
+}
+
+function generateRandomToken(length) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+// ✅ دالة استدعاء الرسائل (toast)
+function showToast(message) {
+  const container = document.getElementById('achievement-toast-container');
+  if (container) {
+    const toast = document.createElement('div');
+    toast.className = 'achievement-toast success';
+    toast.innerHTML = `<span>${escapeHtml(message)}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 5000);
+  } else {
+    alert(message);
+  }
+}
+
+function escapeHtml(str) {
+  return str.replace(/[&<>"']/g, tag => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[tag]));
+}
+
+// ✅ دالة التحقق من صلاحية رابط الدعوة عند الفتح
+async function verifyInviteToken(token) {
+  try {
+    await runTransaction(db, async (transaction) => {
+      const docRef = doc(db, 'inviteLinks', token);
+      const docSnap = await transaction.get(docRef);
+
+      if (!docSnap.exists()) {
+        throw new Error("رابط غير صالح أو منتهي");
+      }
+
+      const data = docSnap.data();
+
+      if (data.used) {
+        throw new Error("هذا الرابط تم استخدامه من قبل، اطلب رابطاً جديداً من صاحبك.");
+      }
+
+      transaction.update(docRef, {
+        used: true,
+        usedBy: firebaseAuth.currentUser?.uid || null,
+        usedAt: serverTimestamp()
+      });
+    });
+
+    showToast("🎉 رابط الدعوة صالح! مرحباً بك في لعبة The Black File.");
+    return true;
+  } catch (error) {
+    showToast(error.message);
+    return false;
+  }
+}
+
+// ✅ تصدير الدوال
+export { generateInviteLink, verifyInviteToken };
 
 
 // ====================================
@@ -4798,6 +4991,70 @@ if (typeof window !== 'undefined') {
 // FILE: www\styles.css
 // ====================================
 
+/* ==========================================================================
+   RESPONSIVE FOUNDATION (mobile-first)
+   Breakpoints:
+     - Mobile:   0 – 480px
+     - Tablet:   481px – 1024px
+     - Desktop:  > 1024px (content capped by .app { max-width: var(--content-max) })
+   Breakpoint rules live at EOF so they win the cascade over base styles.
+   ========================================================================== */
+
+:root {
+  /* Fluid page gutter: never below 12px on phones, grows on large screens */
+  --page-gutter: clamp(12px, 3vw, 32px);
+  /* Max content width on desktop / tablet-landscape */
+  --content-max: 1100px;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+
+/* NOTE: .app max-width per-breakpoint is declared at EOF (desktop section)
+   because the base .app rule below sets max-width: 900px and later rules win
+   the cascade. --content-max is applied only inside @media (min-width: 1025px). */
+
+/* ==========================================================================
+   TOUCH TARGETS (≥44px) — only enforced on coarse pointers (phones/tablets)
+   so desktop hover precision is unaffected. Uses min-height/min-width
+   (invisible hit-area expansion) instead of changing visible sizes.
+   ========================================================================== */
+@media (pointer: coarse) {
+  .btn,
+  .btn-sm,
+  .pick,
+  .q-btn,
+  .mode-card,
+  .settings-row,
+  .settings-select,
+  select,
+  .eye-btn,
+  .tts-btn,
+  .settings-modal-x,
+  .modal-close,
+  #chat-input,
+  #mic-btn,
+  #call-btn {
+    min-height: 44px;
+  }
+  .btn-sm,
+  .tts-btn,
+  .eye-btn,
+  #mic-btn,
+  #call-btn {
+    min-width: 44px;
+    padding-inline: 10px;
+  }
+  /* input font-size ≥16px prevents iOS Safari auto-zoom on focus */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+}
+
 :root {
         --ink: #0e1015;
         --panel: #171a22;
@@ -4812,7 +5069,7 @@ if (typeof window !== 'undefined') {
         --paper-dim: #a7a297;
     }
     * { box-sizing: border-box; }
-    body { background: var(--ink); color: var(--paper); font-family: system-ui, sans-serif; margin: 0; padding: 12px; line-height: 1.5; }
+    body { background: var(--ink); color: var(--paper); font-family: system-ui, sans-serif; margin: 0; padding: 12px; padding-top: max(12px, env(safe-area-inset-top)); padding-right: max(12px, env(safe-area-inset-right)); padding-bottom: max(12px, env(safe-area-inset-bottom)); padding-left: max(12px, env(safe-area-inset-left)); line-height: 1.5; }
     .app { max-width: 900px; margin: 0 auto; }
     .header { display: flex; justify-content: space-between; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
     .brand { display: flex; align-items: center; gap: 12px; }
@@ -4872,7 +5129,7 @@ if (typeof window !== 'undefined') {
     .pick:hover { border-color: var(--gold); }
     .pick.selected { border-color: var(--gold); background: var(--card-2); box-shadow: 0 0 10px rgba(201,162,75,0.2); }
     .footer-note { text-align: center; font-size: 12px; color: var(--paper-dim); margin-top: 25px; border-top: 1px dashed var(--line); padding-top: 15px; }
-    .visual-banner { width: 100%; height: 160px; border-radius: 8px; background: linear-gradient(135deg, #11141d, #252b3a); border: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 12px; position: relative; overflow: hidden; }
+    .visual-banner { width: 100%; height: clamp(120px, 18vw, 200px); border-radius: 8px; background: linear-gradient(135deg, #11141d, #252b3a); border: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 12px; position: relative; overflow: hidden; }
     .visual-banner::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, rgba(201,162,75,0.05) 0 2px, transparent 2px 22px); animation: bannerDrift 12s linear infinite; }
     .visual-banner::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 120%, rgba(201,162,75,0.18), transparent 60%); }
     @keyframes bannerDrift { from { transform: translate(0,0); } to { transform: translate(-40px,-40px); } }
@@ -4955,7 +5212,7 @@ if (typeof window !== 'undefined') {
     body[dir="ltr"] #chat-widget { right: 20px; }
     body[dir="rtl"] #chat-widget { left: 20px; }
     #chat-header { background: var(--card-2); padding: 10px 14px; cursor: move; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); font-weight: bold; font-size: 13px; color: var(--gold); user-select: none; touch-action: none; }
-    #chat-body { height: 200px; padding: 10px; overflow-y: auto; font-size: 12px; display: flex; flex-direction: column; gap: 8px; }
+    #chat-body { height: clamp(180px, 30vh, 280px); padding: 10px; overflow-y: auto; font-size: 12px; display: flex; flex-direction: column; gap: 8px; }
     #chat-footer { padding: 10px; background: var(--card); display: flex; gap: 6px; border-top: 1px solid var(--line); }
     #chat-input { flex: 1; background: var(--ink); border: 1px solid var(--line); padding: 6px 10px; border-radius: 6px; color: var(--paper); font-size: 12px; outline: none; }
     .chat-msg { background: var(--card-2); padding: 6px 10px; border-radius: 6px; max-width: 85%; }
@@ -5175,6 +5432,19 @@ body[dir="rtl"] .story-frag { border-left: none; border-right: 3px solid var(--g
   cursor: grabbing;
 }
 
+/* Invisible 44x44 hit area around the string handle — the visible handle is
+   only 10x16px, far below the 44px minimum touch target (Apple HIG / Material).
+   The pseudo-element is transparent and keeps the design pixel-perfect. */
+#lamp-wrapper .pull-handle::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+}
+
 #lamp-wrapper.lamp-login-wrapper.on .pull-handle {
   background-color: #fbbf24;
   box-shadow: 0 0 14px rgba(251, 191, 36, 0.95);
@@ -5391,6 +5661,7 @@ body[dir="rtl"] .story-frag { border-left: none; border-right: 3px solid var(--g
     width: 100%;
     max-width: 360px;
   }
+
 }
 
 @media (max-width: 420px) {
@@ -5462,18 +5733,160 @@ html, body { overflow-x: hidden; }
 .guide-row b { display: block; color: var(--paper); font-size: 13.5px; margin-bottom: 2px; }
 .guide-row p { margin: 0; color: var(--paper-dim); font-size: 12px; line-height: 1.55; }
 
+/* ==========================================================================
+   RESPONSIVE BREAKPOINTS (Phase 1 — multi-platform foundation)
+   Mobile ≤480px | Tablet 481–1024px | Desktop >1024px
+   Declared LAST so breakpoint rules win the cascade over base components.
+   ========================================================================== */
+
+/* ------------------------------------------------------------------ MOBILE */
+@media (max-width: 480px) {
+  :root { --page-gutter: 12px; }
+
+  body { padding: var(--page-gutter); }
+
+  /* Compact header — but preserve the settings FAB footprint reservation
+     (78px) from the base styles so wrapped controls can never render
+     underneath the fixed gear button on narrow phones */
+  .header { padding: 10px 12px; gap: 8px; }
+  body[dir="ltr"] .header { padding-right: 78px; }
+  body[dir="rtl"] .header { padding-left: 78px; }
+  .brand h1, .brand .brand-title { font-size: 16px; }
+
+  /* Mode cards stack vertically with breathing room */
+  #mode-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .mode-card { padding: 16px 12px; }
+
+  /* Cards & buttons get more padding for comfortable touch */
+  .card { padding: 14px; }
+  .btn { width: 100%; padding: 13px 18px; }
+
+  /* Modals become edge-to-edge sheets */
+  .modal {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    min-height: 100vh;
+    border-radius: 0;
+    padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+  }
+  .modal-bg { padding: 0; }
+
+  /* Chat widget docked edge-to-edge at the bottom */
+  #chat-widget {
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: none;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+  body[dir="rtl"] #chat-widget { left: 12px; right: 12px; }
+
+  /* Footer stays legible on small screens */
+  .footer-note { font-size: 11px; }
+}
+
+/* ------------------------------------------------------------------ TABLET */
+@media (min-width: 481px) and (max-width: 1024px) {
+  :root { --page-gutter: clamp(16px, 3.5vw, 28px); }
+
+  body { padding: var(--page-gutter); }
+
+  /* Mode cards: 2 per row on tablets */
+  #mode-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .mode-card { padding: 18px 14px; }
+
+  .visual-banner { height: clamp(150px, 22vw, 230px); }
+
+  /* Chat widget a bit wider, docked with safe-area offset */
+  #chat-widget {
+    width: min(360px, calc(100vw - 2 * var(--page-gutter)));
+    bottom: calc(20px + env(safe-area-inset-bottom));
+  }
+}
+
+/* ----------------------------------------------------------------- DESKTOP */
+@media (min-width: 1025px) {
+  :root { --page-gutter: clamp(24px, 4vw, 48px); }
+
+  body { padding: var(--page-gutter); font-size: 16px; }
+
+  /* Wider, centered content cap for desktop/laptop windows (overrides the
+     base .app { max-width: 900px } because this comes later in the file) */
+  .app {
+    width: 100%;
+    max-width: var(--content-max);
+    margin: 0 auto;
+    padding: 0 8px;
+  }
+
+  /* Mode cards: 3 per row on desktop */
+  #mode-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .mode-card { padding: 20px 16px; }
+
+  /* Keyboard users still get visible focus even though hover leads here */
+  .btn:focus-visible,
+  .btn-sm:focus-visible,
+  .pick:focus-visible,
+  .q-btn:focus-visible,
+  .mode-card:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+}
+
+/* Short-viewport landscape phones: shrink the fixed chat panel so it never
+   covers the whole screen and modals stay scrollable. */
+@media (max-height: 480px) and (orientation: landscape) {
+  #chat-widget { max-height: 70vh; }
+  #chat-body { height: clamp(90px, 22vh, 140px); }
+  .modal { min-height: 100vh; }
+}
+
+/* ==========================================================================
+   ELECTRON / DESKTOP SHELL PARITY (Phase 2 hook)
+   Electron's main process flags the environment via
+   document.documentElement.classList.add('platform-electron') — see
+   electron/index.js. Rules below only apply inside the desktop shell.
+   ========================================================================== */
+html.platform-electron body {
+  /* Desktop apps feel native when text isn't accidentally selectable */
+  user-select: none;
+  -webkit-user-select: none;
+}
+html.platform-electron input,
+html.platform-electron textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+
 
 // ====================================
 // FILE: www\sw.js
 // ====================================
 
-const CACHE_NAME = 'black-file-cache-v7'; // bumped: added local peerjs.min.js to APP_SHELL for reliable offline multiplayer
+const CACHE_NAME = 'black-file-cache-v8'; // bumped: fix module scripts failing when served from SW cache (opaque no-cors copies of cross-origin Firebase modules broke ES module imports: net::ERR_FAILED)
 const APP_SHELL = [
   './index.html',
   './styles.css',
   './translations.js',
   './app.js',
   './firebase.js',
+  './firebase-config.js',
   './peerjs.min.js',
   './manifest.json',
   './assets/icon-192.png',
@@ -5481,27 +5894,16 @@ const APP_SHELL = [
   './assets/icon-512-maskable.png',
   './assets/apple-touch-icon.png'
 ];
-// Cached separately with no-cors since they're cross-origin (opaque response,
-// but still lets them load while offline after the first successful fetch).
-// تمت إضافة firebase-firestore.js و firebase-firestore-lite.js لدعم أوفلاين كامل
-// ملاحظة: peerjs.min.js أصبح محلياً ولا حاجة لتخزينه كـ external
-const EXTERNAL = [
-  'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js',
-  'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js',
-  'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js'
-  // تم حذف firebase-firestore-lite.js لأنه غير مستخدم ويهدر مساحة
-];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
       await cache.addAll(APP_SHELL);
-      await Promise.all(EXTERNAL.map(async (url) => {
-        try {
-          const res = await fetch(url, { mode: 'no-cors' });
-          await cache.put(url, res);
-        } catch (e) { /* offline first install: skip, will retry later */ }
-      }));
+      // NOTE: we intentionally do NOT cache the cross-origin Firebase modules
+      // (gstatic). They are consumed as ES module imports (CORS mode), and a
+      // no-cors cached copy is an opaque response that CANNOT be replayed for
+      // a module request — it fails with net::ERR_FAILED. The fetch handler
+      // below always goes to the network for cross-origin module scripts.
     })
   );
   self.skipWaiting();
@@ -5520,11 +5922,33 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
 
+  // Resolve the request URL against the SW's own origin.
+  let reqUrl;
+  try {
+    reqUrl = new URL(req.url);
+  } catch {
+    return;
+  }
+
+  // Cross-origin requests (Firebase CDN / PeerJS / avatar images):
+  //  - ES module scripts (destination 'script') MUST get a live network
+  //    response with real CORS headers — never a cached opaque copy.
+  //  - Other cross-origin assets (images) stay network-first with cache fallback.
+  if (reqUrl.origin !== self.location.origin) {
+    if (req.destination === 'script') {
+      event.respondWith(fetch(req));
+    } else {
+      event.respondWith(fetch(req).catch(() => caches.match(req)));
+    }
+    return;
+  }
+
+  // Same-origin resources: cache-first with stale-while-revalidate.
   event.respondWith(
     caches.match(req).then((cached) => {
       const fetchPromise = fetch(req)
         .then((networkRes) => {
-          // Refresh the cache in the background (stale-while-revalidate)
+          // Refresh the cache in the background
           const copy = networkRes.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
           return networkRes;
@@ -10234,6 +10658,14 @@ const TRANSLATIONS = {
   "name": "the-black-file",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "sync:www": "node scripts/sync-www.js",
+    "cap:sync": "npx cap sync",
+    "electron:run": "npm run sync:www && cd electron && npm run build && npm start",
+    "electron:build-win": "npm run sync:www && node scripts/build-electron.js --win",
+    "electron:build-mac": "npm run sync:www && node scripts/build-electron.js --mac",
+    "electron:build-all": "npm run sync:www && node scripts/build-electron.js --win --mac"
+  },
   "dependencies": {
     "@capacitor-community/text-to-speech": "^5.0.0",
     "@capacitor-firebase/authentication": "^6.3.1",
@@ -10245,8 +10677,11 @@ const TRANSLATIONS = {
     "@capacitor/share": "^6.0.0"
   },
   "devDependencies": {
+    "@capacitor-community/electron": "^5.0.1",
     "@capacitor/assets": "3.0.5",
-    "@capacitor/cli": "^6.0.0"
+    "@capacitor/cli": "^6.0.0",
+    "electron-builder": "^24.13.3",
+    "ws": "^8.18.0"
   }
 }
 

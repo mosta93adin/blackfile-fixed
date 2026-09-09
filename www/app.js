@@ -1,18 +1,15 @@
 import { auth as firebaseAuth, db, initializeAuthPersistence, loginWithGoogle as loginWithGoogleRedirect, loginOrSignupWithEmail, resetPassword, onAuthStateChanged } from './firebase.js';
 import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDocs, serverTimestamp, arrayUnion, getDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { generateInviteLink, verifyInviteToken } from './invite.js';
 
 // --- [Auto-verify invite link on page load] ---
 (function() {
   const pathParts = window.location.pathname.split('/');
   if (pathParts.length === 3 && pathParts[1] === 'invite') {
     const inviteCode = pathParts[2];
-    window.addEventListener('tf-ready', () => {
-      if (typeof verifyInviteToken === 'function') {
-        verifyInviteToken(inviteCode).then(valid => {
-          if (valid) {
-            window.history.replaceState({}, document.title, "/");
-          }
-        });
+    verifyInviteToken(inviteCode).then(valid => {
+      if (valid) {
+        window.history.replaceState({}, document.title, "/");
       }
     });
   }
@@ -997,7 +994,7 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
     }
 
     // SALT must match the one used in tools/hash.js to hash culprit names
-    const CULPRIT_SALT = 'blackfile-detective-2026-CHANGE-THIS';
+    const CULPRIT_SALT = 'TF_8f3a2c9d1e7b4a6f0c5d8e2b9a3f7c1d';
     async function sha256(text) {
         const encoder = new TextEncoder();
         const data = encoder.encode(text);
@@ -1773,11 +1770,11 @@ import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDo
 
     let mpJoinRetryTimer = null;
 
-    // Validate room code format: CASE-XXX where XXX is 2-3 alphanumeric chars
-    // Examples: CASE-99, CASE-123, CASE-AB1
+    // Validate room code format: 7-char alphanumeric (no ambiguous chars O/0/I/1)
+    // Examples: AB3CD9F, XYZ1234 — must match generateRoomCode() output
     function isValidRoomCode(code) {
         if (typeof code !== 'string') return false;
-        return /^CASE-[A-Z0-9]{2,3}$/.test(code.trim().toUpperCase());
+        return /^[A-HJ-NP-Z2-9]{7}$/.test(code.trim().toUpperCase());
     }
 
     function joinMultiplayerRoom() {
@@ -3750,95 +3747,5 @@ document.addEventListener('keydown', (e) => {
   if (action === 'chatInputEnter' && e.key === 'Enter') {
     sendChatMessage();
     return;
-  }
-});
-// ================================
-// Client-Side Single-Use Invite Link System (Spark Plan Compatible)
-// ================================
-
-async function generateInviteLinkClientSide() {
-  const user = firebaseAuth.currentUser;
-  if (!user) {
-    showMessage("يجب تسجيل الدخول أولاً.");
-    return;
-  }
-
-  const token = crypto.randomUUID();
-  await setDoc(doc(db, "inviteLinks", token), {
-    used: false,
-    createdBy: user.uid,
-    createdAt: new Date(),
-    usedAt: null,
-    usedBy: null,
-  });
-
-  const link = `https://blackfile.game/join?token=${token}`;
-  navigator.clipboard.writeText(link).then(() => {
-    showMessage("تم نسخ الرابط — شاركه على إنستغرام!");
-  });
-}
-
-async function handleSingleUseLinkClientSide(token) {
-  try {
-    const docRef = doc(db, "inviteLinks", token);
-
-    const result = await runTransaction(db, async (transaction) => {
-      const snap = await transaction.get(docRef);
-
-      if (!snap.exists()) {
-        return { valid: false, reason: "not_found" };
-      }
-
-      const data = snap.data();
-      if (data.used === true) {
-        return { valid: false, reason: "already_used" };
-      }
-
-      transaction.update(docRef, {
-        used: true,
-        usedAt: new Date(),
-        usedBy: firebaseAuth.currentUser ? firebaseAuth.currentUser.uid : null,
-      });
-
-      return { valid: true };
-    });
-
-    if (result.valid) {
-      showOnboardingAfterInvite();
-    } else {
-      showMessage(
-        result.reason === "already_used"
-          ? "هذا الرابط تم استعماله من قبل. يرجى طلب دعوة جديدة."
-          : "الرابط غير صالح."
-      );
-    }
-
-    window.history.replaceState({}, document.title, "/");
-  } catch (err) {
-    console.error("Token validation error:", err);
-    showMessage("حدث خطأ أثناء التحقق من الرابط.");
-  }
-}
-
-
-// أوتوماتيكي عند تحميل الصفحة — فحص وجود ?token=
-(async () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get('token');
-
-  if (token) {
-    await handleSingleUseLinkClientSide(token);
-  }
-})();
-
-// ربط زر "دعوة صديق" في إعدادات المودال
-document.addEventListener('DOMContentLoaded', () => {
-  const inviteBtn = document.getElementById('invite-friend-btn');
-  if (inviteBtn) {
-    inviteBtn.addEventListener('click', () => {
-      if (typeof generateInviteLinkClientSide === 'function') {
-        generateInviteLinkClientSide();
-      }
-    });
   }
 });

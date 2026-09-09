@@ -112,11 +112,12 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-         // دعوات الأصدقاء — رابط واحد مرة واحدة فقط
-     // القراءة: مسموحة للجميع (للتحقق من صلاحية الـ token)
+     // دعوات الأصدقاء — رابط واحد مرة واحدة فقط
+     // القراءة: مسموحة للجميع للتحقق من صلاحية الـ token (قراءة مستند محدد فقط)
      // الكتابة: محدودة بالـ Transaction فقط، مع تأكيد استخدام isOwner + createdBy
      match /inviteLinks/{token} {
-       allow read: if true;
+       allow get: if true;      // السماح بقراءة مستند محدد للتحقق من التوكن
+       allow list: if false;    // منع سرد جميع الروابط جماعياً
        allow create: if request.auth != null
                      && request.resource.data.used == false
                      && request.resource.data.createdBy == request.auth.uid;

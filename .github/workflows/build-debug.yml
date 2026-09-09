@@ -33,7 +33,6 @@ jobs:
       - name: Install Dependencies
         run: |
           npm install
-          npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/filesystem @capacitor/share
       - name: Restore firebase-config.js (web config used by the WebView)
         env:
           FIREBASE_CONFIG_JS_BASE64: ${{ secrets.FIREBASE_CONFIG_JS_BASE64 }}
@@ -76,6 +75,11 @@ jobs:
         run: |
           mkdir -p ~/.android
           echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | base64 --decode > ~/.android/debug.keystore
+          # Verify the keystore is not empty or corrupted (fails with clear error)
+          if [ ! -s ~/.android/debug.keystore ] || [ $(wc -c < ~/.android/debug.keystore) -lt 500 ]; then
+            echo "ERROR: DEBUG_KEYSTORE_BASE64 secret is missing or invalid — debug.keystore is too small/empty"
+            exit 1
+          fi
       - name: Cache Gradle dependencies
         uses: actions/cache@v4
         with:
