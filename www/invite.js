@@ -1,6 +1,6 @@
 // invite.js — نظام روابط دعوة مرة واحدة (single-use invite link)
 
-import { db, firebaseAuth } from './firebase.js';
+import { db, auth as firebaseAuth } from './firebase.js';
 import {
   doc,
   setDoc,

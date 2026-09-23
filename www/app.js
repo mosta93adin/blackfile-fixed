@@ -994,7 +994,7 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
     }
 
     // SALT must match the one used in tools/hash.js to hash culprit names
-    const CULPRIT_SALT = 'TF_8f3a2c9d1e7b4a6f0c5d8e2b9a3f7c1d';
+    const CULPRIT_SALT = 'blackfile-detective-2026-CHANGE-THIS';
     async function sha256(text) {
         const encoder = new TextEncoder();
         const data = encoder.encode(text);
