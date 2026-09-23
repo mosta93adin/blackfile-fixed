@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const rootDir = process.cwd();
+const rootDir = path.join(__dirname, '..');
 const outputFile = path.join(rootDir, 'full_project_code.txt');
 
 // المجلدات والملفات التي تحتوي على كود اللعبة
