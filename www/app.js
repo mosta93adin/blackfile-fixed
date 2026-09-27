@@ -3962,6 +3962,14 @@ function syncAuthUI(user) {
     void loadCloudProgress();
     showGameUI();
   } else if (isOfflineMode()) {
+    // Firebase may deliver its initial null auth callback after the guest
+    // UI has already started a case. Do not reset the active screen back to
+    // the menu while the offline game is running.
+    const appRoot = document.querySelector('.app');
+    const activeGameScreen = document.querySelector(
+      '#scr-brief.active, #scr-investigation.active, #scr-result.active'
+    );
+    if (appRoot?.style.display === 'block' && activeGameScreen) return;
     showGameUI();
   } else {
     showLoginUI();
