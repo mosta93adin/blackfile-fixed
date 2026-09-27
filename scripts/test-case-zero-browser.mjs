@@ -23,6 +23,17 @@ try {
   await page.goto(`${BASE_URL}/index.html`, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('#scr-menu.active', { state: 'attached' });
   await page.locator('.app').waitFor({ state: 'visible' });
+  // Auth/offline persistence: the explicit guest mode must survive a reload,
+  // while a normal unauthenticated session must return to the login UI.
+  if (await page.locator('#lamp-wrapper').isVisible()) {
+    throw new Error('Offline mode did not bypass the login UI.');
+  }
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('#scr-menu.active', { state: 'attached', timeout: 10000 });
+  if (await page.locator('#lamp-wrapper').isVisible()) {
+    throw new Error('Offline mode was not persisted across reload.');
+  }
+
   await page.waitForSelector('#case-list .card[data-action="openBrief"][data-case-idx="0"]', { timeout: 15000 });
 
   const onboarding = page.locator('#modal-onboard.active');
@@ -32,11 +43,39 @@ try {
 
   await page.locator('#case-list .card[data-action="openBrief"][data-case-idx="0"]').click();
   await page.locator('#txt-start-inv').click();
+  await page.waitForSelector('#scr-investigation.active', { timeout: 10000 });
+
+  // Click one evidence item and verify the app persisted the runtime state.
+  await page.locator('#evidence-list .pick[data-evidence-id="E_MANOR_DAGGER"]').click();
+  await page.waitForSelector('#modal-evidence.active');
+  const savedAfterEvidence = await page.evaluate(() => {
+    const raw = localStorage.getItem('tf_investigationStates_v1');
+    const all = raw ? JSON.parse(raw) : {};
+    return all['0']?.state || null;
+  });
+  if (!savedAfterEvidence || !savedAfterEvidence.analyzedEvidenceIds?.includes('E_MANOR_DAGGER')) {
+    throw new Error('Persistence test failed: analyzed evidence was not saved to localStorage.');
+  }
+  await page.locator('#modal-evidence [data-action="closeModal_modal-evidence"]').click();
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('#scr-menu.active', { state: 'attached', timeout: 10000 });
+  await page.locator('#case-list .card[data-action="openBrief"][data-case-idx="0"]').click();
+  await page.locator('#txt-start-inv').click();
+  await page.waitForSelector('#scr-investigation.active', { timeout: 10000 });
+  const restoredState = await page.evaluate(() => {
+    const raw = localStorage.getItem('tf_investigationStates_v1');
+    const all = raw ? JSON.parse(raw) : {};
+    return all['0']?.state || null;
+  });
+  if (!restoredState?.analyzedEvidenceIds?.includes('E_MANOR_DAGGER')) {
+    throw new Error('Persistence test failed: saved investigation state was not restored after reload.');
+  }
+
+  // Continue the normal Case 0 flow from the restored state.
+
   if (errors.length) {
     throw new Error(`Browser page errors while starting Case 0: ${errors.join(' | ')}`);
   }
-  await page.waitForSelector('#scr-investigation.active', { timeout: 10000 });
-
   const evidenceButtons = page.locator('#evidence-list .pick[data-evidence-id]');
   const evidenceCount = await evidenceButtons.count();
   const visibleEvidenceIds = await evidenceButtons.evaluateAll(nodes =>
