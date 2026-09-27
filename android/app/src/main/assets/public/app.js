@@ -2376,7 +2376,8 @@ import {
             investigationDedCase19: "Evidence and statement chain established: the trace links Ziad Rival to the case while Ziad Rival denies using or handling it.",
             investigationObjMaherKeyDenial: "Maher's statement conflicts with the access register.",
             investigationDedAccessTraceChain: "Access and trace chain established: the register places the administrative master key under Maher's checkout at 10:04, while Maher denies taking it."
-        },
+        ,
+        inviteFriendBtn: "👤 Invite Friend"},
         ar: {
             appTitle: "الملف الأسود",
             listen: "استمع", energyExhausted: "استعملتي كل محاولاتك ديال اليوم. ارجع غدا يا محقق!",
@@ -2463,7 +2464,8 @@ import {
             investigationDedCase19: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط زياد المنافس بالقضية بينما ينكر زياد المنافس استخدامه أو التعامل معه.",
             investigationObjMaherKeyDenial: "تتعارض إفادة ماهر مع سجل الدخول.",
             investigationDedAccessTraceChain: "تم إثبات سلسلة الوصول والأثر: يُظهر السجل أن المفتاح الرئيسي الإداري كان مسجَّلاً باسم ماهر في الساعة 10:04، بينما ينكر ماهر أنه أخذه."
-        },
+        ,
+        inviteFriendBtn: "👤 دعوة صديق"},
         ary: {
             appTitle: "الملف الأسود",
             listen: "استمع", energyExhausted: "استعملتي كل محاولاتك ديال اليوم. ارجع غدا يا محقق!",
@@ -2551,7 +2553,34 @@ import {
             investigationDedCase19: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط زياد المنافس بالقضية بينما زياد المنافس كينكر بلي استعملو ولا لمسُه.",
             investigationObjMaherKeyDenial: "الشهادة ديال ماهر كتناقض مع سجل الدخول.",
             investigationDedAccessTraceChain: "تبثات سلسلة الوصول والأثر: السجل كيبين بلي المفتاح الرئيسي ديال الإدارة كان مسجل فسم ماهر فـ 10:04، وماهر كينكر بلي خدا."
-        },
+        ,
+mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
+        loginTitle: "مرحبا بعودتك",
+        loginEmailPlaceholder: "البريد الإلكتروني",
+        loginPasswordPlaceholder: "كلمة السر",
+        loginConfirmPasswordPlaceholder: "أكد كلمة السر (للحسابات الجديدة فقط)",
+        loginForgotPassword: "نسيتي كلمة السر؟",
+        loginSignInBtn: "دخول",
+        loginOrDivider: "أو",
+        loginGoogleBtn: "كمّل مع Google",
+        loginOfflineBtn: "لعب بلا إنترنت",
+        lbCaseUnit: "قضايا محلولة",
+        lbLoadFailedText: "ما قدرناش نحملو لائحة المتصدرين. تحقق من الاتصال.",
+        importInvalidFileText: "ملف التقدم ما صالحش.",
+        roomJoinRateLimited: "كاينين بزاف ديال محاولات الانضمام. تسنى دقيقة.",
+        mpNoPublicRooms: "ما كايناش غرف عامة دابا.",
+        mpPublicRoomsFailed: "ما قدرناش نحملو الغرف العامة.",
+        loginSigningInFallback: "جاري تسجيل الدخول...",
+        loginPasswordMismatchAlert: "كلمتا السر ما متطابقاش!",
+        loginAuthFailedFallback: "فشل تسجيل الدخول. عاود المحاولة.",
+        loginEnterEmailFirstAlert: "دخل البريد الإلكتروني ديالك أولاً، ومن بعد ضغط على \"نسيتي كلمة السر؟\" مرة أخرى.",
+        loginResetLinkSentAlert: "تصيفط ليك رابط إعادة تعيين كلمة السر لـ {email}.",
+        loginResetFailedFallback: "ما قدرناش نصيفطو إيميل إعادة التعيين. عاود المحاولة.",
+        loginConnectingGoogleFallback: "جاري الاتصال بـ Google...",
+        loginGoogleFailedFallback: "ما قدرناش نسجلو الدخول عبر Google.",
+        inviteFriendBtn: "دعوة صاحب",
+,
+        inviteFriendBtn: "👤 عيط لصاحب"},
         fr: {
             appTitle: "Le Dossier Noir",
             listen: "Écouter", energyExhausted: "Vous avez utilisé toutes vos enquêtes du jour. Revenez demain, détective !",
@@ -2638,7 +2667,8 @@ import {
             investigationDedCase19: "Chaîne de preuves et de déclaration établie : l’indice relie Ziad le Rival à l’affaire tandis que Ziad le Rival nie l’avoir utilisé ou manipulé.",
             investigationObjMaherKeyDenial: "La déclaration de Maher est en contradiction avec le registre d'accès.",
             investigationDedAccessTraceChain: "Chaîne d'accès et de traçage établie : le registre indique que la clé maîtresse administrative a été enregistrée au nom de Maher à 10:04, alors que Maher nie l'avoir prise."
-        },
+        ,
+        inviteFriendBtn: "👤 Inviter un ami"},
         es: {
             appTitle: "El Archivo Negro",
             listen: "Escuchar", energyExhausted: "Has usado todas tus investigaciones de hoy. ¡Vuelve mañana, detective!",
@@ -2725,7 +2755,8 @@ import {
             investigationDedCase19: "Cadena de pruebas y declaración establecida: el indicio relaciona a Ziad Rival con el caso mientras Ziad Rival niega haberlo usado o manipulado.",
             investigationObjMaherKeyDenial: "La declaración de Maher contradice el registro de acceso.",
             investigationDedAccessTraceChain: "Cadena de acceso y rastro establecida: el registro sitúa la llave maestra administrativa bajo el registro de salida de Maher a las 10:04, mientras que Maher niega haberla tomado."
-        },
+        ,
+        inviteFriendBtn: "👤 Invitar a un amigo"},
         it: {
             appTitle: "Il File Nero",
             listen: "Ascolta", energyExhausted: "Hai usato tutte le tue indagini di oggi. Torna domani, detective!",
@@ -2812,7 +2843,8 @@ import {
             investigationDedCase19: "Catena di prove e dichiarazione stabilita: l’indizio collega Ziad Rivale al caso mentre Ziad Rivale nega di averlo usato o maneggiato.",
             investigationObjMaherKeyDenial: "La dichiarazione di Maher è in contraddizione con il registro degli accessi.",
             investigationDedAccessTraceChain: "Catena di accesso e traccia stabilita: il registro colloca la chiave maestra amministrativa sotto il prelievo di Maher alle 10:04, mentre Maher nega di averla presa."
-        },
+        ,
+        inviteFriendBtn: "👤 Invita un amico"},
         de: {
             appTitle: "Die Schwarze Akte",
             listen: "Anhören", energyExhausted: "Du hast alle heutigen Ermittlungen aufgebraucht. Komm morgen wieder, Detektiv!",
@@ -2899,7 +2931,8 @@ import {
             investigationDedCase19: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Ziad der Rivalisierende mit dem Fall, während Ziad der Rivalisierende bestreitet, sie benutzt oder berührt zu haben.",
             investigationObjMaherKeyDenial: "Mahers Aussage widerspricht dem Zugangsregister.",
             investigationDedAccessTraceChain: "Zugangs- und Spurenkette festgestellt: Das Register verzeichnet den administrativen Hauptschlüssel unter Mahers Ausgabe um 10:04 Uhr, während Maher bestreitet, ihn genommen zu haben."
-        },
+        ,
+        inviteFriendBtn: "👤 Freund einladen"},
         pt: {
             appTitle: "O Arquivo Negro",
             listen: "Ouvir", energyExhausted: "Já usaste todas as tuas investigações de hoje. Volta amanhã, detetive!",
@@ -2986,7 +3019,8 @@ import {
             investigationDedCase19: "Cadeia de prova e declaração estabelecida: a pista liga Ziad Rival ao caso enquanto Ziad Rival nega tê-la usado ou manuseado.",
             investigationObjMaherKeyDenial: "A declaração de Maher entra em conflito com o registro de acesso.",
             investigationDedAccessTraceChain: "Cadeia de acesso e rastro estabelecida: o registro coloca a chave mestra administrativa sob a retirada de Maher às 10:04, enquanto Maher nega tê-la pegado."
-        }
+        ,
+        inviteFriendBtn: "👤 Convidar amigo"}
     };
     // تم حذف السطر الذي كان يمحي ترجمة الدارجة المغربية (EXTRA_TRANGS.ary = EXTRA_TRANGS.ar)
     // للحفاظ على ترجمة الدارجة المغربية كما هي معرّفة أعلاه
@@ -3681,6 +3715,7 @@ import {
         setPlainText('txt-stats-btn', 'statsBtnLabel');
         setPlainText('txt-story-btn', 'storyBtnLabel');
         setText('txt-showcase-label', 'showcaseLabel');
+        setText('txt-invite-friend', 'inviteFriendBtn');
         setText('txt-lb-settings-btn', 'lbSettingsBtn');
         setText('txt-lb-title', 'lbModalTitle');
         setText('txt-lb-close', 'lbModalClose');
@@ -3924,6 +3959,9 @@ function showLoginUI() {
   if (wrapper) {
     wrapper.style.display = 'flex';
     wrapper.setAttribute('aria-hidden', 'false');
+    wrapper.classList.remove('on');
+    isOn = false;
+    if (typeof resetHandlePosition === 'function') resetHandlePosition();
   }
   if (appRoot) {
     appRoot.style.display = 'none';
