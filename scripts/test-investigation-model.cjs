@@ -74,10 +74,16 @@ const { execFileSync } = require('child_process');
   vm.runInContext(`${translationsSource}\nthis.TRANSLATIONS = TRANSLATIONS;`, context);
   const salt = hashSource.match(/const SALT = '([^']*)'/)[1];
   let total = 0;
+  let legacyHashCases = 0;
   let mismatches = 0;
   for (const data of Object.values(context.TRANSLATIONS)) {
     for (const currentCase of data.cases || []) {
       total++;
+      // Migrated V9 cases may retain legacy culpritHash data for compatibility,
+      // but the V9 engine must not require it for gameplay. Only validate the
+      // legacy hash when a case actually declares one.
+      if (!currentCase.culpritHash) continue;
+      legacyHashCases++;
       const matchingSuspects = (currentCase.suspects || []).filter(suspect => {
         const hash = crypto.createHash('sha256')
           .update(salt + suspect.name.trim().toLowerCase())
@@ -88,6 +94,7 @@ const { execFileSync } = require('child_process');
     }
   }
   assert.strictEqual(total, 160);
+  assert.ok(legacyHashCases > 0);
   assert.strictEqual(mismatches, 0);
 
   execFileSync(process.execPath, ['--check', 'www/app.js'], { stdio: 'ignore' });
