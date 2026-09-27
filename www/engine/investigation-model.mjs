@@ -62,7 +62,7 @@ const CASE_MANOR_01 = {
     'R_MANOR_013', 'R_MANOR_014', 'R_MANOR_015', 'R_MANOR_016',
     'R_MANOR_017', 'R_MANOR_018', 'R_MANOR_019', 'R_MANOR_020',
     'R_MANOR_021', 'R_MANOR_022', 'R_MANOR_023', 'R_MANOR_024',
-    'R_MANOR_025', 'R_MANOR_026', 'R_MANOR_027', 'R_MANOR_028'
+    'R_MANOR_025', 'R_MANOR_026', 'R_MANOR_027', 'R_MANOR_028', 'R_MANOR_029'
   ],
   hypothesisIds: [
     'H_MANOR_FATAL_TIME',
@@ -281,7 +281,7 @@ const relationships = [
   ['R_MANOR_013', 'E_MANOR_DAGGER', 'identifies', 'S_MANOR_YAHYA', ['E_MANOR_DAGGER'], 'case1.relationship.ridgeIdentifiesYahya'],
   ['R_MANOR_014', 'E_MANOR_DAGGER', 'temporally_overlaps', 'EV_MANOR_INCIDENT_INTERVAL', ['E_MANOR_DAGGER', 'EV_MANOR_INCIDENT_INTERVAL'], 'case1.relationship.contactInterval'],
   ['R_MANOR_015', 'ST_FATIMA_04', 'supports', 'H_MANOR_YAHYA_PRESENCE', ['ST_FATIMA_04', 'E_MANOR_ACCESS_LOG'], 'case1.relationship.presenceHypothesis'],
-  ['R_MANOR_016', 'E_MANOR_DAGGER', 'supports', 'H_MANOR_MURDER_TIME_WEAPON_CONTACT', ['E_MANOR_DAGGER', 'EV_MANOR_INCIDENT_INTERVAL'], 'case1.relationship.contactHypothesis'],
+  ['R_MANOR_016', 'E_MANOR_DAGGER', 'supports', 'H_MANOR_MURDER_TIME_WEAPON_CONTACT', ['E_MANOR_DAGGER', 'E_MANOR_WATCH'], 'case1.relationship.contactHypothesis'],
   ['R_MANOR_017', 'ST_YAHYA_01', 'asserts_location_at_time', 'L_MANOR_BALCONY', ['ST_YAHYA_01'], 'case1.relationship.balconyClaim'],
   ['R_MANOR_018', 'ST_FATIMA_04', 'contradicts', 'H_MANOR_BALCONY_ALIBI', ['ST_FATIMA_04', 'E_MANOR_ACCESS_LOG', 'ST_YAHYA_01'], 'case1.relationship.balconyContradiction'],
   ['R_MANOR_019', 'E_MANOR_LETTER', 'supports', 'H_MANOR_FINANCIAL_CONFLICT', ['E_MANOR_LETTER'], 'case1.relationship.financialConflict'],
@@ -293,7 +293,8 @@ const relationships = [
   ['R_MANOR_025', 'EV_MANOR_WINDOW_STATE', 'insufficient_for', 'H_MANOR_ESCAPE_THROUGH_WINDOW', ['EV_MANOR_WINDOW_STATE', 'E_MANOR_FOOTPRINT'], 'case1.relationship.windowInsufficient'],
   ['R_MANOR_026', 'ST_OMAR_02', 'limits_inference_about', 'EV_MANOR_GATE_STATE', ['ST_OMAR_02'], 'case1.relationship.gateLimitation'],
   ['R_MANOR_027', 'H_MANOR_DAGGER_WEAPON', 'requires', 'H_MANOR_RESPONSIBILITY', ['H_MANOR_DAGGER_WEAPON', 'H_MANOR_FATAL_TIME', 'H_MANOR_YAHYA_PRESENCE', 'H_MANOR_MURDER_TIME_WEAPON_CONTACT'], 'case1.relationship.responsibilityRequirements'],
-  ['R_MANOR_028', 'H_MANOR_BALCONY_ALIBI', 'corroborates', 'H_MANOR_RESPONSIBILITY', ['H_MANOR_BALCONY_ALIBI', 'H_MANOR_FINANCIAL_CONFLICT'], 'case1.relationship.responsibilityContext']
+  ['R_MANOR_028', 'H_MANOR_BALCONY_ALIBI', 'corroborates', 'H_MANOR_RESPONSIBILITY', ['H_MANOR_BALCONY_ALIBI', 'H_MANOR_FINANCIAL_CONFLICT'], 'case1.relationship.responsibilityContext'],
+  ['R_MANOR_029', 'E_MANOR_WATCH', 'supports', 'H_MANOR_FATAL_TIME', ['E_MANOR_WATCH'], 'case1.relationship.fatalTimeHypothesis']
 ].map(([id, from, relation, to, sourceIds, justificationKey]) => ({
   id, from, relation, to, sourceIds, justificationKey
 }));
