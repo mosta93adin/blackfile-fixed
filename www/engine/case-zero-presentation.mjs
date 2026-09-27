@@ -52,6 +52,24 @@ export function getCaseZeroPresentationEvidenceId(evidenceIndex) {
   return evidenceId;
 }
 
+export function getCaseZeroObjectionText(objectionId) {
+  if (objectionId !== 'OBJ_MANOR_YAHYA_BALCONY') return null;
+  return "Yahya claimed to be on the balcony, but the access log shows his badge opened the study door during the same window — his alibi doesn't hold.";
+}
+
+export function getCaseZeroDeductionText(deductionId) {
+  if (deductionId !== 'DED_MANOR_YAHYA_RESPONSIBILITY') return null;
+  return 'Weapon, timing, presence, contact, a collapsed alibi, and a financial motive — together they point to Yahya Alami.';
+}
+
+export function getCaseZeroObjectionTextKey(objectionId) {
+  return objectionId === 'OBJ_MANOR_YAHYA_BALCONY' ? 'investigationObjYahyaBalcony' : null;
+}
+
+export function getCaseZeroDeductionTextKey(deductionId) {
+  return deductionId === 'DED_MANOR_YAHYA_RESPONSIBILITY' ? 'investigationDedYahyaResponsibility' : null;
+}
+
 export function hasCaseZeroPresentation(questionId) {
   return CASE_ZERO_QUESTION_IDS.some(questionIds => questionIds.includes(questionId));
 }
