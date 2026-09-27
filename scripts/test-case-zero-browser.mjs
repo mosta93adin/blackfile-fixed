@@ -73,7 +73,7 @@ try {
   // Fatima -> witness statement, unlocked by camera evidence.
   await page.locator('#suspects-list .pick').nth(2).click();
   await page.waitForSelector('#modal-suspect.active');
-  await page.locator('#modal-sus-questions .q-btn[data-question-id="Q_FATIMA_YAHYA_OBSERVATION"]').click();
+  await page.locator('#modal-sus-questions .q-btn[data-question-id="Q_FATIMA_SIGHTING"]').click();
   await page.locator('#modal-suspect [data-action="closeModal"]').click();
 
   const revealedAccessLog = page.locator('#evidence-list .pick[data-evidence-id="E_MANOR_ACCESS_LOG"]');
