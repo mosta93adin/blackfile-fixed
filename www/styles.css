@@ -284,12 +284,10 @@ body[dir="rtl"] .story-frag { border-left: none; border-right: 3px solid var(--g
   height: 100vh;
   background-color: #080808;
   transition: background-color 0.6s ease, background-image 0.6s ease;
-  /* شاشة الدخول تُرسم فوراً من HTML لتفادي أي فراغ أثناء تحميل Firebase/app.js.
-     مجرد ما كيتصيّر الـ HTML، قبل ما يوصل ويخدم app.js (اللي كيستنى
-     استيراد Firebase SDK عبر الشبكة). دابا خفية بالديفولت، وJS هو اللي
-     كيبدلها لـ flex عبر wrapper.style.display فقط ملي يقرر فعلاً
-     إظهارها (showLoginUI). هكذا الشاشة ما تقدرش تبان قبل ما JS يحسم. */
-  display: none;
+  /* واجهة المصباح هي أول واجهة في التطبيق، وتظهر مباشرة من أول paint
+     قبل تحميل Firebase أو app.js. JavaScript يخفيها فقط بعد تحديد حالة
+     الجلسة وعرض واجهة اللعبة للمستخدم المسجل أو وضع الضيف. */
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
