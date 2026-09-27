@@ -62,7 +62,7 @@ jobs:
           const fs = require('fs');
           const web = fs.readFileSync('www/firebase-config.js', 'utf8');
           const required = ['apiKey', 'authDomain', 'projectId', 'appId'];
-          const missing = required.filter(k => !new RegExp('\\\\b' + k + '\\\\s*[:=]').test(web));
+          const missing = required.filter(k => !new RegExp('\\b' + k + '\\s*[:=]').test(web));
           if (missing.length) {
             throw new Error('Firebase web config is missing: ' + missing.join(', '));
           }
