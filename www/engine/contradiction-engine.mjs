@@ -22,6 +22,7 @@ function cloneState(state) {
     ...state,
     hypothesisStates: { ...(state.hypothesisStates || {}) },
     objectionIds: new Set(state.objectionIds || []),
+    flaggedObjectionIds: new Set(state.flaggedObjectionIds || []),
     deductionIds: new Set(state.deductionIds || []),
     discoveredEvidenceIds: new Set(state.discoveredEvidenceIds || []),
     analyzedEvidenceIds: new Set(state.analyzedEvidenceIds || []),
@@ -51,9 +52,14 @@ function evaluateObjection(model, state, objectionId) {
     ? isRelationshipVisible(model, state, objection.relationshipId)
     : true;
   const alreadySurfaced = state.objectionIds?.has(objection.id) || false;
+  const requiresExplicitFlag = (model?.responses || [])
+    .some(response => response.flagsObjectionId === objection.id);
+  const explicitlyFlagged = !requiresExplicitFlag
+    || state.flaggedObjectionIds?.has(objection.id);
   const valid = missingEvidenceIds.length === 0
     && missingStatementIds.length === 0
     && relationshipVisible
+    && explicitlyFlagged
     && !alreadySurfaced;
 
   return {
@@ -65,6 +71,8 @@ function evaluateObjection(model, state, objectionId) {
       ? []
       : [objection.relationshipId],
     alreadySurfaced,
+    requiresExplicitFlag,
+    explicitlyFlagged,
     validationKey: objection.validationKey,
     resultingHypothesisId: objection.resultingHypothesisId,
     resultingState: objection.resultingState
