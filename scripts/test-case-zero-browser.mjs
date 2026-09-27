@@ -40,23 +40,22 @@ try {
     nodes.map(node => node.dataset.evidenceId).filter(Boolean)
   );
 
-  const requiredEvidenceIds = [
+  const initialEvidenceIds = [
     'E_MANOR_DAGGER',
     'E_MANOR_LETTER',
     'E_MANOR_FOOTPRINT',
     'E_MANOR_WATCH',
-    'E_MANOR_CAMERA',
-    'E_MANOR_ACCESS_LOG'
+    'E_MANOR_CAMERA'
   ];
 
-  const missingEvidenceIds = requiredEvidenceIds.filter(id => !visibleEvidenceIds.includes(id));
-  if (missingEvidenceIds.length) {
+  if (evidenceCount !== initialEvidenceIds.length
+      || initialEvidenceIds.some(id => !visibleEvidenceIds.includes(id))) {
     throw new Error(
-      `Case 0 browser UI exposes ${evidenceCount} evidence items. Visible IDs: ${visibleEvidenceIds.join(', ') || '(none)'}. Missing required IDs: ${missingEvidenceIds.join(', ')}.`
+      `Case 0 browser UI should expose exactly the five initial evidence items. Count: ${evidenceCount}. Visible IDs: ${visibleEvidenceIds.join(', ') || '(none)'}.`
     );
   }
 
-  for (const evidenceId of requiredEvidenceIds) {
+  for (const evidenceId of initialEvidenceIds) {
     const evidence = page.locator(`#evidence-list .pick[data-evidence-id="${evidenceId}"]`);
     await evidence.waitFor({ state: 'visible', timeout: 5000 });
     await evidence.click();
@@ -76,6 +75,13 @@ try {
   await page.waitForSelector('#modal-suspect.active');
   await page.locator('#modal-sus-questions .q-btn[data-question-id="Q_FATIMA_YAHYA_OBSERVATION"]').click();
   await page.locator('#modal-suspect [data-action="closeModal"]').click();
+
+  const revealedAccessLog = page.locator('#evidence-list .pick[data-evidence-id="E_MANOR_ACCESS_LOG"]');
+  await revealedAccessLog.waitFor({ state: 'visible', timeout: 5000 });
+  await revealedAccessLog.click();
+  await page.waitForSelector('#modal-evidence.active');
+  await page.locator('#modal-evidence [data-action="closeModal_modal-evidence"]').click();
+  await page.waitForSelector('#modal-evidence.active', { state: 'hidden' });
 
   const objection = page.locator('#investigation-actions button[data-action="applyInvestigationObjection"][data-objection-id="OBJ_MANOR_YAHYA_BALCONY"]');
   await objection.waitFor({ state: 'visible', timeout: 5000 });
