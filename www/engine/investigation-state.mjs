@@ -12,6 +12,7 @@ function cloneState(state) {
   return {
     hypothesisStates: { ...(state.hypothesisStates || {}) },
     objectionIds: copySet(state.objectionIds),
+    flaggedObjectionIds: copySet(state.flaggedObjectionIds),
     deductionIds: copySet(state.deductionIds),
     selectedSuspectId: state.selectedSuspectId ?? null,
     discoveredEvidenceIds: copySet(state.discoveredEvidenceIds),
@@ -63,6 +64,7 @@ export function createInitialInvestigationState(model) {
       model.hypotheses.map(hypothesis => [hypothesis.id, hypothesis.initialState])
     ),
     objectionIds: new Set(),
+    flaggedObjectionIds: new Set(),
     deductionIds: new Set(),
     selectedSuspectId: null,
     discoveredEvidenceIds: new Set(),
@@ -130,9 +132,7 @@ export function askQuestion(model, state, questionId) {
     const response = findById(model?.responses, responseId, 'response');
     if (response.producesStatementId) next.discoveredStatementIds.add(response.producesStatementId);
     if (response.producesEvidenceId) next.discoveredEvidenceIds.add(response.producesEvidenceId);
-    // flagsObjectionId is a presentation/unlock signal, not an applied objection.
-    // The objection becomes applied only when the player explicitly clicks its
-    // objection action, which is handled by contradiction-engine.applyObjection().
+    if (response.flagsObjectionId) next.flaggedObjectionIds.add(response.flagsObjectionId);
   }
   return next;
 }
@@ -142,6 +142,7 @@ export function serializeInvestigationState(state) {
   return {
     hypothesisStates: { ...(state.hypothesisStates || {}) },
     objectionIds: [...(state.objectionIds || [])],
+    flaggedObjectionIds: [...(state.flaggedObjectionIds || [])],
     deductionIds: [...(state.deductionIds || [])],
     selectedSuspectId: state.selectedSuspectId ?? null,
     discoveredEvidenceIds: [...(state.discoveredEvidenceIds || [])],
@@ -159,6 +160,7 @@ export function deserializeInvestigationState(serialized) {
   }
   const accusationAttempts = requireArray(serialized.accusationAttempts, 'accusationAttempts');
   const objectionIds = requireArray(serialized.objectionIds, 'objectionIds');
+  const flaggedObjectionIds = requireArray(serialized.flaggedObjectionIds, 'flaggedObjectionIds');
   const deductionIds = requireArray(serialized.deductionIds, 'deductionIds');
   const discoveredEvidenceIds = requireArray(serialized.discoveredEvidenceIds, 'discoveredEvidenceIds');
   const analyzedEvidenceIds = requireArray(serialized.analyzedEvidenceIds, 'analyzedEvidenceIds');
@@ -172,6 +174,7 @@ export function deserializeInvestigationState(serialized) {
   return {
     hypothesisStates: { ...(serialized.hypothesisStates || {}) },
     objectionIds: new Set(objectionIds),
+    flaggedObjectionIds: new Set(flaggedObjectionIds),
     deductionIds: new Set(deductionIds),
     selectedSuspectId: serialized.selectedSuspectId ?? null,
     discoveredEvidenceIds: new Set(discoveredEvidenceIds),
