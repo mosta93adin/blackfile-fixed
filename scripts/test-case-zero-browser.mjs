@@ -28,6 +28,26 @@ try {
   if (await page.locator('#lamp-wrapper').isVisible()) {
     throw new Error('Offline mode did not bypass the login UI.');
   }
+
+  // Auth gate: without explicit guest mode and without an authenticated
+  // Firebase session, the app must remain on the login screen.
+  const authPage = await context.newPage();
+  await authPage.route('**/firebase-config.js', route => route.fulfill({
+    status: 200,
+    contentType: 'application/javascript',
+    body: `window.FIREBASE_CONFIG = {
+      apiKey: "browser-test-key",
+      authDomain: "browser-test.firebaseapp.com",
+      projectId: "browser-test",
+      appId: "browser-test-app"
+    };`
+  }));
+  await authPage.goto(`${BASE_URL}/index.html`, { waitUntil: 'domcontentloaded' });
+  await authPage.waitForSelector('#lamp-wrapper', { state: 'visible', timeout: 10000 });
+  if (await authPage.locator('.app').isVisible()) {
+    throw new Error('Unauthenticated auth flow incorrectly opened the game UI.');
+  }
+  await authPage.close();
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForSelector('#scr-menu.active', { state: 'attached', timeout: 10000 });
   if (await page.locator('#lamp-wrapper').isVisible()) {
