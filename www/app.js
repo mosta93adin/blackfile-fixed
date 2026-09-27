@@ -957,6 +957,10 @@ import {
         show('scr-brief');
     }
 
+    function isCaseZeroInvestigation() {
+        return investigationRuntime?.getCaseId() === 'CASE_MANOR_01';
+    }
+
     function isCaseOneInvestigation() {
         return investigationRuntime?.getCaseId() === 'CASE_EYE_NILE_01';
     }
@@ -1051,7 +1055,7 @@ import {
 
         c.evidence.forEach((ev, i) => {
             const evidenceId = getInvestigationEvidenceId(i);
-            if (isCaseOneInvestigation() && evidenceId === 'E_MANOR_ACCESS_LOG'
+            if (isCaseZeroInvestigation() && evidenceId === 'E_MANOR_ACCESS_LOG'
                 && !investigationRuntime?.getState().discoveredEvidenceIds?.has('E_MANOR_ACCESS_LOG')) return;
             const div = document.createElement('div');
             div.className = 'pick';
@@ -1066,7 +1070,7 @@ import {
         // The access log exists in the investigation model but is intentionally
         // absent from the initial Case 0 evidence table. It is rendered here
         // after Fatima's response reveals it in runtime state.
-        if (isCaseOneInvestigation()
+        if (isCaseZeroInvestigation()
             && investigationRuntime?.getState().discoveredEvidenceIds?.has('E_MANOR_ACCESS_LOG')
             && !evList.querySelector('[data-evidence-id="E_MANOR_ACCESS_LOG"]')) {
             const div = document.createElement('div');
@@ -1161,9 +1165,11 @@ import {
             ? investigationRuntime.getState().askedQuestionIds
             : null;
         const presentationQuestions = investigationRuntime
-            ? isCaseOneInvestigation()
-                ? getCaseOnePresentationQuestions(susIndex, sus)
-                : getInvestigationPresentationQuestions(investigationRuntime.getModel(), susIndex, sus)
+            ? isCaseZeroInvestigation()
+                ? getCaseZeroPresentationQuestions(susIndex, sus)
+                : isCaseOneInvestigation()
+                    ? getCaseOnePresentationQuestions(susIndex, sus)
+                    : getInvestigationPresentationQuestions(investigationRuntime.getModel(), susIndex, sus)
             : sus.qs.map((qa, qIdx) => ({ id: null, questionText: qa.q, responseText: qa.a, qIdx }));
         presentationQuestions.forEach((presentationQuestion, qIdx) => {
             const investigationQuestionId = presentationQuestion.id;
