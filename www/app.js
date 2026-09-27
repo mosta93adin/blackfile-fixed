@@ -1042,6 +1042,44 @@ import {
         }
     }
 
+    function renderInvestigationEvidence() {
+        const data = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+        const c = data.cases[currentCaseIndex];
+        const evList = document.getElementById('evidence-list');
+        if (!evList || !c) return;
+        evList.innerHTML = '';
+
+        c.evidence.forEach((ev, i) => {
+            const evidenceId = getInvestigationEvidenceId(i);
+            if (isCaseOneInvestigation() && evidenceId === 'E_MANOR_ACCESS_LOG'
+                && !investigationRuntime?.getState().discoveredEvidenceIds?.has('E_MANOR_ACCESS_LOG')) return;
+            const div = document.createElement('div');
+            div.className = 'pick';
+            div.innerHTML = `<b>${getEvidenceIcon(ev.name)} ${escapeHtml(ev.name)}</b>`;
+            div.dataset.action = 'openEvidence';
+            div.dataset.evName = ev.name;
+            div.dataset.evDesc = ev.desc;
+            if (evidenceId) div.dataset.evidenceId = evidenceId;
+            evList.appendChild(div);
+        });
+
+        // The access log exists in the investigation model but is intentionally
+        // absent from the initial Case 0 evidence table. It is rendered here
+        // after Fatima's response reveals it in runtime state.
+        if (isCaseOneInvestigation()
+            && investigationRuntime?.getState().discoveredEvidenceIds?.has('E_MANOR_ACCESS_LOG')
+            && !evList.querySelector('[data-evidence-id="E_MANOR_ACCESS_LOG"]')) {
+            const div = document.createElement('div');
+            div.className = 'pick';
+            div.innerHTML = '<b>📋 Study Access Log</b>';
+            div.dataset.action = 'openEvidence';
+            div.dataset.evName = 'Study Access Log';
+            div.dataset.evDesc = 'The badge that opened the study door during the incident window belongs to Yahya Alami.';
+            div.dataset.evidenceId = 'E_MANOR_ACCESS_LOG';
+            evList.appendChild(div);
+        }
+    }
+
     function startInvestigation() {
         if (!raceActive && !checkEnergyAllowed()) {
             alert(txx('energyExhausted'));
@@ -1067,18 +1105,8 @@ import {
         updateHintCounterDisplay();
         saveInvestigationRuntimeState();
 
-        // Render Evidence
-        const evList = document.getElementById('evidence-list');
-        evList.innerHTML = '';
-        c.evidence.forEach((ev, i) => {
-            const div = document.createElement('div');
-            div.className = 'pick';
-            div.innerHTML = `<b>${getEvidenceIcon(ev.name)} ${escapeHtml(ev.name)}</b>`;
-            div.dataset.action = 'openEvidence'; div.dataset.evName = ev.name; div.dataset.evDesc = ev.desc;
-            const evidenceId = getInvestigationEvidenceId(i);
-            if (evidenceId) div.dataset.evidenceId = evidenceId;
-            evList.appendChild(div);
-        });
+        // Render initial evidence; hidden Case 0 evidence is added only after discovery.
+        renderInvestigationEvidence();
 
         // Render Suspects
         const susList = document.getElementById('suspects-list');
@@ -4294,6 +4322,7 @@ if (action === 'inviteFriend') {
         ansDiv.innerHTML = `<b>${escapeHtml(label)}</b> ${escapeHtml(target.dataset.answer)}`;
         target.appendChild(ansDiv);
       }
+      renderInvestigationEvidence();
       renderInvestigationActions();
       saveInvestigationRuntimeState();
       playClickSound();
