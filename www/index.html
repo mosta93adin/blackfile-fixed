@@ -17,7 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="The Black File">
 <style id="critical-first-screen">
-  /* Critical first-paint state: the lamp is the very first UI, before CSS/app/Firebase finish loading. */
+  /* Critical first-paint state: the screen starts black/off.
+     Pulling the string turns the lamp on and reveals the login interface. */
   html, body { margin: 0; background: #080808; }
   #lamp-wrapper.lamp-login-wrapper { display: flex; position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 999999; }
   .app { display: none; }
@@ -27,7 +28,7 @@
 
 </head>
 <body id="body-tag">
-<div id="lamp-wrapper" class="lamp-login-wrapper on" aria-hidden="false">
+<div id="lamp-wrapper" class="lamp-login-wrapper">
   <p class="hint">PULL THE STRING TO TOGGLE LOGIN</p>
   <div class="main-wrap">
     <!-- Lamp -->
