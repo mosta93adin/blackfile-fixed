@@ -130,7 +130,9 @@ export function askQuestion(model, state, questionId) {
     const response = findById(model?.responses, responseId, 'response');
     if (response.producesStatementId) next.discoveredStatementIds.add(response.producesStatementId);
     if (response.producesEvidenceId) next.discoveredEvidenceIds.add(response.producesEvidenceId);
-    if (response.flagsObjectionId) next.objectionIds.add(response.flagsObjectionId);
+    // flagsObjectionId is a presentation/unlock signal, not an applied objection.
+    // The objection becomes applied only when the player explicitly clicks its
+    // objection action, which is handled by contradiction-engine.applyObjection().
   }
   return next;
 }
