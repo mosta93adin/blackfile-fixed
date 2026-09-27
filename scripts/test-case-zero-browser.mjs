@@ -34,8 +34,23 @@ try {
   await page.locator('#txt-start-inv').click();
   await page.waitForSelector('#scr-investigation.active');
 
-  for (const index of [0, 1, 3, 4, 5]) {
-    await page.locator('#evidence-list .pick').nth(index).click();
+  const evidenceButtons = page.locator('#evidence-list .pick[data-evidence-id]');
+  const evidenceCount = await evidenceButtons.count();
+  if (evidenceCount !== 6) {
+    throw new Error(`Case 0 browser UI exposes ${evidenceCount} evidence items; expected the 6 model evidence items, including E_MANOR_ACCESS_LOG.`);
+  }
+
+  for (const evidenceId of [
+    'E_MANOR_DAGGER',
+    'E_MANOR_LETTER',
+    'E_MANOR_FOOTPRINT',
+    'E_MANOR_WATCH',
+    'E_MANOR_CAMERA',
+    'E_MANOR_ACCESS_LOG'
+  ]) {
+    const evidence = page.locator(`#evidence-list .pick[data-evidence-id="${evidenceId}"]`);
+    await evidence.waitFor({ state: 'visible', timeout: 5000 });
+    await evidence.click();
     await page.waitForSelector('#modal-evidence.active');
     await page.locator('#modal-evidence [data-action="closeModal_modal-evidence"]').click();
     await page.waitForSelector('#modal-evidence.active', { state: 'hidden' });
