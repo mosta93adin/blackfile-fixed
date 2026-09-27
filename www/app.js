@@ -1,6 +1,28 @@
 import { auth as firebaseAuth, db, initializeAuthPersistence, loginWithGoogle as loginWithGoogleRedirect, loginOrSignupWithEmail, resetPassword, onAuthStateChanged } from './firebase.js';
 import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDocs, serverTimestamp, arrayUnion, getDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { generateInviteLink, verifyInviteToken } from './invite.js';
+import { createCaseRuntime } from './engine/case-dispatch.mjs';
+import {
+    getCaseZeroPresentationQuestions,
+    getCaseZeroPresentationSuspectId,
+    getCaseZeroPresentationEvidenceId
+} from './engine/case-zero-presentation.mjs';
+import {
+    getCaseOnePresentationQuestions,
+    getCaseOnePresentationSuspectId,
+    getCaseOnePresentationEvidenceId,
+    getCaseOneObjectionText,
+    getCaseOneDeductionText,
+    getCaseOneObjectionTextKey,
+    getCaseOneDeductionTextKey
+} from './engine/case-one-presentation.mjs';
+import {
+    getInvestigationPresentationQuestions,
+    getInvestigationPresentationSuspectId,
+    getInvestigationPresentationEvidenceId,
+    getInvestigationActionIds,
+    getInvestigationActionTextKeys
+} from './engine/investigation-presentation.mjs';
 
 // --- [Auto-verify invite link on page load] ---
 (function() {
@@ -35,7 +57,9 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
         }
         let currentLang = loadSavedLang();
     let currentCaseIndex = 0;
+    let investigationRuntime = null;
     let selectedSuspect = null;
+    let selectedSuspectIndex = null;
     let askedQuestions = {};
     let activeFilter = 'all';
     // Cache for server-validated solved cases (Firestore). null = not loaded / offline.
@@ -354,6 +378,7 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
             updateUITexts();
             updateExtraUITexts();
             renderMenu(activeFilter);
+            renderInvestigationActions();
             loadUserData();
             playClickSound();
             hideLoader();
@@ -483,6 +508,7 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
         el.textContent = '⏱ ' + m + ':' + s;
     }
 
+    const INVESTIGATION_STATE_STORAGE_KEY = 'tf_investigationStates_v1';
     const HINTS_BY_DIFFICULTY = { easy: 3, medium: 3, hard: 2, extreme: 1 };
     const TIMER_SECONDS_BY_DIFFICULTY = { easy: 900, medium: 600, hard: 420, extreme: 240 };
 
@@ -493,6 +519,44 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
     }
 
     function getHintsUsed(idx) { return userProfile.hintsUsedByCase[idx] || 0; }
+
+    function getSavedInvestigationStates() {
+        try {
+            const raw = localStorage.getItem(INVESTIGATION_STATE_STORAGE_KEY);
+            const parsed = raw ? JSON.parse(raw) : {};
+            return parsed && typeof parsed === 'object' ? parsed : {};
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function saveInvestigationRuntimeState() {
+        if (!investigationRuntime) return;
+        try {
+            const states = getSavedInvestigationStates();
+            states[String(currentCaseIndex)] = {
+                caseId: investigationRuntime.getCaseId(),
+                state: investigationRuntime.getSerializedState(),
+                savedAt: Date.now()
+            };
+            localStorage.setItem(INVESTIGATION_STATE_STORAGE_KEY, JSON.stringify(states));
+        } catch (e) {
+            console.warn('Could not persist investigation state:', e);
+        }
+    }
+
+    function clearSavedInvestigationState(caseIndex = currentCaseIndex) {
+        try {
+            const states = getSavedInvestigationStates();
+            delete states[String(caseIndex)];
+            localStorage.setItem(INVESTIGATION_STATE_STORAGE_KEY, JSON.stringify(states));
+        } catch (e) { /* storage unavailable */ }
+    }
+
+    function getSavedInvestigationState(caseIndex) {
+        const entry = getSavedInvestigationStates()[String(caseIndex)];
+        return entry && entry.state ? entry.state : null;
+    }
 
     function updateHintCounterDisplay() {
         const el = document.getElementById('hint-counter');
@@ -859,6 +923,21 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
 
     function openBrief(idx) {
         if (!isCaseUnlocked(idx)) return;
+        if (investigationRuntime) investigationRuntime = null;
+        const savedState = getSavedInvestigationState(idx);
+        try {
+            investigationRuntime = createCaseRuntime(idx, savedState);
+        } catch (error) {
+            console.warn('Saved investigation state was invalid; starting a fresh investigation state.', error);
+            clearSavedInvestigationState(idx);
+            try {
+                investigationRuntime = createCaseRuntime(idx, null);
+            } catch (freshError) {
+                console.error('Unable to initialize investigation case:', freshError);
+                alert(txx('investigationOpenFailed') || 'This investigation could not be opened. Please try again.');
+                return;
+            }
+        }
         currentCaseIndex = idx;
         userProfile.lastCaseIndex = idx;
         saveUserProfile();
@@ -876,6 +955,91 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
         const ttsBtn = document.getElementById('brief-tts-btn');
         if (ttsBtn) ttsBtn.style.display = accessSettings.ttsEnabled ? 'inline-flex' : 'none';
         show('scr-brief');
+    }
+
+    function isCaseOneInvestigation() {
+        return investigationRuntime?.getCaseId() === 'CASE_EYE_NILE_01';
+    }
+
+    function getInvestigationSuspectId(suspectIndex) {
+        if (!investigationRuntime) return null;
+        if (isCaseOneInvestigation()) return getCaseOnePresentationSuspectId(suspectIndex);
+        const model = investigationRuntime.getModel();
+        return model?.suspectIds
+            ? getInvestigationPresentationSuspectId(model, suspectIndex)
+            : getCaseZeroPresentationSuspectId(suspectIndex);
+    }
+
+    function getInvestigationEvidenceId(evidenceIndex) {
+        if (!investigationRuntime) return null;
+        if (isCaseOneInvestigation()) return getCaseOnePresentationEvidenceId(evidenceIndex);
+        const model = investigationRuntime.getModel();
+        return model?.evidenceIds
+            ? getInvestigationPresentationEvidenceId(model, evidenceIndex)
+            : getCaseZeroPresentationEvidenceId(evidenceIndex);
+    }
+
+    function getCaseOneLocalizedObjectionText(objectionId) {
+        const key = getCaseOneObjectionTextKey(objectionId);
+        const localized = key ? txx(key) : '';
+        return localized || getCaseOneObjectionText(objectionId);
+    }
+
+    function getCaseOneLocalizedDeductionText(deductionId) {
+        const key = getCaseOneDeductionTextKey(deductionId);
+        const localized = key ? txx(key) : '';
+        return localized || getCaseOneDeductionText(deductionId);
+    }
+
+    function renderInvestigationActions() {
+        const actions = document.getElementById('investigation-actions');
+        if (!actions) return;
+        actions.replaceChildren();
+        if (!investigationRuntime) return;
+
+        const model = investigationRuntime.getModel();
+        const { objectionIds, deductionIds } = isCaseOneInvestigation()
+            ? { objectionIds: model.objections?.map(item => item.id) || [], deductionIds: model.deductions?.map(item => item.id) || [] }
+            : getInvestigationActionIds(model);
+
+        for (const objectionId of investigationRuntime.getEligibleObjections()) {
+            let text = '';
+            if (isCaseOneInvestigation()) {
+                text = getCaseOneLocalizedObjectionText(objectionId);
+            } else {
+                const keys = getInvestigationActionTextKeys(investigationRuntime.getCaseId(), objectionId, null);
+                text = keys.objectionKey ? txx(keys.objectionKey) : '';
+            }
+            if (!text) continue;
+            const button = document.createElement('button');
+            button.className = 'btn-sm';
+            button.type = 'button';
+            button.textContent = text;
+            button.dataset.action = 'applyInvestigationObjection';
+            button.dataset.objectionId = objectionId;
+            actions.appendChild(button);
+        }
+
+        const state = investigationRuntime.getState();
+        for (const deductionId of deductionIds) {
+            if (state.deductionIds.has(deductionId)) continue;
+            let text = '';
+            if (isCaseOneInvestigation()) {
+                text = getCaseOneLocalizedDeductionText(deductionId);
+            } else {
+                const keys = getInvestigationActionTextKeys(investigationRuntime.getCaseId(), null, deductionId);
+                text = keys.deductionKey ? txx(keys.deductionKey) : '';
+            }
+            if (!text) continue;
+            const button = document.createElement('button');
+            button.className = 'btn-sm';
+            button.type = 'button';
+            button.textContent = text;
+            button.disabled = !investigationRuntime.getDeductionStatus(deductionId).valid;
+            button.dataset.action = 'applyInvestigationDeduction';
+            button.dataset.deductionId = deductionId;
+            actions.appendChild(button);
+        }
     }
 
     function startInvestigation() {
@@ -901,6 +1065,7 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
             if (timerEl) timerEl.style.display = 'none';
         }
         updateHintCounterDisplay();
+        saveInvestigationRuntimeState();
 
         // Render Evidence
         const evList = document.getElementById('evidence-list');
@@ -910,6 +1075,8 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
             div.className = 'pick';
             div.innerHTML = `<b>${getEvidenceIcon(ev.name)} ${escapeHtml(ev.name)}</b>`;
             div.dataset.action = 'openEvidence'; div.dataset.evName = ev.name; div.dataset.evDesc = ev.desc;
+            const evidenceId = getInvestigationEvidenceId(i);
+            if (evidenceId) div.dataset.evidenceId = evidenceId;
             evList.appendChild(div);
         });
 
@@ -924,11 +1091,20 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
             susList.appendChild(div);
         });
 
+        renderInvestigationActions();
         show('scr-investigation');
         hideLoader();
     }
 
-    function openEvidenceModal(name, desc) {
+    function openEvidenceModal(name, desc, evidenceId) {
+        if (investigationRuntime) {
+            if (evidenceId) {
+                investigationRuntime.discoverEvidence(evidenceId);
+                investigationRuntime.analyzeEvidence(evidenceId);
+                saveInvestigationRuntimeState();
+                renderInvestigationActions();
+            }
+        }
         document.getElementById('modal-ev-name').textContent = name;
         document.getElementById('modal-ev-desc').textContent = desc;
         document.getElementById('modal-evidence').classList.add('active');
@@ -945,22 +1121,47 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
 
         const qDiv = document.getElementById('modal-sus-questions');
         qDiv.innerHTML = '';
-        sus.qs.forEach((qa, qIdx) => {
+        const suspectId = getInvestigationSuspectId(susIndex);
+        if (investigationRuntime) {
+            investigationRuntime.selectSuspect(suspectId);
+            saveInvestigationRuntimeState();
+        }
+        const unlockedQuestionIds = investigationRuntime
+            ? new Set(investigationRuntime.getUnlockedQuestions(suspectId).map(question => question.id))
+            : null;
+        const askedInvestigationQuestionIds = investigationRuntime
+            ? investigationRuntime.getState().askedQuestionIds
+            : null;
+        const presentationQuestions = investigationRuntime
+            ? isCaseOneInvestigation()
+                ? getCaseOnePresentationQuestions(susIndex, sus)
+                : getInvestigationPresentationQuestions(investigationRuntime.getModel(), susIndex, sus)
+            : sus.qs.map((qa, qIdx) => ({ id: null, questionText: qa.q, responseText: qa.a, qIdx }));
+        presentationQuestions.forEach((presentationQuestion, qIdx) => {
+            const investigationQuestionId = presentationQuestion.id;
+            if (investigationRuntime
+                && !unlockedQuestionIds.has(investigationQuestionId)
+                && !askedInvestigationQuestionIds.has(investigationQuestionId)) return;
             const btn = document.createElement('button');
             btn.className = 'q-btn';
-            btn.textContent = qa.q;
+            btn.textContent = presentationQuestion.questionText;
             const qKey = `${currentCaseIndex}_${susIndex}_${qIdx}`;
-            if (askedQuestions[qKey]) {
+            const isAsked = investigationRuntime
+                ? askedInvestigationQuestionIds.has(investigationQuestionId)
+                : askedQuestions[qKey];
+            if (isAsked) {
                 btn.classList.add('asked');
                 const ansDiv = document.createElement('div');
                 ansDiv.className = 'ans';
                 ansDiv.style.marginTop = '6px';
-                ansDiv.innerHTML = `<b>${escapeHtml(data.answerLabel)}</b> ${escapeHtml(qa.a)}`;
+                ansDiv.innerHTML = `<b>${escapeHtml(data.answerLabel)}</b> ${escapeHtml(presentationQuestion.responseText)}`;
                 btn.appendChild(ansDiv);
             }
             btn.dataset.action = 'askQuestion';
             btn.dataset.qKey = qKey;
-            btn.dataset.answer = qa.a;
+            btn.dataset.answer = presentationQuestion.responseText;
+            btn.dataset.suspectIdx = susIndex;
+            if (investigationQuestionId) btn.dataset.questionId = investigationQuestionId;
             qDiv.appendChild(btn);
         });
 
@@ -979,6 +1180,7 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
         const list = document.getElementById('accuse-suspects-list');
         list.innerHTML = '';
         selectedSuspect = null;
+        selectedSuspectIndex = null;
 
         c.suspects.forEach((sus, idx) => {
             const div = document.createElement('div');
@@ -986,6 +1188,7 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
             div.innerHTML = `<b>${getSuspectIcon(sus.role)} ${escapeHtml(sus.name)}</b> <span style="font-size:11px; color:var(--paper-dim);">(${escapeHtml(sus.role)})</span>`;
             div.dataset.action = 'selectAccusedSuspect';
             div.dataset.susName = sus.name;
+            div.dataset.suspectIdx = idx;
             list.appendChild(div);
         });
 
@@ -1002,10 +1205,91 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
         const hashArray = Array.from(new Uint8Array(hashBuffer));
         return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
+    async function finalizeInvestigationAccusation(outcome) {
+        const data = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+        const c = data.cases[currentCaseIndex];
+        stopCaseTimer();
+        const elapsedMs = Date.now() - (caseStartTime || Date.now());
+        const isCorrect = outcome === 'CORRECT';
+        const alreadySolved = userProfile.solvedCases.includes(currentCaseIndex);
+
+        // Keep investigation cases on the same progression/statistics path as legacy cases.
+        if (!alreadySolved) userProfile.attempts += 1;
+
+        const resIcon = document.getElementById('res-icon');
+        const resTitle = document.getElementById('res-title');
+        const resDesc = document.getElementById('res-desc');
+
+        if (isCorrect) {
+            resIcon.textContent = '🏆';
+            resTitle.textContent = data.resultSolvedTitle;
+            resTitle.style.color = 'var(--teal)';
+            resDesc.innerHTML = `${escapeHtml(data.resultSolvedDesc)}<br><br><b>${escapeHtml(data.caseExplanationLabel)}</b><br>${escapeHtml(c.explain)}`;
+
+            if (!alreadySolved && isCaseUnlocked(currentCaseIndex)) {
+                userProfile.solvedCases.push(currentCaseIndex);
+                await pushSolvedCaseToCloud(currentCaseIndex);
+            }
+            userProfile.solved = userProfile.solvedCases.length;
+            if (!alreadySolved) {
+                userProfile.correctAttempts += 1;
+                userProfile.streakCurrent += 1;
+                if (userProfile.streakCurrent > userProfile.streakBest) userProfile.streakBest = userProfile.streakCurrent;
+                if (!getHintsUsed(currentCaseIndex)) userProfile.noHintSolve = true;
+            }
+            playSuccessSound();
+        } else {
+            resIcon.textContent = outcome === 'PREMATURE' ? '🔎' : '❌';
+            resTitle.textContent = data.resultWrongTitle;
+            resTitle.style.color = 'var(--blood)';
+            const detail = outcome === 'PREMATURE'
+                ? txx('investigationPrematureAccusation')
+                : data.resultWrongDesc;
+            resDesc.innerHTML = `${escapeHtml(detail)}<br><br><b>${escapeHtml(data.caseExplanationLabel)}</b><br>${escapeHtml(c.explain)}`;
+            userProfile.streakCurrent = 0;
+            playFailSound();
+        }
+
+        if (!Array.isArray(userProfile.history)) userProfile.history = [];
+        userProfile.history.push({
+            t: Date.now(),
+            caseIdx: currentCaseIndex,
+            correct: isCorrect,
+            hints: getHintsUsed(currentCaseIndex),
+            ms: elapsedMs,
+            outcome
+        });
+        if (userProfile.history.length > 500) userProfile.history = userProfile.history.slice(-500);
+
+        const previouslyUnlocked = getUnlockedAchievementIds();
+        if (userProfile.lastCaseIndex === currentCaseIndex) userProfile.lastCaseIndex = null;
+        if (isCorrect) clearSavedInvestigationState(currentCaseIndex);
+        else saveInvestigationRuntimeState();
+        userProfile.lastPlayedDate = todayStr();
+        saveUserProfile();
+        loadUserData();
+        show('scr-result');
+
+        if (isCorrect) {
+            const newlyUnlocked = getUnlockedAchievementIds().filter(id => !previouslyUnlocked.includes(id));
+            newlyUnlocked.forEach((id, i) => setTimeout(() => showAchievementToast(id), 400 + i * 900));
+            void syncLeaderboardEntry();
+        }
+
+        if (raceActive) handleRaceSubmission(isCorrect, elapsedMs);
+    }
+
     async function submitAccusation() {
         const data = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
         if (!selectedSuspect) {
             alert(data.selectSuspectAlert);
+            return;
+        }
+        if (investigationRuntime) {
+            const suspectId = getInvestigationSuspectId(selectedSuspectIndex);
+            const result = investigationRuntime.applyAccusation(suspectId);
+            closeModal('modal-accuse');
+            await finalizeInvestigationAccusation(result.result.outcome);
             return;
         }
         closeModal('modal-accuse');
@@ -1242,8 +1526,12 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
             return;
         }
         const c = data.cases[currentCaseIndex];
-        const randomHint = c.hints[Math.min(used, c.hints.length - 1)];
-        document.getElementById('hint-content').textContent = randomHint;
+        let hintText = c.hints[Math.min(used, c.hints.length - 1)];
+        if (investigationRuntime && typeof investigationRuntime.getHint === 'function') {
+            const hint = investigationRuntime.getHint(used + 1);
+            hintText = txx(hint.key) || hintText;
+        }
+        document.getElementById('hint-content').textContent = hintText;
         document.getElementById('modal-hint').classList.add('active');
         userProfile.hintsUsedByCase[currentCaseIndex] = used + 1;
         saveUserProfile();
@@ -1833,6 +2121,15 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
     // (حتى لو كان localStorage محجوباً مثل التصفح الخاص)
     let onboardingShownThisSession = false;
 
+    function persistInvestigationBeforeExit() {
+        if (!investigationRuntime) return;
+        saveInvestigationRuntimeState();
+    }
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') persistInvestigationBeforeExit();
+    });
+    window.addEventListener('pagehide', persistInvestigationBeforeExit);
+
     function showOnboardingIfNeeded() {
         try {
             if (localStorage.getItem('tf_onboarded') === 'true') return;
@@ -1996,7 +2293,43 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
             loginFillFieldsAlert: "Please enter your email and password.", loginSigningInFallback: "Signing in...", loginPasswordMismatchAlert: "The two passwords don't match!", loginAuthFailedFallback: "Authentication failed. Please try again.", loginEnterEmailFirstAlert: "Please enter your email address first, then tap \"Forgot Password?\" again.", loginResetLinkSentAlert: "A password reset link has been sent to {email}.", loginResetFailedFallback: "Could not send the reset email. Please try again.", loginConnectingGoogleFallback: "Connecting to Google...", loginGoogleFailedFallback: "Google sign-in failed.",
             offlineLimitedCasesMsg: "You're playing offline — only the first 10 cases are available. Sign in to unlock all 20 cases.",
             syncWarning: "⚠️ Your progress is saved locally only on this device. Signing in only saves the number of solved cases on the leaderboard, not all your data.",
-            raceInterruptConfirm: "You're in the middle of an investigation. Leave it and start the race?"
+            raceInterruptConfirm: "You're in the middle of an investigation. Leave it and start the race?",
+            investigationObjCase3: "Samer the Rival Writer gave a statement that conflicts with the investigation trace.",
+            investigationDedCase3: "Evidence and statement chain established: the trace links Samer the Rival Writer to the case while Samer the Rival Writer denies using or handling it.",
+            investigationObjCase4: "Khaled Maintenance gave a statement that conflicts with the investigation trace.",
+            investigationDedCase4: "Evidence and statement chain established: the trace links Khaled Maintenance to the case while Khaled Maintenance denies using or handling it.",
+            investigationObjCase5: "Fouad the Painter gave a statement that conflicts with the investigation trace.",
+            investigationDedCase5: "Evidence and statement chain established: the trace links Fouad the Painter to the case while Fouad the Painter denies using or handling it.",
+            investigationObjCase6: "Hani Lead Assistant gave a statement that conflicts with the investigation trace.",
+            investigationDedCase6: "Evidence and statement chain established: the trace links Hani Lead Assistant to the case while Hani Lead Assistant denies using or handling it.",
+            investigationObjCase7: "Salim Mysterious gave a statement that conflicts with the investigation trace.",
+            investigationDedCase7: "Evidence and statement chain established: the trace links Salim Mysterious to the case while Salim Mysterious denies using or handling it.",
+            investigationObjCase8: "Ziad Accountant gave a statement that conflicts with the investigation trace.",
+            investigationDedCase8: "Evidence and statement chain established: the trace links Ziad Accountant to the case while Ziad Accountant denies using or handling it.",
+            investigationObjCase9: "Hamza Youth gave a statement that conflicts with the investigation trace.",
+            investigationDedCase9: "Evidence and statement chain established: the trace links Hamza Youth to the case while Hamza Youth denies using or handling it.",
+            investigationObjCase10: "Maher Decorator gave a statement that conflicts with the investigation trace.",
+            investigationDedCase10: "Evidence and statement chain established: the trace links Maher Decorator to the case while Maher Decorator denies using or handling it.",
+            investigationObjCase11: "Bassem Understudy gave a statement that conflicts with the investigation trace.",
+            investigationDedCase11: "Evidence and statement chain established: the trace links Bassem Understudy to the case while Bassem Understudy denies using or handling it.",
+            investigationObjCase12: "Sameh Train Driver gave a statement that conflicts with the investigation trace.",
+            investigationDedCase12: "Evidence and statement chain established: the trace links Sameh Train Driver to the case while Sameh Train Driver denies using or handling it.",
+            investigationObjCase13: "Maher Smuggler gave a statement that conflicts with the investigation trace.",
+            investigationDedCase13: "Evidence and statement chain established: the trace links Maher Smuggler to the case while Maher Smuggler denies using or handling it.",
+            investigationObjCase14: "Samer Co-Pilot gave a statement that conflicts with the investigation trace.",
+            investigationDedCase14: "Evidence and statement chain established: the trace links Samer Co-Pilot to the case while Samer Co-Pilot denies using or handling it.",
+            investigationObjCase15: "Dr. Ziad gave a statement that conflicts with the investigation trace.",
+            investigationDedCase15: "Evidence and statement chain established: the trace links Dr. Ziad to the case while Dr. Ziad denies using or handling it.",
+            investigationObjCase16: "Rami Curator gave a statement that conflicts with the investigation trace.",
+            investigationDedCase16: "Evidence and statement chain established: the trace links Rami Curator to the case while Rami Curator denies using or handling it.",
+            investigationObjCase17: "Nabil Nephew gave a statement that conflicts with the investigation trace.",
+            investigationDedCase17: "Evidence and statement chain established: the trace links Nabil Nephew to the case while Nabil Nephew denies using or handling it.",
+            investigationObjCase18: "Daniel Reporter gave a statement that conflicts with the investigation trace.",
+            investigationDedCase18: "Evidence and statement chain established: the trace links Daniel Reporter to the case while Daniel Reporter denies using or handling it.",
+            investigationObjCase19: "Ziad Rival gave a statement that conflicts with the investigation trace.",
+            investigationDedCase19: "Evidence and statement chain established: the trace links Ziad Rival to the case while Ziad Rival denies using or handling it.",
+            investigationObjMaherKeyDenial: "Maher's statement conflicts with the access register.",
+            investigationDedAccessTraceChain: "Access and trace chain established: the register places the administrative master key under Maher's checkout at 10:04, while Maher denies taking it."
         },
         ar: {
             appTitle: "الملف الأسود",
@@ -2047,7 +2380,43 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
             loginFillFieldsAlert: "الرجاء إدخال بريدك الإلكتروني وكلمة المرور.", loginSigningInFallback: "جاري تسجيل الدخول...", loginPasswordMismatchAlert: "كلمتا السر غير متطابقتين!", loginAuthFailedFallback: "فشلت عملية تسجيل الدخول. يرجى المحاولة مرة أخرى.", loginEnterEmailFirstAlert: "الرجاء إدخال بريدك الإلكتروني أولاً، ثم اضغط على \"هل نسيت كلمة المرور؟\" مرة أخرى.", loginResetLinkSentAlert: "تم إرسال رابط إعادة تعيين كلمة المرور إلى {email}.", loginResetFailedFallback: "تعذر إرسال بريد إعادة التعيين. يرجى المحاولة مرة أخرى.", loginConnectingGoogleFallback: "جاري الاتصال بـ Google...", loginGoogleFailedFallback: "فشل تسجيل الدخول عبر Google.",
             offlineLimitedCasesMsg: "تلعب بدون إنترنت — فقط أول 10 قضايا متاحة. سجل الدخول لفتح جميع القضايا الـ 20.",
             syncWarning: "⚠️ تقدمك محفوظ محليًا فقط على هذا الجهاز. تسجيل الدخول يُحفظ رقم القضايا المحلولة على لوحة المتصدرين فقط، وليس كل بياناتك.",
-            raceInterruptConfirm: "راك فوسط التحقيق. تبغي تخليه وتبدا السباق؟"
+            raceInterruptConfirm: "راك فوسط التحقيق. تبغي تخليه وتبدا السباق؟",
+            investigationObjCase3: "تصريح سامر الكاتب المنافس يتعارض مع دليل التحقيق.",
+            investigationDedCase3: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط سامر الكاتب المنافس بالقضية بينما ينكر سامر الكاتب المنافس استخدامه أو التعامل معه.",
+            investigationObjCase4: "تصريح خالد الصيانة يتعارض مع دليل التحقيق.",
+            investigationDedCase4: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط خالد الصيانة بالقضية بينما ينكر خالد الصيانة استخدامه أو التعامل معه.",
+            investigationObjCase5: "تصريح فؤاد الرسام يتعارض مع دليل التحقيق.",
+            investigationDedCase5: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط فؤاد الرسام بالقضية بينما ينكر فؤاد الرسام استخدامه أو التعامل معه.",
+            investigationObjCase6: "تصريح هاني المساعد الأول يتعارض مع دليل التحقيق.",
+            investigationDedCase6: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط هاني المساعد الأول بالقضية بينما ينكر هاني المساعد الأول استخدامه أو التعامل معه.",
+            investigationObjCase7: "تصريح سليم الغامض يتعارض مع دليل التحقيق.",
+            investigationDedCase7: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط سليم الغامض بالقضية بينما ينكر سليم الغامض استخدامه أو التعامل معه.",
+            investigationObjCase8: "تصريح زياد المحاسب يتعارض مع دليل التحقيق.",
+            investigationDedCase8: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط زياد المحاسب بالقضية بينما ينكر زياد المحاسب استخدامه أو التعامل معه.",
+            investigationObjCase9: "تصريح حمزة الشاب يتعارض مع دليل التحقيق.",
+            investigationDedCase9: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط حمزة الشاب بالقضية بينما ينكر حمزة الشاب استخدامه أو التعامل معه.",
+            investigationObjCase10: "تصريح ماهر المصمم يتعارض مع دليل التحقيق.",
+            investigationDedCase10: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط ماهر المصمم بالقضية بينما ينكر ماهر المصمم استخدامه أو التعامل معه.",
+            investigationObjCase11: "تصريح باسم الممثل البديل يتعارض مع دليل التحقيق.",
+            investigationDedCase11: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط باسم الممثل البديل بالقضية بينما ينكر باسم الممثل البديل استخدامه أو التعامل معه.",
+            investigationObjCase12: "تصريح سامح سائق القطار يتعارض مع دليل التحقيق.",
+            investigationDedCase12: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط سامح سائق القطار بالقضية بينما ينكر سامح سائق القطار استخدامه أو التعامل معه.",
+            investigationObjCase13: "تصريح ماهر المهرّب يتعارض مع دليل التحقيق.",
+            investigationDedCase13: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط ماهر المهرّب بالقضية بينما ينكر ماهر المهرّب استخدامه أو التعامل معه.",
+            investigationObjCase14: "تصريح سامر مساعد الطيار يتعارض مع دليل التحقيق.",
+            investigationDedCase14: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط سامر مساعد الطيار بالقضية بينما ينكر سامر مساعد الطيار استخدامه أو التعامل معه.",
+            investigationObjCase15: "تصريح الدكتور زياد يتعارض مع دليل التحقيق.",
+            investigationDedCase15: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط الدكتور زياد بالقضية بينما ينكر الدكتور زياد استخدامه أو التعامل معه.",
+            investigationObjCase16: "تصريح رامي أمين المتحف يتعارض مع دليل التحقيق.",
+            investigationDedCase16: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط رامي أمين المتحف بالقضية بينما ينكر رامي أمين المتحف استخدامه أو التعامل معه.",
+            investigationObjCase17: "تصريح نبيل ابن الأخ يتعارض مع دليل التحقيق.",
+            investigationDedCase17: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط نبيل ابن الأخ بالقضية بينما ينكر نبيل ابن الأخ استخدامه أو التعامل معه.",
+            investigationObjCase18: "تصريح دانيال المراسل يتعارض مع دليل التحقيق.",
+            investigationDedCase18: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط دانيال المراسل بالقضية بينما ينكر دانيال المراسل استخدامه أو التعامل معه.",
+            investigationObjCase19: "تصريح زياد المنافس يتعارض مع دليل التحقيق.",
+            investigationDedCase19: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط زياد المنافس بالقضية بينما ينكر زياد المنافس استخدامه أو التعامل معه.",
+            investigationObjMaherKeyDenial: "تتعارض إفادة ماهر مع سجل الدخول.",
+            investigationDedAccessTraceChain: "تم إثبات سلسلة الوصول والأثر: يُظهر السجل أن المفتاح الرئيسي الإداري كان مسجَّلاً باسم ماهر في الساعة 10:04، بينما ينكر ماهر أنه أخذه."
         },
         ary: {
             appTitle: "الملف الأسود",
@@ -2099,7 +2468,43 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
             mpPublicToggleLabel: "اجعل الغرفة عامة (يمكن لأي لاعب الانضمام)",
             loginHint: "اسحب الخيط لإظهار أو إخفاء تسجيل الدخول",
             loginFillFieldsAlert: "الرجاء إدخال بريدك الإلكتروني وكلمة المرور.",
-            offlineLimitedCasesMsg: "تلعب بدون إنترنت — فقط أول 10 قضايا متاحة. سجل الدخول لفتح جميع القضايا الـ 20."
+            offlineLimitedCasesMsg: "تلعب بدون إنترنت — فقط أول 10 قضايا متاحة. سجل الدخول لفتح جميع القضايا الـ 20.",
+            investigationObjCase3: "تصريح سامر الكاتب المنافس كيتعارض مع دليل التحقيق.",
+            investigationDedCase3: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط سامر الكاتب المنافس بالقضية بينما سامر الكاتب المنافس كينكر بلي استعملو ولا لمسُه.",
+            investigationObjCase4: "تصريح خالد مول الصيانة كيتعارض مع دليل التحقيق.",
+            investigationDedCase4: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط خالد مول الصيانة بالقضية بينما خالد مول الصيانة كينكر بلي استعملو ولا لمسُه.",
+            investigationObjCase5: "تصريح فؤاد الرسام كيتعارض مع دليل التحقيق.",
+            investigationDedCase5: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط فؤاد الرسام بالقضية بينما فؤاد الرسام كينكر بلي استعملو ولا لمسُه.",
+            investigationObjCase6: "تصريح هاني المساعد الرئيسي كيتعارض مع دليل التحقيق.",
+            investigationDedCase6: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط هاني المساعد الرئيسي بالقضية بينما هاني المساعد الرئيسي كينكر بلي استعملو ولا لمسُه.",
+            investigationObjCase7: "تصريح سليم الغامض كيتعارض مع دليل التحقيق.",
+            investigationDedCase7: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط سليم الغامض بالقضية بينما سليم الغامض كينكر بلي استعملو ولا لمسُه.",
+            investigationObjCase8: "تصريح زياد المحاسب كيتعارض مع دليل التحقيق.",
+            investigationDedCase8: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط زياد المحاسب بالقضية بينما زياد المحاسب كينكر بلي استعملو ولا لمسُه.",
+            investigationObjCase9: "تصريح حمزة الشاب كيتعارض مع دليل التحقيق.",
+            investigationDedCase9: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط حمزة الشاب بالقضية بينما حمزة الشاب كينكر بلي استعملو ولا لمسُه.",
+            investigationObjCase10: "تصريح ماهر الديكوراتور كيتعارض مع دليل التحقيق.",
+            investigationDedCase10: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط ماهر الديكوراتور بالقضية بينما ماهر الديكوراتور كينكر بلي استعملو ولا لمسُه.",
+            investigationObjCase11: "تصريح باسهم الممثل الاحتياطي كيتعارض مع دليل التحقيق.",
+            investigationDedCase11: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط باسهم الممثل الاحتياطي بالقضية بينما باسهم الممثل الاحتياطي كينكر بلي استعملو ولا لمسُه.",
+            investigationObjCase12: "تصريح سامح سائق القطار كيتعارض مع دليل التحقيق.",
+            investigationDedCase12: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط سامح سائق القطار بالقضية بينما سامح سائق القطار كينكر بلي استعملو ولا لمسُه.",
+            investigationObjCase13: "تصريح ماهر المهرب كيتعارض مع دليل التحقيق.",
+            investigationDedCase13: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط ماهر المهرب بالقضية بينما ماهر المهرب كينكر بلي استعملو ولا لمسُه.",
+            investigationObjCase14: "تصريح سامر مساعد الطيار كيتعارض مع دليل التحقيق.",
+            investigationDedCase14: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط سامر مساعد الطيار بالقضية بينما سامر مساعد الطيار كينكر بلي استعملو ولا لمسُه.",
+            investigationObjCase15: "تصريح الدكتور زياد كيتعارض مع دليل التحقيق.",
+            investigationDedCase15: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط الدكتور زياد بالقضية بينما الدكتور زياد كينكر بلي استعملو ولا لمسُه.",
+            investigationObjCase16: "تصريح رامي المحافظ كيتعارض مع دليل التحقيق.",
+            investigationDedCase16: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط رامي المحافظ بالقضية بينما رامي المحافظ كينكر بلي استعملو ولا لمسُه.",
+            investigationObjCase17: "تصريح نبيل ولد الخو كيتعارض مع دليل التحقيق.",
+            investigationDedCase17: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط نبيل ولد الخو بالقضية بينما نبيل ولد الخو كينكر بلي استعملو ولا لمسُه.",
+            investigationObjCase18: "تصريح دانيال الصحفي كيتعارض مع دليل التحقيق.",
+            investigationDedCase18: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط دانيال الصحفي بالقضية بينما دانيال الصحفي كينكر بلي استعملو ولا لمسُه.",
+            investigationObjCase19: "تصريح زياد المنافس كيتعارض مع دليل التحقيق.",
+            investigationDedCase19: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط زياد المنافس بالقضية بينما زياد المنافس كينكر بلي استعملو ولا لمسُه.",
+            investigationObjMaherKeyDenial: "الشهادة ديال ماهر كتناقض مع سجل الدخول.",
+            investigationDedAccessTraceChain: "تبثات سلسلة الوصول والأثر: السجل كيبين بلي المفتاح الرئيسي ديال الإدارة كان مسجل فسم ماهر فـ 10:04، وماهر كينكر بلي خدا."
         },
         fr: {
             appTitle: "Le Dossier Noir",
@@ -2150,7 +2555,43 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
             loginFillFieldsAlert: "Veuillez saisir votre e-mail et votre mot de passe.", loginSigningInFallback: "Connexion en cours...", loginPasswordMismatchAlert: "Les deux mots de passe ne correspondent pas !", loginAuthFailedFallback: "Échec de l'authentification. Veuillez réessayer.", loginEnterEmailFirstAlert: "Veuillez d'abord saisir votre adresse e-mail, puis appuyez à nouveau sur « Mot de passe oublié ? ».", loginResetLinkSentAlert: "Un lien de réinitialisation du mot de passe a été envoyé à {email}.", loginResetFailedFallback: "Impossible d'envoyer l'e-mail de réinitialisation. Veuillez réessayer.", loginConnectingGoogleFallback: "Connexion à Google...", loginGoogleFailedFallback: "Échec de la connexion avec Google.",
             offlineLimitedCasesMsg: "Vous jouez hors ligne — seules les 10 premières affaires sont disponibles. Connectez-vous pour débloquer les 20 affaires.",
             syncWarning: "⚠️ Votre progression est sauvegardée localement uniquement sur cet appareil. La connexion ne sauvegarde que le nombre d'affaires résolues sur le classement, pas toutes vos données.",
-            raceInterruptConfirm: "Vous êtes en plein milieu d'une enquête. L'abandonner pour commencer la course ?"
+            raceInterruptConfirm: "Vous êtes en plein milieu d'une enquête. L'abandonner pour commencer la course ?",
+            investigationObjCase3: "La déclaration de Samer l'Écrivain Rival contredit l’indice d’enquête.",
+            investigationDedCase3: "Chaîne de preuves et de déclaration établie : l’indice relie Samer l'Écrivain Rival à l’affaire tandis que Samer l'Écrivain Rival nie l’avoir utilisé ou manipulé.",
+            investigationObjCase4: "La déclaration de Khaled le Maintenancier contredit l’indice d’enquête.",
+            investigationDedCase4: "Chaîne de preuves et de déclaration établie : l’indice relie Khaled le Maintenancier à l’affaire tandis que Khaled le Maintenancier nie l’avoir utilisé ou manipulé.",
+            investigationObjCase5: "La déclaration de Fouad le Peintre contredit l’indice d’enquête.",
+            investigationDedCase5: "Chaîne de preuves et de déclaration établie : l’indice relie Fouad le Peintre à l’affaire tandis que Fouad le Peintre nie l’avoir utilisé ou manipulé.",
+            investigationObjCase6: "La déclaration de Hani l'Assistant Principal contredit l’indice d’enquête.",
+            investigationDedCase6: "Chaîne de preuves et de déclaration établie : l’indice relie Hani l'Assistant Principal à l’affaire tandis que Hani l'Assistant Principal nie l’avoir utilisé ou manipulé.",
+            investigationObjCase7: "La déclaration de Salim le Mystérieux contredit l’indice d’enquête.",
+            investigationDedCase7: "Chaîne de preuves et de déclaration établie : l’indice relie Salim le Mystérieux à l’affaire tandis que Salim le Mystérieux nie l’avoir utilisé ou manipulé.",
+            investigationObjCase8: "La déclaration de Ziad le Comptable contredit l’indice d’enquête.",
+            investigationDedCase8: "Chaîne de preuves et de déclaration établie : l’indice relie Ziad le Comptable à l’affaire tandis que Ziad le Comptable nie l’avoir utilisé ou manipulé.",
+            investigationObjCase9: "La déclaration de Hamza le Jeune contredit l’indice d’enquête.",
+            investigationDedCase9: "Chaîne de preuves et de déclaration établie : l’indice relie Hamza le Jeune à l’affaire tandis que Hamza le Jeune nie l’avoir utilisé ou manipulé.",
+            investigationObjCase10: "La déclaration de Maher le Décorateur contredit l’indice d’enquête.",
+            investigationDedCase10: "Chaîne de preuves et de déclaration établie : l’indice relie Maher le Décorateur à l’affaire tandis que Maher le Décorateur nie l’avoir utilisé ou manipulé.",
+            investigationObjCase11: "La déclaration de Bassem la Doublure contredit l’indice d’enquête.",
+            investigationDedCase11: "Chaîne de preuves et de déclaration établie : l’indice relie Bassem la Doublure à l’affaire tandis que Bassem la Doublure nie l’avoir utilisé ou manipulé.",
+            investigationObjCase12: "La déclaration de Sameh le Conducteur de Train contredit l’indice d’enquête.",
+            investigationDedCase12: "Chaîne de preuves et de déclaration établie : l’indice relie Sameh le Conducteur de Train à l’affaire tandis que Sameh le Conducteur de Train nie l’avoir utilisé ou manipulé.",
+            investigationObjCase13: "La déclaration de Maher le Contrebandier contredit l’indice d’enquête.",
+            investigationDedCase13: "Chaîne de preuves et de déclaration établie : l’indice relie Maher le Contrebandier à l’affaire tandis que Maher le Contrebandier nie l’avoir utilisé ou manipulé.",
+            investigationObjCase14: "La déclaration de Samer le Copilote contredit l’indice d’enquête.",
+            investigationDedCase14: "Chaîne de preuves et de déclaration établie : l’indice relie Samer le Copilote à l’affaire tandis que Samer le Copilote nie l’avoir utilisé ou manipulé.",
+            investigationObjCase15: "La déclaration de Dr Ziad contredit l’indice d’enquête.",
+            investigationDedCase15: "Chaîne de preuves et de déclaration établie : l’indice relie Dr Ziad à l’affaire tandis que Dr Ziad nie l’avoir utilisé ou manipulé.",
+            investigationObjCase16: "La déclaration de Rami le Conservateur contredit l’indice d’enquête.",
+            investigationDedCase16: "Chaîne de preuves et de déclaration établie : l’indice relie Rami le Conservateur à l’affaire tandis que Rami le Conservateur nie l’avoir utilisé ou manipulé.",
+            investigationObjCase17: "La déclaration de Nabil le Neveu contredit l’indice d’enquête.",
+            investigationDedCase17: "Chaîne de preuves et de déclaration établie : l’indice relie Nabil le Neveu à l’affaire tandis que Nabil le Neveu nie l’avoir utilisé ou manipulé.",
+            investigationObjCase18: "La déclaration de Daniel le Reporter contredit l’indice d’enquête.",
+            investigationDedCase18: "Chaîne de preuves et de déclaration établie : l’indice relie Daniel le Reporter à l’affaire tandis que Daniel le Reporter nie l’avoir utilisé ou manipulé.",
+            investigationObjCase19: "La déclaration de Ziad le Rival contredit l’indice d’enquête.",
+            investigationDedCase19: "Chaîne de preuves et de déclaration établie : l’indice relie Ziad le Rival à l’affaire tandis que Ziad le Rival nie l’avoir utilisé ou manipulé.",
+            investigationObjMaherKeyDenial: "La déclaration de Maher est en contradiction avec le registre d'accès.",
+            investigationDedAccessTraceChain: "Chaîne d'accès et de traçage établie : le registre indique que la clé maîtresse administrative a été enregistrée au nom de Maher à 10:04, alors que Maher nie l'avoir prise."
         },
         es: {
             appTitle: "El Archivo Negro",
@@ -2201,7 +2642,43 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
             loginFillFieldsAlert: "Por favor, introduce tu correo y contraseña.", loginSigningInFallback: "Iniciando sesión...", loginPasswordMismatchAlert: "¡Las dos contraseñas no coinciden!", loginAuthFailedFallback: "Error de autenticación. Inténtalo de nuevo.", loginEnterEmailFirstAlert: "Introduce primero tu correo electrónico y vuelve a pulsar en \"¿Olvidaste tu contraseña?\".", loginResetLinkSentAlert: "Se ha enviado un enlace para restablecer la contraseña a {email}.", loginResetFailedFallback: "No se pudo enviar el correo de restablecimiento. Inténtalo de nuevo.", loginConnectingGoogleFallback: "Conectando con Google...", loginGoogleFailedFallback: "Error al iniciar sesión con Google.",
             offlineLimitedCasesMsg: "Estás jugando sin conexión — solo los primeros 10 casos están disponibles. Inicia sesión para desbloquear los 20 casos.",
             syncWarning: "⚠️ Tu progreso se guarda localmente solo en este dispositivo. Iniciar sesión solo guarda el número de casos resueltos en la clasificación, no todos tus datos.",
-            raceInterruptConfirm: "Estás en medio de una investigación. ¿Abandonarla para empezar la carrera?"
+            raceInterruptConfirm: "Estás en medio de una investigación. ¿Abandonarla para empezar la carrera?",
+            investigationObjCase3: "La declaración de Samer el Escritor Rival contradice el indicio de investigación.",
+            investigationDedCase3: "Cadena de pruebas y declaración establecida: el indicio relaciona a Samer el Escritor Rival con el caso mientras Samer el Escritor Rival niega haberlo usado o manipulado.",
+            investigationObjCase4: "La declaración de Khaled Mantenimiento contradice el indicio de investigación.",
+            investigationDedCase4: "Cadena de pruebas y declaración establecida: el indicio relaciona a Khaled Mantenimiento con el caso mientras Khaled Mantenimiento niega haberlo usado o manipulado.",
+            investigationObjCase5: "La declaración de Fouad el Pintor contradice el indicio de investigación.",
+            investigationDedCase5: "Cadena de pruebas y declaración establecida: el indicio relaciona a Fouad el Pintor con el caso mientras Fouad el Pintor niega haberlo usado o manipulado.",
+            investigationObjCase6: "La declaración de Hani Asistente Principal contradice el indicio de investigación.",
+            investigationDedCase6: "Cadena de pruebas y declaración establecida: el indicio relaciona a Hani Asistente Principal con el caso mientras Hani Asistente Principal niega haberlo usado o manipulado.",
+            investigationObjCase7: "La declaración de Salim Misterioso contradice el indicio de investigación.",
+            investigationDedCase7: "Cadena de pruebas y declaración establecida: el indicio relaciona a Salim Misterioso con el caso mientras Salim Misterioso niega haberlo usado o manipulado.",
+            investigationObjCase8: "La declaración de Ziad Contador contradice el indicio de investigación.",
+            investigationDedCase8: "Cadena de pruebas y declaración establecida: el indicio relaciona a Ziad Contador con el caso mientras Ziad Contador niega haberlo usado o manipulado.",
+            investigationObjCase9: "La declaración de Hamza Joven contradice el indicio de investigación.",
+            investigationDedCase9: "Cadena de pruebas y declaración establecida: el indicio relaciona a Hamza Joven con el caso mientras Hamza Joven niega haberlo usado o manipulado.",
+            investigationObjCase10: "La declaración de Maher Decorador contradice el indicio de investigación.",
+            investigationDedCase10: "Cadena de pruebas y declaración establecida: el indicio relaciona a Maher Decorador con el caso mientras Maher Decorador niega haberlo usado o manipulado.",
+            investigationObjCase11: "La declaración de Bassem Suplente contradice el indicio de investigación.",
+            investigationDedCase11: "Cadena de pruebas y declaración establecida: el indicio relaciona a Bassem Suplente con el caso mientras Bassem Suplente niega haberlo usado o manipulado.",
+            investigationObjCase12: "La declaración de Sameh Conductor de Tren contradice el indicio de investigación.",
+            investigationDedCase12: "Cadena de pruebas y declaración establecida: el indicio relaciona a Sameh Conductor de Tren con el caso mientras Sameh Conductor de Tren niega haberlo usado o manipulado.",
+            investigationObjCase13: "La declaración de Maher Contrabandista contradice el indicio de investigación.",
+            investigationDedCase13: "Cadena de pruebas y declaración establecida: el indicio relaciona a Maher Contrabandista con el caso mientras Maher Contrabandista niega haberlo usado o manipulado.",
+            investigationObjCase14: "La declaración de Samer Copiloto contradice el indicio de investigación.",
+            investigationDedCase14: "Cadena de pruebas y declaración establecida: el indicio relaciona a Samer Copiloto con el caso mientras Samer Copiloto niega haberlo usado o manipulado.",
+            investigationObjCase15: "La declaración de Dr. Ziad contradice el indicio de investigación.",
+            investigationDedCase15: "Cadena de pruebas y declaración establecida: el indicio relaciona a Dr. Ziad con el caso mientras Dr. Ziad niega haberlo usado o manipulado.",
+            investigationObjCase16: "La declaración de Rami Curador contradice el indicio de investigación.",
+            investigationDedCase16: "Cadena de pruebas y declaración establecida: el indicio relaciona a Rami Curador con el caso mientras Rami Curador niega haberlo usado o manipulado.",
+            investigationObjCase17: "La declaración de Nabil Sobrino contradice el indicio de investigación.",
+            investigationDedCase17: "Cadena de pruebas y declaración establecida: el indicio relaciona a Nabil Sobrino con el caso mientras Nabil Sobrino niega haberlo usado o manipulado.",
+            investigationObjCase18: "La declaración de Daniel Reportero contradice el indicio de investigación.",
+            investigationDedCase18: "Cadena de pruebas y declaración establecida: el indicio relaciona a Daniel Reportero con el caso mientras Daniel Reportero niega haberlo usado o manipulado.",
+            investigationObjCase19: "La declaración de Ziad Rival contradice el indicio de investigación.",
+            investigationDedCase19: "Cadena de pruebas y declaración establecida: el indicio relaciona a Ziad Rival con el caso mientras Ziad Rival niega haberlo usado o manipulado.",
+            investigationObjMaherKeyDenial: "La declaración de Maher contradice el registro de acceso.",
+            investigationDedAccessTraceChain: "Cadena de acceso y rastro establecida: el registro sitúa la llave maestra administrativa bajo el registro de salida de Maher a las 10:04, mientras que Maher niega haberla tomado."
         },
         it: {
             appTitle: "Il File Nero",
@@ -2252,7 +2729,43 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
             loginFillFieldsAlert: "Inserisci la tua email e password.", loginSigningInFallback: "Accesso in corso...", loginPasswordMismatchAlert: "Le due password non coincidono!", loginAuthFailedFallback: "Autenticazione non riuscita. Riprova.", loginEnterEmailFirstAlert: "Inserisci prima il tuo indirizzo email, poi tocca di nuovo \"Password dimenticata?\".", loginResetLinkSentAlert: "Un link per reimpostare la password è stato inviato a {email}.", loginResetFailedFallback: "Impossibile inviare l'email di reimpostazione. Riprova.", loginConnectingGoogleFallback: "Connessione a Google...", loginGoogleFailedFallback: "Accesso con Google non riuscito.",
             offlineLimitedCasesMsg: "Stai giocando offline — sono disponibili solo i primi 10 casi. Accedi per sbloccare tutti e 20 i casi.",
             syncWarning: "⚠️ I tuoi progressi sono salvati localmente solo su questo dispositivo. L'accesso salva solo il numero di casi risolti in classifica, non tutti i tuoi dati.",
-            raceInterruptConfirm: "Sei nel mezzo di un'indagine. Lasciarla e iniziare la gara?"
+            raceInterruptConfirm: "Sei nel mezzo di un'indagine. Lasciarla e iniziare la gara?",
+            investigationObjCase3: "La dichiarazione di Samer lo Scrittore Rivale contraddice l’indizio investigativo.",
+            investigationDedCase3: "Catena di prove e dichiarazione stabilita: l’indizio collega Samer lo Scrittore Rivale al caso mentre Samer lo Scrittore Rivale nega di averlo usato o maneggiato.",
+            investigationObjCase4: "La dichiarazione di Khaled Manutenzione contraddice l’indizio investigativo.",
+            investigationDedCase4: "Catena di prove e dichiarazione stabilita: l’indizio collega Khaled Manutenzione al caso mentre Khaled Manutenzione nega di averlo usato o maneggiato.",
+            investigationObjCase5: "La dichiarazione di Fouad il Pittore contraddice l’indizio investigativo.",
+            investigationDedCase5: "Catena di prove e dichiarazione stabilita: l’indizio collega Fouad il Pittore al caso mentre Fouad il Pittore nega di averlo usato o maneggiato.",
+            investigationObjCase6: "La dichiarazione di Hani Assistente Capo contraddice l’indizio investigativo.",
+            investigationDedCase6: "Catena di prove e dichiarazione stabilita: l’indizio collega Hani Assistente Capo al caso mentre Hani Assistente Capo nega di averlo usato o maneggiato.",
+            investigationObjCase7: "La dichiarazione di Salim Misterioso contraddice l’indizio investigativo.",
+            investigationDedCase7: "Catena di prove e dichiarazione stabilita: l’indizio collega Salim Misterioso al caso mentre Salim Misterioso nega di averlo usato o maneggiato.",
+            investigationObjCase8: "La dichiarazione di Ziad Contabile contraddice l’indizio investigativo.",
+            investigationDedCase8: "Catena di prove e dichiarazione stabilita: l’indizio collega Ziad Contabile al caso mentre Ziad Contabile nega di averlo usato o maneggiato.",
+            investigationObjCase9: "La dichiarazione di Hamza Giovane contraddice l’indizio investigativo.",
+            investigationDedCase9: "Catena di prove e dichiarazione stabilita: l’indizio collega Hamza Giovane al caso mentre Hamza Giovane nega di averlo usato o maneggiato.",
+            investigationObjCase10: "La dichiarazione di Maher Decoratore contraddice l’indizio investigativo.",
+            investigationDedCase10: "Catena di prove e dichiarazione stabilita: l’indizio collega Maher Decoratore al caso mentre Maher Decoratore nega di averlo usato o maneggiato.",
+            investigationObjCase11: "La dichiarazione di Bassem Sostituto contraddice l’indizio investigativo.",
+            investigationDedCase11: "Catena di prove e dichiarazione stabilita: l’indizio collega Bassem Sostituto al caso mentre Bassem Sostituto nega di averlo usato o maneggiato.",
+            investigationObjCase12: "La dichiarazione di Sameh Macchinista contraddice l’indizio investigativo.",
+            investigationDedCase12: "Catena di prove e dichiarazione stabilita: l’indizio collega Sameh Macchinista al caso mentre Sameh Macchinista nega di averlo usato o maneggiato.",
+            investigationObjCase13: "La dichiarazione di Maher Contrabbandiere contraddice l’indizio investigativo.",
+            investigationDedCase13: "Catena di prove e dichiarazione stabilita: l’indizio collega Maher Contrabbandiere al caso mentre Maher Contrabbandiere nega di averlo usato o maneggiato.",
+            investigationObjCase14: "La dichiarazione di Samer Co-Pilota contraddice l’indizio investigativo.",
+            investigationDedCase14: "Catena di prove e dichiarazione stabilita: l’indizio collega Samer Co-Pilota al caso mentre Samer Co-Pilota nega di averlo usato o maneggiato.",
+            investigationObjCase15: "La dichiarazione di Dr. Ziad contraddice l’indizio investigativo.",
+            investigationDedCase15: "Catena di prove e dichiarazione stabilita: l’indizio collega Dr. Ziad al caso mentre Dr. Ziad nega di averlo usato o maneggiato.",
+            investigationObjCase16: "La dichiarazione di Rami Curatore contraddice l’indizio investigativo.",
+            investigationDedCase16: "Catena di prove e dichiarazione stabilita: l’indizio collega Rami Curatore al caso mentre Rami Curatore nega di averlo usato o maneggiato.",
+            investigationObjCase17: "La dichiarazione di Nabil Nipote contraddice l’indizio investigativo.",
+            investigationDedCase17: "Catena di prove e dichiarazione stabilita: l’indizio collega Nabil Nipote al caso mentre Nabil Nipote nega di averlo usato o maneggiato.",
+            investigationObjCase18: "La dichiarazione di Daniel Giornalista contraddice l’indizio investigativo.",
+            investigationDedCase18: "Catena di prove e dichiarazione stabilita: l’indizio collega Daniel Giornalista al caso mentre Daniel Giornalista nega di averlo usato o maneggiato.",
+            investigationObjCase19: "La dichiarazione di Ziad Rivale contraddice l’indizio investigativo.",
+            investigationDedCase19: "Catena di prove e dichiarazione stabilita: l’indizio collega Ziad Rivale al caso mentre Ziad Rivale nega di averlo usato o maneggiato.",
+            investigationObjMaherKeyDenial: "La dichiarazione di Maher è in contraddizione con il registro degli accessi.",
+            investigationDedAccessTraceChain: "Catena di accesso e traccia stabilita: il registro colloca la chiave maestra amministrativa sotto il prelievo di Maher alle 10:04, mentre Maher nega di averla presa."
         },
         de: {
             appTitle: "Die Schwarze Akte",
@@ -2303,7 +2816,43 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
             loginFillFieldsAlert: "Bitte E-Mail und Passwort eingeben.", loginSigningInFallback: "Anmeldung läuft...", loginPasswordMismatchAlert: "Die beiden Passwörter stimmen nicht überein!", loginAuthFailedFallback: "Authentifizierung fehlgeschlagen. Bitte erneut versuchen.", loginEnterEmailFirstAlert: "Bitte zuerst deine E-Mail-Adresse eingeben und dann erneut auf \"Passwort vergessen?\" tippen.", loginResetLinkSentAlert: "Ein Link zum Zurücksetzen des Passworts wurde an {email} gesendet.", loginResetFailedFallback: "Die Reset-E-Mail konnte nicht gesendet werden. Bitte erneut versuchen.", loginConnectingGoogleFallback: "Verbindung mit Google wird hergestellt...", loginGoogleFailedFallback: "Google-Anmeldung fehlgeschlagen.",
             offlineLimitedCasesMsg: "Du spielst offline — nur die ersten 10 Fälle sind verfügbar. Melde dich an, um alle 20 Fälle freizuschalten.",
             syncWarning: "⚠️ Dein Fortschritt wird nur lokal auf diesem Gerät gespeichert. Die Anmeldung speichert nur die Anzahl der gelösten Fälle in der Bestenliste, nicht alle deine Daten.",
-            raceInterruptConfirm: "Du bitten mitten in einer Ermittlung. Die Ermittlung verlassen und das Rennen starten?"
+            raceInterruptConfirm: "Du bitten mitten in einer Ermittlung. Die Ermittlung verlassen und das Rennen starten?",
+            investigationObjCase3: "Die Aussage von Samer der rivalisierende Autor widerspricht der Ermittlungsspur.",
+            investigationDedCase3: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Samer der rivalisierende Autor mit dem Fall, während Samer der rivalisierende Autor bestreitet, sie benutzt oder berührt zu haben.",
+            investigationObjCase4: "Die Aussage von Khaled der Wartungstechniker widerspricht der Ermittlungsspur.",
+            investigationDedCase4: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Khaled der Wartungstechniker mit dem Fall, während Khaled der Wartungstechniker bestreitet, sie benutzt oder berührt zu haben.",
+            investigationObjCase5: "Die Aussage von Fouad der Maler widerspricht der Ermittlungsspur.",
+            investigationDedCase5: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Fouad der Maler mit dem Fall, während Fouad der Maler bestreitet, sie benutzt oder berührt zu haben.",
+            investigationObjCase6: "Die Aussage von Hani der leitende Assistent widerspricht der Ermittlungsspur.",
+            investigationDedCase6: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Hani der leitende Assistent mit dem Fall, während Hani der leitende Assistent bestreitet, sie benutzt oder berührt zu haben.",
+            investigationObjCase7: "Die Aussage von Salim der Geheime widerspricht der Ermittlungsspur.",
+            investigationDedCase7: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Salim der Geheime mit dem Fall, während Salim der Geheime bestreitet, sie benutzt oder berührt zu haben.",
+            investigationObjCase8: "Die Aussage von Ziad der Buchhalter widerspricht der Ermittlungsspur.",
+            investigationDedCase8: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Ziad der Buchhalter mit dem Fall, während Ziad der Buchhalter bestreitet, sie benutzt oder berührt zu haben.",
+            investigationObjCase9: "Die Aussage von Hamza der Jugendliche widerspricht der Ermittlungsspur.",
+            investigationDedCase9: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Hamza der Jugendliche mit dem Fall, während Hamza der Jugendliche bestreitet, sie benutzt oder berührt zu haben.",
+            investigationObjCase10: "Die Aussage von Maher der Dekorateur widerspricht der Ermittlungsspur.",
+            investigationDedCase10: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Maher der Dekorateur mit dem Fall, während Maher der Dekorateur bestreitet, sie benutzt oder berührt zu haben.",
+            investigationObjCase11: "Die Aussage von Bassem der Zweitbesetzungsschauspieler widerspricht der Ermittlungsspur.",
+            investigationDedCase11: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Bassem der Zweitbesetzungsschauspieler mit dem Fall, während Bassem der Zweitbesetzungsschauspieler bestreitet, sie benutzt oder berührt zu haben.",
+            investigationObjCase12: "Die Aussage von Sameh der Zugführer widerspricht der Ermittlungsspur.",
+            investigationDedCase12: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Sameh der Zugführer mit dem Fall, während Sameh der Zugführer bestreitet, sie benutzt oder berührt zu haben.",
+            investigationObjCase13: "Die Aussage von Maher der Schmuggler widerspricht der Ermittlungsspur.",
+            investigationDedCase13: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Maher der Schmuggler mit dem Fall, während Maher der Schmuggler bestreitet, sie benutzt oder berührt zu haben.",
+            investigationObjCase14: "Die Aussage von Samer der Co-Pilot widerspricht der Ermittlungsspur.",
+            investigationDedCase14: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Samer der Co-Pilot mit dem Fall, während Samer der Co-Pilot bestreitet, sie benutzt oder berührt zu haben.",
+            investigationObjCase15: "Die Aussage von Dr. Ziad widerspricht der Ermittlungsspur.",
+            investigationDedCase15: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Dr. Ziad mit dem Fall, während Dr. Ziad bestreitet, sie benutzt oder berührt zu haben.",
+            investigationObjCase16: "Die Aussage von Rami der Kurator widerspricht der Ermittlungsspur.",
+            investigationDedCase16: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Rami der Kurator mit dem Fall, während Rami der Kurator bestreitet, sie benutzt oder berührt zu haben.",
+            investigationObjCase17: "Die Aussage von Nabil der Neffe widerspricht der Ermittlungsspur.",
+            investigationDedCase17: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Nabil der Neffe mit dem Fall, während Nabil der Neffe bestreitet, sie benutzt oder berührt zu haben.",
+            investigationObjCase18: "Die Aussage von Daniel der Reporter widerspricht der Ermittlungsspur.",
+            investigationDedCase18: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Daniel der Reporter mit dem Fall, während Daniel der Reporter bestreitet, sie benutzt oder berührt zu haben.",
+            investigationObjCase19: "Die Aussage von Ziad der Rivalisierende widerspricht der Ermittlungsspur.",
+            investigationDedCase19: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Ziad der Rivalisierende mit dem Fall, während Ziad der Rivalisierende bestreitet, sie benutzt oder berührt zu haben.",
+            investigationObjMaherKeyDenial: "Mahers Aussage widerspricht dem Zugangsregister.",
+            investigationDedAccessTraceChain: "Zugangs- und Spurenkette festgestellt: Das Register verzeichnet den administrativen Hauptschlüssel unter Mahers Ausgabe um 10:04 Uhr, während Maher bestreitet, ihn genommen zu haben."
         },
         pt: {
             appTitle: "O Arquivo Negro",
@@ -2354,7 +2903,43 @@ import { generateInviteLink, verifyInviteToken } from './invite.js';
             loginFillFieldsAlert: "Introduza o seu e-mail e palavra-passe.", loginSigningInFallback: "A iniciar sessão...", loginPasswordMismatchAlert: "As duas palavras-passe não coincidem!", loginAuthFailedFallback: "Falha na autenticação. Tente novamente.", loginEnterEmailFirstAlert: "Introduza primeiro o seu e-mail e depois toque novamente em \"Esqueceu a palavra-passe?\".", loginResetLinkSentAlert: "Foi enviado um link de redefinição de palavra-passe para {email}.", loginResetFailedFallback: "Não foi possível enviar o e-mail de redefinição. Tente novamente.", loginConnectingGoogleFallback: "A ligar ao Google...", loginGoogleFailedFallback: "Falha no início de sessão com o Google.",
             offlineLimitedCasesMsg: "Está a jogar offline — apenas os primeiros 10 casos estão disponíveis. Inicie sessão para desbloquear todos os 20 casos.",
             syncWarning: "⚠️ O seu progresso é guardado localmente apenas neste dispositivo. Iniciar sessão apenas guarda o número de casos resolvidos na classificação, não todos os seus dados.",
-            raceInterruptConfirm: "Estás no meio de uma investigação. Abandoná-la e começar a corrida?"
+            raceInterruptConfirm: "Estás no meio de uma investigação. Abandoná-la e começar a corrida?",
+            investigationObjCase3: "A declaração de Samer o Escritor Rival contradiz a pista da investigação.",
+            investigationDedCase3: "Cadeia de prova e declaração estabelecida: a pista liga Samer o Escritor Rival ao caso enquanto Samer o Escritor Rival nega tê-la usado ou manuseado.",
+            investigationObjCase4: "A declaração de Khaled Manutenção contradiz a pista da investigação.",
+            investigationDedCase4: "Cadeia de prova e declaração estabelecida: a pista liga Khaled Manutenção ao caso enquanto Khaled Manutenção nega tê-la usado ou manuseado.",
+            investigationObjCase5: "A declaração de Fouad o Pintor contradiz a pista da investigação.",
+            investigationDedCase5: "Cadeia de prova e declaração estabelecida: a pista liga Fouad o Pintor ao caso enquanto Fouad o Pintor nega tê-la usado ou manuseado.",
+            investigationObjCase6: "A declaração de Hani Assistente Principal contradiz a pista da investigação.",
+            investigationDedCase6: "Cadeia de prova e declaração estabelecida: a pista liga Hani Assistente Principal ao caso enquanto Hani Assistente Principal nega tê-la usado ou manuseado.",
+            investigationObjCase7: "A declaração de Salim Misterioso contradiz a pista da investigação.",
+            investigationDedCase7: "Cadeia de prova e declaração estabelecida: a pista liga Salim Misterioso ao caso enquanto Salim Misterioso nega tê-la usado ou manuseado.",
+            investigationObjCase8: "A declaração de Ziad Contador contradiz a pista da investigação.",
+            investigationDedCase8: "Cadeia de prova e declaração estabelecida: a pista liga Ziad Contador ao caso enquanto Ziad Contador nega tê-la usado ou manuseado.",
+            investigationObjCase9: "A declaração de Hamza Jovem contradiz a pista da investigação.",
+            investigationDedCase9: "Cadeia de prova e declaração estabelecida: a pista liga Hamza Jovem ao caso enquanto Hamza Jovem nega tê-la usado ou manuseado.",
+            investigationObjCase10: "A declaração de Maher Decorador contradiz a pista da investigação.",
+            investigationDedCase10: "Cadeia de prova e declaração estabelecida: a pista liga Maher Decorador ao caso enquanto Maher Decorador nega tê-la usado ou manuseado.",
+            investigationObjCase11: "A declaração de Bassem Substituto contradiz a pista da investigação.",
+            investigationDedCase11: "Cadeia de prova e declaração estabelecida: a pista liga Bassem Substituto ao caso enquanto Bassem Substituto nega tê-la usado ou manuseado.",
+            investigationObjCase12: "A declaração de Sameh Maquinista contradiz a pista da investigação.",
+            investigationDedCase12: "Cadeia de prova e declaração estabelecida: a pista liga Sameh Maquinista ao caso enquanto Sameh Maquinista nega tê-la usado ou manuseado.",
+            investigationObjCase13: "A declaração de Maher Contrabandista contradiz a pista da investigação.",
+            investigationDedCase13: "Cadeia de prova e declaração estabelecida: a pista liga Maher Contrabandista ao caso enquanto Maher Contrabandista nega tê-la usado ou manuseado.",
+            investigationObjCase14: "A declaração de Samer Copiloto contradiz a pista da investigação.",
+            investigationDedCase14: "Cadeia de prova e declaração estabelecida: a pista liga Samer Copiloto ao caso enquanto Samer Copiloto nega tê-la usado ou manuseado.",
+            investigationObjCase15: "A declaração de Dr. Ziad contradiz a pista da investigação.",
+            investigationDedCase15: "Cadeia de prova e declaração estabelecida: a pista liga Dr. Ziad ao caso enquanto Dr. Ziad nega tê-la usado ou manuseado.",
+            investigationObjCase16: "A declaração de Rami Curador contradiz a pista da investigação.",
+            investigationDedCase16: "Cadeia de prova e declaração estabelecida: a pista liga Rami Curador ao caso enquanto Rami Curador nega tê-la usado ou manuseado.",
+            investigationObjCase17: "A declaração de Nabil Sobrinho contradiz a pista da investigação.",
+            investigationDedCase17: "Cadeia de prova e declaração estabelecida: a pista liga Nabil Sobrinho ao caso enquanto Nabil Sobrinho nega tê-la usado ou manuseado.",
+            investigationObjCase18: "A declaração de Daniel Repórter contradiz a pista da investigação.",
+            investigationDedCase18: "Cadeia de prova e declaração estabelecida: a pista liga Daniel Repórter ao caso enquanto Daniel Repórter nega tê-la usado ou manuseado.",
+            investigationObjCase19: "A declaração de Ziad Rival contradiz a pista da investigação.",
+            investigationDedCase19: "Cadeia de prova e declaração estabelecida: a pista liga Ziad Rival ao caso enquanto Ziad Rival nega tê-la usado ou manuseado.",
+            investigationObjMaherKeyDenial: "A declaração de Maher entra em conflito com o registro de acesso.",
+            investigationDedAccessTraceChain: "Cadeia de acesso e rastro estabelecida: o registro coloca a chave mestra administrativa sob a retirada de Maher às 10:04, enquanto Maher nega tê-la pegado."
         }
     };
     // تم حذف السطر الذي كان يمحي ترجمة الدارجة المغربية (EXTRA_TRANGS.ary = EXTRA_TRANGS.ar)
@@ -3603,7 +4188,7 @@ document.addEventListener('click', (e) => {
   }
   
   if (action.startsWith('closeModal_')) {
-    const modal = action.replace('closeModal_', 'modal-');
+    const modal = action.slice('closeModal_'.length);
     closeModal(modal);
     return;
   }
@@ -3671,7 +4256,7 @@ if (action === 'inviteFriend') {
     return;
   }
   if (action === 'openEvidence') {
-    openEvidenceModal(target.dataset.evName, target.dataset.evDesc);
+    openEvidenceModal(target.dataset.evName, target.dataset.evDesc, target.dataset.evidenceId);
     return;
   }
   if (action === 'openSuspect') {
@@ -3679,8 +4264,41 @@ if (action === 'inviteFriend') {
     return;
   }
 
+  if (action === 'applyInvestigationObjection' && investigationRuntime) {
+    investigationRuntime.applyObjection(target.dataset.objectionId);
+    saveInvestigationRuntimeState();
+    renderInvestigationActions();
+    return;
+  }
+
+  if (action === 'applyInvestigationDeduction' && investigationRuntime) {
+    investigationRuntime.applyDeduction(target.dataset.deductionId);
+    saveInvestigationRuntimeState();
+    renderInvestigationActions();
+    return;
+  }
+
   // --- Case 4: Ask question (multi-line logic moved here) ---
   if (action === 'askQuestion') {
+    if (investigationRuntime) {
+    const result = investigationRuntime.askQuestion(
+      getInvestigationSuspectId(parseInt(target.dataset.suspectIdx, 10)),
+      target.dataset.questionId
+    );
+      target.classList.add('asked');
+      if (!target.querySelector('.ans')) {
+        const ansDiv = document.createElement('div');
+        ansDiv.className = 'ans';
+        ansDiv.style.marginTop = '6px';
+        const label = (TRANSLATIONS[currentLang] || TRANSLATIONS.en).answerLabel;
+        ansDiv.innerHTML = `<b>${escapeHtml(label)}</b> ${escapeHtml(target.dataset.answer)}`;
+        target.appendChild(ansDiv);
+      }
+      renderInvestigationActions();
+      saveInvestigationRuntimeState();
+      playClickSound();
+      return;
+    }
     const qKey = target.dataset.qKey;
     askedQuestions[qKey] = true;
     target.classList.add('asked');
@@ -3701,6 +4319,7 @@ if (action === 'inviteFriend') {
     document.querySelectorAll('#accuse-suspects-list .pick').forEach(p => p.classList.remove('selected'));
     target.classList.add('selected');
     selectedSuspect = target.dataset.susName;
+    selectedSuspectIndex = parseInt(target.dataset.suspectIdx, 10);
     playClickSound();
     return;
   }
