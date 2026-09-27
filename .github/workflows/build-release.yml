@@ -56,6 +56,34 @@ jobs:
             echo "         Falling back to the template — Firebase auth will NOT work in this APK."
             cp www/firebase-config.example.js www/firebase-config.js
           fi
+      - name: Verify Firebase web config matches Android Firebase project
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const web = fs.readFileSync('www/firebase-config.js', 'utf8');
+          const gs = JSON.parse(fs.readFileSync('android/app/google-services.json', 'utf8'));
+          const client = gs.client?.find(c => c.client_info?.android_client_info?.package_name === 'com.othmaneettoumi.blackfile');
+          if (!client) throw new Error('Firebase Android client for com.othmaneettoumi.blackfile not found.');
+          const webApiKey = web.match(/apiKey\\s*:\\s*["']([^"']+)["']/)?.[1];
+          const webProjectId = web.match(/projectId\\s*:\\s*["']([^"']+)["']/)?.[1];
+          const webAppId = web.match(/appId\\s*:\\s*["']([^"']+)["']/)?.[1];
+          const androidApiKey = client.api_key?.[0]?.current_key;
+          const androidAppId = client.client_info?.mobilesdk_app_id;
+          const projectId = gs.project_info?.project_id;
+          if (!webApiKey || !webProjectId || !webAppId) throw new Error('Firebase web config is missing apiKey/projectId/appId.');
+          const ok = webApiKey === androidApiKey &&
+                     webProjectId === projectId &&
+                     webAppId === androidAppId.replace(/^1:(\\d+):android:/, '1:$1:web:');
+          if (!ok) {
+            console.error('ERROR: Firebase web config does not match google-services.json.');
+            console.error('Project IDs match:', webProjectId === projectId);
+            console.error('App IDs match:', webAppId === androidAppId.replace(/^1:(\\d+):android:/, '1:$1:web:'));
+            console.error('API keys match:', webApiKey === androidApiKey);
+            process.exit(1);
+          }
+          console.log('Firebase config identity verified: projectId/appId/API key match.');
+          NODE
+
       - name: Add & Sync Capacitor Android
         run: |
           chmod +x ./node_modules/.bin/* || true
