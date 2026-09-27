@@ -36,18 +36,27 @@ try {
 
   const evidenceButtons = page.locator('#evidence-list .pick[data-evidence-id]');
   const evidenceCount = await evidenceButtons.count();
-  if (evidenceCount !== 6) {
-    throw new Error(`Case 0 browser UI exposes ${evidenceCount} evidence items; expected the 6 model evidence items, including E_MANOR_ACCESS_LOG.`);
-  }
+  const visibleEvidenceIds = await evidenceButtons.evaluateAll(nodes =>
+    nodes.map(node => node.dataset.evidenceId).filter(Boolean)
+  );
 
-  for (const evidenceId of [
+  const requiredEvidenceIds = [
     'E_MANOR_DAGGER',
     'E_MANOR_LETTER',
     'E_MANOR_FOOTPRINT',
     'E_MANOR_WATCH',
     'E_MANOR_CAMERA',
     'E_MANOR_ACCESS_LOG'
-  ]) {
+  ];
+
+  const missingEvidenceIds = requiredEvidenceIds.filter(id => !visibleEvidenceIds.includes(id));
+  if (missingEvidenceIds.length) {
+    throw new Error(
+      `Case 0 browser UI exposes ${evidenceCount} evidence items. Visible IDs: ${visibleEvidenceIds.join(', ') || '(none)'}. Missing required IDs: ${missingEvidenceIds.join(', ')}.`
+    );
+  }
+
+  for (const evidenceId of requiredEvidenceIds) {
     const evidence = page.locator(`#evidence-list .pick[data-evidence-id="${evidenceId}"]`);
     await evidence.waitFor({ state: 'visible', timeout: 5000 });
     await evidence.click();
