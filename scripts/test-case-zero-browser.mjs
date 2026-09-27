@@ -83,6 +83,13 @@ try {
   await page.locator('#modal-evidence [data-action="closeModal_modal-evidence"]').click();
   await page.waitForSelector('#modal-evidence.active', { state: 'hidden' });
 
+  // Explicitly confront Yahya after the access log is revealed; the response
+  // flags the objection for presentation but does not apply it automatically.
+  await page.locator('#suspects-list .pick').nth(1).click();
+  await page.waitForSelector('#modal-suspect.active');
+  await page.locator('#modal-sus-questions .q-btn[data-question-id="Q_YAHYA_BALCONY_CONFRONT"]').click();
+  await page.locator('#modal-suspect [data-action="closeModal"]').click();
+
   const objection = page.locator('#investigation-actions button[data-action="applyInvestigationObjection"][data-objection-id="OBJ_MANOR_YAHYA_BALCONY"]');
   await objection.waitFor({ state: 'visible', timeout: 5000 });
   await objection.click();
