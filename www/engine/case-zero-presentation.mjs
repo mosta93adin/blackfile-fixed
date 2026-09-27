@@ -1,7 +1,7 @@
 const CASE_ZERO_QUESTION_IDS = Object.freeze([
   Object.freeze(['Q_SALMA_ROOM', 'Q_SALMA_NOISE', 'Q_SALMA_MONEY']),
   Object.freeze(['Q_YAHYA_FINANCES', 'Q_YAHYA_DAGGER', 'Q_YAHYA_BALCONY']),
-  Object.freeze(['Q_FATIMA_DISCOVERY', 'Q_FATIMA_DOOR', 'Q_FATIMA_WINDOW', 'Q_FATIMA_YAHYA_OBSERVATION']),
+  Object.freeze(['Q_FATIMA_DISCOVERY', 'Q_FATIMA_DOOR', 'Q_FATIMA_WINDOW', 'Q_FATIMA_SIGHTING']),
   Object.freeze(['Q_OMAR_PATROL', 'Q_OMAR_GATE', 'Q_OMAR_NOISE'])
 ]);
 
@@ -29,7 +29,7 @@ export function getCaseZeroPresentationQuestions(suspectIndex, translatedSuspect
   return questionIds.map((questionId, index) => {
     const text = translatedSuspect.qs[index];
     if (text) return { id: questionId, questionText: text.q, responseText: text.a };
-    if (questionId === 'Q_FATIMA_YAHYA_OBSERVATION') {
+    if (questionId === 'Q_FATIMA_SIGHTING') {
       return {
         id: questionId,
         questionText: 'Did you see anyone near the study that night?',
