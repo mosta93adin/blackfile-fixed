@@ -63,6 +63,7 @@ const assert = require('assert');
   runtimeA.discoverEvidence('E_MANOR_CAMERA');
   runtimeA.analyzeEvidence('E_MANOR_CAMERA');
   runtimeA.askQuestion('S_MANOR_FATIMA', 'Q_FATIMA_SIGHTING');
+  runtimeA.askQuestion('S_MANOR_YAHYA', 'Q_YAHYA_BALCONY');
   runtimeA.askQuestion('S_MANOR_YAHYA', 'Q_YAHYA_BALCONY_CONFRONT');
   assert.deepStrictEqual(runtimeA.getEligibleObjections(), ['OBJ_MANOR_YAHYA_BALCONY']);
   const objectionResult = runtimeA.applyObjection('OBJ_MANOR_YAHYA_BALCONY');
