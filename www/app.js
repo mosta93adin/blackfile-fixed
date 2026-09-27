@@ -3952,8 +3952,30 @@ function showGameUI() {
 // نقطة الدخول الوحيدة الموثوقة لحالة الواجهة (تسجيل دخول أو لعب داخل التطبيق).
 // عمداً لا تُعاد شاشة تسجيل الدخول إذا كان المستخدم في وضع "بدون إنترنت"،
 // لتفادي مشكلة إعادته لشاشة الدخول بعد نجاح التسجيل (سباق مع onAuthStateChanged).
+// Explicit UI mode prevents Firebase's asynchronous initial auth callback
+// from overriding a deliberate guest/offline session. Firebase auth state is
+// still allowed to drive the UI for normal online sessions.
+let authUiMode = isOfflineMode() ? 'offline' : 'pending';
+
 function syncAuthUI(user) {
+  // Offline/guest mode is an explicit user choice. It always wins over the
+  // initial Firebase callback (including a stale persisted Firebase user).
+  // Most importantly, an auth callback can never navigate an active case
+  // back to the menu while the guest is investigating.
+  if (authUiMode === 'offline' || isOfflineMode()) {
+    authUiMode = 'offline';
+    if (user) {
+      // Do not silently convert an explicit guest session into an online
+      // session just because Firebase restored a cached credential.
+      return;
+    }
+    const appRoot = document.querySelector('.app');
+    if (appRoot?.style.display !== 'block') showGameUI();
+    return;
+  }
+
   if (user) {
+    authUiMode = 'authenticated';
     setOfflineMode(false);
     // Reset cloud progress cache for new user (prevents stale data from previous user)
     cloudSolvedCases = null;
@@ -3961,18 +3983,8 @@ function syncAuthUI(user) {
     // Load server-validated progress (solvedCases) from Firestore
     void loadCloudProgress();
     showGameUI();
-  } else if (isOfflineMode()) {
-    // Firebase may deliver its initial null auth callback after the guest
-    // UI has already started a case. Do not reset the active screen back to
-    // the menu while the offline game is running.
-    const appRoot = document.querySelector('.app');
-    // Once the guest game UI is visible, an auth callback with user=null
-    // must never navigate the player back to the menu. The callback can race
-    // with any screen transition (brief, investigation, result), so checking
-    // only the currently-active screen is not sufficient.
-    if (appRoot?.style.display === 'block') return;
-    showGameUI();
   } else {
+    authUiMode = 'logged-out';
     showLoginUI();
   }
 }
@@ -3980,6 +3992,7 @@ function syncAuthUI(user) {
 // يتيح للمستخدم تجاوز تسجيل الدخول بالكامل والدخول مباشرة للأرشيف/القائمة،
 // سواء لعدم وجود إنترنت أو لعدم رغبته بإنشاء حساب.
 function playOffline() {
+  authUiMode = 'offline';
   setOfflineMode(true);
   showGameUI();
   playClickSound();
@@ -4018,6 +4031,7 @@ async function bootstrapAuthFlow() {
 // بدل ذلك نعرض شاشة تحميل محايدة (دائرة تحميل) وننتظر onAuthStateChanged/
 // bootstrapAuthFlow ليقررا الحالة الصحيحة (لعبة أو تسجيل دخول) دفعة وحدة.
 if (isOfflineMode()) {
+  authUiMode = 'offline';
   showGameUI();
 } else {
   showBootLoadingUI();
