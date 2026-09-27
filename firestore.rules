@@ -43,6 +43,7 @@ service cloud.firestore {
       return data.keys().hasOnly(['solvedCases', 'updatedAt'])
           && data.solvedCases is list
           && data.solvedCases.size() <= 20
+          && data.solvedCases.hasOnly([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19])
           && (data.updatedAt is timestamp || data.updatedAt == null);
     }
 
