@@ -5,7 +5,11 @@ import { createCaseRuntime } from './engine/case-dispatch.mjs';
 import {
     getCaseZeroPresentationQuestions,
     getCaseZeroPresentationSuspectId,
-    getCaseZeroPresentationEvidenceId
+    getCaseZeroPresentationEvidenceId,
+    getCaseZeroObjectionText,
+    getCaseZeroDeductionText,
+    getCaseZeroObjectionTextKey,
+    getCaseZeroDeductionTextKey
 } from './engine/case-zero-presentation.mjs';
 import {
     getCaseOnePresentationQuestions,
@@ -1008,7 +1012,11 @@ import {
 
         for (const objectionId of investigationRuntime.getEligibleObjections()) {
             let text = '';
-            if (isCaseOneInvestigation()) {
+            if (isCaseZeroInvestigation()) {
+                const key = getCaseZeroObjectionTextKey(objectionId);
+                const localized = key ? txx(key) : '';
+                text = localized || getCaseZeroObjectionText(objectionId) || '';
+            } else if (isCaseOneInvestigation()) {
                 text = getCaseOneLocalizedObjectionText(objectionId);
             } else {
                 const keys = getInvestigationActionTextKeys(investigationRuntime.getCaseId(), objectionId, null);
@@ -1028,7 +1036,11 @@ import {
         for (const deductionId of deductionIds) {
             if (state.deductionIds.has(deductionId)) continue;
             let text = '';
-            if (isCaseOneInvestigation()) {
+            if (isCaseZeroInvestigation()) {
+                const key = getCaseZeroDeductionTextKey(deductionId);
+                const localized = key ? txx(key) : '';
+                text = localized || getCaseZeroDeductionText(deductionId) || '';
+            } else if (isCaseOneInvestigation()) {
                 text = getCaseOneLocalizedDeductionText(deductionId);
             } else {
                 const keys = getInvestigationActionTextKeys(investigationRuntime.getCaseId(), null, deductionId);
