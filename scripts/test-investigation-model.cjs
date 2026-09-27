@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const { execFileSync } = require('child_process');
 
 (async () => {
-  const modelModule = await import('../www/investigation-model.mjs');
+  const modelModule = await import('../www/engine/investigation-model.mjs');
   const {
     CASE_MANOR_01_MODEL,
     HYPOTHESIS_STATES,
@@ -46,7 +46,7 @@ const { execFileSync } = require('child_process');
     relationship.id === 'R_MANOR_013' && relationship.to === 'S_MANOR_YAHYA'
   ));
 
-  const modelText = fs.readFileSync('www/investigation-model.mjs', 'utf8');
+  const modelText = fs.readFileSync('www/engine/investigation-model.mjs', 'utf8');
   assert.ok(!modelText.includes('culpritHash'));
   assert.ok(!modelText.includes('SUPPORTED: true'));
   assert.strictEqual(model.hypotheses.find(h => h.id === 'H_MANOR_RESPONSIBILITY').initialState, HYPOTHESIS_STATES.INSUFFICIENT);
