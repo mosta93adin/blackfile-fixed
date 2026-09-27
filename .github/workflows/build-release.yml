@@ -37,8 +37,18 @@ jobs:
           FIREBASE_CONFIG_JS_BASE64: ${{ secrets.FIREBASE_CONFIG_JS_BASE64 }}
         run: |
           if [ -n "$FIREBASE_CONFIG_JS_BASE64" ]; then
-            echo "$FIREBASE_CONFIG_JS_BASE64" | base64 --decode > www/firebase-config.js
-            echo "firebase-config.js restored from secret."
+            TMP_CONFIG=$(mktemp)
+            if printf "%s" "$FIREBASE_CONFIG_JS_BASE64" | base64 --decode > "$TMP_CONFIG" 2>/dev/null && grep -q "FIREBASE_CONFIG" "$TMP_CONFIG"; then
+              mv "$TMP_CONFIG" www/firebase-config.js
+              echo "firebase-config.js restored from base64 secret."
+            elif printf "%s" "$FIREBASE_CONFIG_JS_BASE64" > "$TMP_CONFIG" && grep -q "FIREBASE_CONFIG" "$TMP_CONFIG"; then
+              mv "$TMP_CONFIG" www/firebase-config.js
+              echo "firebase-config.js restored from raw JS secret."
+            else
+              rm -f "$TMP_CONFIG"
+              echo "ERROR: FIREBASE_CONFIG_JS_BASE64 is neither valid base64 config nor valid raw firebase-config.js."
+              exit 1
+            fi
           elif [ -f www/firebase-config.js ]; then
             echo "www/firebase-config.js already present."
           else
