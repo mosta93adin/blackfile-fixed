@@ -3966,10 +3966,11 @@ function syncAuthUI(user) {
     // UI has already started a case. Do not reset the active screen back to
     // the menu while the offline game is running.
     const appRoot = document.querySelector('.app');
-    const activeGameScreen = document.querySelector(
-      '#scr-brief.active, #scr-investigation.active, #scr-result.active'
-    );
-    if (appRoot?.style.display === 'block' && activeGameScreen) return;
+    // Once the guest game UI is visible, an auth callback with user=null
+    // must never navigate the player back to the menu. The callback can race
+    // with any screen transition (brief, investigation, result), so checking
+    // only the currently-active screen is not sufficient.
+    if (appRoot?.style.display === 'block') return;
     showGameUI();
   } else {
     showLoginUI();
