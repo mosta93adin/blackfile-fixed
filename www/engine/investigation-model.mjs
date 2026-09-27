@@ -148,7 +148,7 @@ const evidence = [
       locationId: 'L_MANOR_STUDY',
       observationIds: ['OBS_MANOR_ACCESS_RECORD'],
       timeWindow: '21:36-21:41',
-      playerVisible: true
+      playerVisible: false
     }
   }
 ];
@@ -381,7 +381,8 @@ const responses = [
   {
     id: 'RESP_FATIMA_YAHYA_OBSERVATION',
     questionId: 'Q_FATIMA_YAHYA_OBSERVATION',
-    producesStatementId: 'ST_FATIMA_04'
+    producesStatementId: 'ST_FATIMA_04',
+    producesEvidenceId: 'E_MANOR_ACCESS_LOG'
   },
   { id: 'RESP_OMAR_PATROL', questionId: 'Q_OMAR_PATROL', producesStatementId: 'ST_OMAR_01' },
   { id: 'RESP_OMAR_GATE', questionId: 'Q_OMAR_GATE', producesStatementId: 'ST_OMAR_02' },
