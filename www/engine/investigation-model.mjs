@@ -353,9 +353,9 @@ const questions = [
   { id: 'Q_FATIMA_DOOR', suspectId: 'S_MANOR_FATIMA', responseIds: ['RESP_FATIMA_DOOR'] },
   { id: 'Q_FATIMA_WINDOW', suspectId: 'S_MANOR_FATIMA', responseIds: ['RESP_FATIMA_WINDOW'] },
   {
-    id: 'Q_FATIMA_YAHYA_OBSERVATION',
+    id: 'Q_FATIMA_SIGHTING',
     suspectId: 'S_MANOR_FATIMA',
-    responseIds: ['RESP_FATIMA_YAHYA_OBSERVATION'],
+    responseIds: ['RESP_FATIMA_SIGHTING'],
     requiredEvidenceIds: ['E_MANOR_CAMERA']
   },
   { id: 'Q_OMAR_PATROL', suspectId: 'S_MANOR_OMAR', responseIds: ['RESP_OMAR_PATROL'] },
@@ -379,8 +379,8 @@ const responses = [
   { id: 'RESP_FATIMA_DOOR', questionId: 'Q_FATIMA_DOOR', producesStatementId: 'ST_FATIMA_02' },
   { id: 'RESP_FATIMA_WINDOW', questionId: 'Q_FATIMA_WINDOW', producesStatementId: 'ST_FATIMA_03' },
   {
-    id: 'RESP_FATIMA_YAHYA_OBSERVATION',
-    questionId: 'Q_FATIMA_YAHYA_OBSERVATION',
+    id: 'RESP_FATIMA_SIGHTING',
+    questionId: 'Q_FATIMA_SIGHTING',
     producesStatementId: 'ST_FATIMA_04',
     producesEvidenceId: 'E_MANOR_ACCESS_LOG'
   },
@@ -399,7 +399,7 @@ const interrogations = [
   {
     id: 'INT_MANOR_FATIMA',
     suspectId: 'S_MANOR_FATIMA',
-    questionIds: ['Q_FATIMA_DISCOVERY', 'Q_FATIMA_DOOR', 'Q_FATIMA_WINDOW', 'Q_FATIMA_YAHYA_OBSERVATION']
+    questionIds: ['Q_FATIMA_DISCOVERY', 'Q_FATIMA_DOOR', 'Q_FATIMA_WINDOW', 'Q_FATIMA_SIGHTING']
   },
   { id: 'INT_MANOR_OMAR', suspectId: 'S_MANOR_OMAR', questionIds: ['Q_OMAR_PATROL', 'Q_OMAR_GATE', 'Q_OMAR_NOISE'] }
 ];
