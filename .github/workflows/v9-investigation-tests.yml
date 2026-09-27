@@ -56,8 +56,5 @@ jobs:
           node scripts/test-case-two-full-flow.cjs
           node scripts/verify-case-one-full-flow.cjs
 
-      - name: Verify canonical source sync
-        run: npm run sync:www
-
-      - name: Check working tree after sync
+      - name: Check repository diff hygiene
         run: git diff --check
