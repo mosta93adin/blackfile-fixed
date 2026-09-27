@@ -47,7 +47,7 @@ const assert = require('assert');
   );
 
   const locked = runtimeA.getUnlockedQuestions('S_MANOR_FATIMA');
-  assert.strictEqual(locked.some(q => q.id === 'Q_FATIMA_YAHYA_OBSERVATION'), false);
+  assert.strictEqual(locked.some(q => q.id === 'Q_FATIMA_SIGHTING'), false);
   assert.deepStrictEqual(runtimeA.getEligibleObjections(), []);
   assert.throws(
     () => runtimeA.askQuestion('S_MANOR_SALMA', 'Q_YAHYA_BALCONY'),
@@ -62,7 +62,7 @@ const assert = require('assert');
   runtimeA.discoverEvidence('E_MANOR_ACCESS_LOG');
   runtimeA.discoverEvidence('E_MANOR_CAMERA');
   runtimeA.analyzeEvidence('E_MANOR_CAMERA');
-  runtimeA.askQuestion('S_MANOR_FATIMA', 'Q_FATIMA_YAHYA_OBSERVATION');
+  runtimeA.askQuestion('S_MANOR_FATIMA', 'Q_FATIMA_SIGHTING');
   runtimeA.askQuestion('S_MANOR_YAHYA', 'Q_YAHYA_BALCONY');
   assert.deepStrictEqual(runtimeA.getEligibleObjections(), ['OBJ_MANOR_YAHYA_BALCONY']);
   const objectionResult = runtimeA.applyObjection('OBJ_MANOR_YAHYA_BALCONY');
