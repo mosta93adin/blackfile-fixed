@@ -75,6 +75,7 @@ function validateSerializedStateAgainstModel(model, serializedState) {
   }
   const fields = [
     ['discoveredEvidenceIds', 'evidence'],
+    ['flaggedObjectionIds', 'objections'],
     ['analyzedEvidenceIds', 'evidence'],
     ['discoveredObservationIds', 'observations'],
     ['discoveredStatementIds', 'statements'],
