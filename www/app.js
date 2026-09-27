@@ -2551,7 +2551,33 @@ import {
             investigationDedCase19: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط زياد المنافس بالقضية بينما زياد المنافس كينكر بلي استعملو ولا لمسُه.",
             investigationObjMaherKeyDenial: "الشهادة ديال ماهر كتناقض مع سجل الدخول.",
             investigationDedAccessTraceChain: "تبثات سلسلة الوصول والأثر: السجل كيبين بلي المفتاح الرئيسي ديال الإدارة كان مسجل فسم ماهر فـ 10:04، وماهر كينكر بلي خدا."
-        },
+        ,
+mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
+        loginTitle: "مرحبا بعودتك",
+        loginEmailPlaceholder: "البريد الإلكتروني",
+        loginPasswordPlaceholder: "كلمة السر",
+        loginConfirmPasswordPlaceholder: "أكد كلمة السر (للحسابات الجديدة فقط)",
+        loginForgotPassword: "نسيتي كلمة السر؟",
+        loginSignInBtn: "دخول",
+        loginOrDivider: "أو",
+        loginGoogleBtn: "كمّل مع Google",
+        loginOfflineBtn: "لعب بلا إنترنت",
+        lbCaseUnit: "قضايا محلولة",
+        lbLoadFailedText: "ما قدرناش نحملو لائحة المتصدرين. تحقق من الاتصال.",
+        importInvalidFileText: "ملف التقدم ما صالحش.",
+        roomJoinRateLimited: "كاينين بزاف ديال محاولات الانضمام. تسنى دقيقة.",
+        mpNoPublicRooms: "ما كايناش غرف عامة دابا.",
+        mpPublicRoomsFailed: "ما قدرناش نحملو الغرف العامة.",
+        loginSigningInFallback: "جاري تسجيل الدخول...",
+        loginPasswordMismatchAlert: "كلمتا السر ما متطابقاش!",
+        loginAuthFailedFallback: "فشل تسجيل الدخول. عاود المحاولة.",
+        loginEnterEmailFirstAlert: "دخل البريد الإلكتروني ديالك أولاً، ومن بعد ضغط على \"نسيتي كلمة السر؟\" مرة أخرى.",
+        loginResetLinkSentAlert: "تصيفط ليك رابط إعادة تعيين كلمة السر لـ {email}.",
+        loginResetFailedFallback: "ما قدرناش نصيفطو إيميل إعادة التعيين. عاود المحاولة.",
+        loginConnectingGoogleFallback: "جاري الاتصال بـ Google...",
+        loginGoogleFailedFallback: "ما قدرناش نسجلو الدخول عبر Google.",
+        inviteFriendBtn: "دعوة صاحب",
+},
         fr: {
             appTitle: "Le Dossier Noir",
             listen: "Écouter", energyExhausted: "Vous avez utilisé toutes vos enquêtes du jour. Revenez demain, détective !",
@@ -3681,6 +3707,7 @@ import {
         setPlainText('txt-stats-btn', 'statsBtnLabel');
         setPlainText('txt-story-btn', 'storyBtnLabel');
         setText('txt-showcase-label', 'showcaseLabel');
+        setText('txt-invite-friend', 'inviteFriendBtn');
         setText('txt-lb-settings-btn', 'lbSettingsBtn');
         setText('txt-lb-title', 'lbModalTitle');
         setText('txt-lb-close', 'lbModalClose');
@@ -3924,6 +3951,9 @@ function showLoginUI() {
   if (wrapper) {
     wrapper.style.display = 'flex';
     wrapper.setAttribute('aria-hidden', 'false');
+    wrapper.classList.remove('on');
+    isOn = false;
+    if (typeof resetHandlePosition === 'function') resetHandlePosition();
   }
   if (appRoot) {
     appRoot.style.display = 'none';
