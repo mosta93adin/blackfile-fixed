@@ -276,6 +276,7 @@ body[dir="rtl"] .story-frag { border-left: none; border-right: 3px solid var(--g
 .seg-btn-row { display:flex; gap:6px; flex-wrap:wrap; }
 .seg-btn-row .btn-sm.active { background: var(--gold); color:#000; }
 #lamp-wrapper.lamp-login-wrapper {
+  display: flex;
   position: fixed;
   top: 0;
   left: 0;
@@ -283,7 +284,7 @@ body[dir="rtl"] .story-frag { border-left: none; border-right: 3px solid var(--g
   height: 100vh;
   background-color: #080808;
   transition: background-color 0.6s ease, background-image 0.6s ease;
-  /* إصلاح: كانت display:flex بالديفولت، يعني الشاشة كانت بادية فوراً
+  /* شاشة الدخول تُرسم فوراً من HTML لتفادي أي فراغ أثناء تحميل Firebase/app.js.
      مجرد ما كيتصيّر الـ HTML، قبل ما يوصل ويخدم app.js (اللي كيستنى
      استيراد Firebase SDK عبر الشبكة). دابا خفية بالديفولت، وJS هو اللي
      كيبدلها لـ flex عبر wrapper.style.display فقط ملي يقرر فعلاً
