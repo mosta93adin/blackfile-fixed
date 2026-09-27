@@ -1,0 +1,38 @@
+name: Case 0 Browser E2E
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  case-zero-browser:
+    name: Case 0 browser E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install project dependencies
+        run: npm ci
+      - name: Install Playwright
+        run: npm install --no-save playwright@1.55.0
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Start static game server
+        run: |
+          python3 -m http.server 4173 --directory www > /tmp/blackfile-http.log 2>&1 &
+          sleep 2
+      - name: Run Case 0 browser E2E
+        env:
+          BLACKFILE_BASE_URL: http://127.0.0.1:4173
+        run: node scripts/test-case-zero-browser.mjs
