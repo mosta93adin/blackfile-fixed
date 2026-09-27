@@ -32,7 +32,10 @@ try {
 
   await page.locator('#case-list .card[data-action="openBrief"][data-case-idx="0"]').click();
   await page.locator('#txt-start-inv').click();
-  await page.waitForSelector('#scr-investigation.active');
+  if (errors.length) {
+    throw new Error(`Browser page errors while starting Case 0: ${errors.join(' | ')}`);
+  }
+  await page.waitForSelector('#scr-investigation.active', { timeout: 10000 });
 
   const evidenceButtons = page.locator('#evidence-list .pick[data-evidence-id]');
   const evidenceCount = await evidenceButtons.count();
