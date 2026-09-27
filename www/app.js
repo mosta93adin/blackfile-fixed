@@ -3790,7 +3790,7 @@ function applyLoginScreenTexts() {
 const wrapper = document.getElementById('lamp-wrapper');
 const handle = document.getElementById('pull-handle');
 const stringLine = document.getElementById('string-line');
-let isOn = false;
+let isOn = wrapper?.classList.contains('on') ?? true;
 let dragging = false;
 let moved = false;
 let startX = 0, startY = 0;
@@ -3904,11 +3904,18 @@ function setOfflineMode(value) {
 }
 
 function showBootLoadingUI() {
+  // The login/lamp UI is already painted by the static HTML/CSS.
+  // Keep it visible while Firebase restores the session so first launch
+  // never shows a blank screen or a generic spinner.
   const wrapper = document.getElementById('lamp-wrapper');
   const appRoot = document.querySelector('.app');
-  if (wrapper) { wrapper.style.display = 'none'; wrapper.setAttribute('aria-hidden', 'true'); }
+  if (wrapper) {
+    wrapper.style.display = 'flex';
+    wrapper.setAttribute('aria-hidden', 'false');
+    wrapper.classList.add('on');
+  }
   if (appRoot) { appRoot.style.display = 'none'; }
-  if (typeof showLoader === 'function') showLoader();
+  if (typeof hideLoader === 'function') hideLoader();
 }
 
 function showLoginUI() {
