@@ -1,0 +1,65 @@
+name: V9 Investigation Tests
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  investigation-tests:
+    name: V9 investigation test suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Verify engine syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          find www/engine -type f -name '*.mjs' -print0 | while IFS= read -r -d '' file; do
+            node --check "$file"
+          done
+          node --check www/app.js
+          node --check www/translations.js
+
+      - name: Check i18n
+        run: node scripts/check-i18n.js
+
+      - name: Run complete investigation audit
+        run: node scripts/test-complete-investigation-audit.cjs
+
+      - name: Run all migrated investigation cases
+        run: node scripts/test-all-investigation-cases-3-19.cjs
+
+      - name: Run Case 0 / Case 1 verification
+        run: |
+          node scripts/test-investigation-model-phase1.cjs
+          node scripts/test-investigation-state-phase2.cjs
+          node scripts/test-evidence-engine-phase3.cjs
+          node scripts/test-hypothesis-engine-phase4.cjs
+          node scripts/test-contradiction-engine-phase5.cjs
+          node scripts/test-interrogation-engine-phase6.cjs
+          node scripts/test-accusation-engine-phase7.cjs
+          node scripts/test-case-loader-phase8.cjs
+          node scripts/test-investigation-runtime-phase9.cjs
+          node scripts/test-case-dispatch-phase10.cjs
+          node scripts/test-case-two-full-flow.cjs
+          node scripts/verify-case-one-full-flow.cjs
+
+      - name: Verify canonical source sync
+        run: npm run sync:www
+
+      - name: Check working tree after sync
+        run: git diff --check
