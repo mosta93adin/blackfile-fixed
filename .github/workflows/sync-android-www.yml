@@ -1,6 +1,9 @@
 name: Sync Android Web Assets
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
