@@ -60,13 +60,20 @@ jobs:
         run: |
           node <<'NODE'
           const fs = require('fs');
-          const web = fs.readFileSync('www/firebase-config.js', 'utf8');
+          const vm = require('vm');
+          const source = fs.readFileSync('www/firebase-config.js', 'utf8');
+          const sandbox = { window: {} };
+          vm.runInNewContext(source, sandbox, { timeout: 1000 });
+          const config = sandbox.window.FIREBASE_CONFIG;
           const required = ['apiKey', 'authDomain', 'projectId', 'appId'];
-          const missing = required.filter(k => !new RegExp('\\b' + k + '\\s*[:=]').test(web));
+          if (!config || typeof config !== 'object') {
+            throw new Error('firebase-config.js does not define window.FIREBASE_CONFIG.');
+          }
+          const missing = required.filter(k => typeof config[k] !== 'string' || !config[k].trim());
           if (missing.length) {
             throw new Error('Firebase web config is missing: ' + missing.join(', '));
           }
-          console.log('Firebase web config restored successfully.');
+          console.log('Firebase web config restored successfully. All required fields are present.');
           NODE
 
       - name: Add & Sync Capacitor Android
