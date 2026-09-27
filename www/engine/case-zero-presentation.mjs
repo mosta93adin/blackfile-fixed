@@ -1,7 +1,7 @@
 const CASE_ZERO_QUESTION_IDS = Object.freeze([
   Object.freeze(['Q_SALMA_ROOM', 'Q_SALMA_NOISE', 'Q_SALMA_MONEY']),
   Object.freeze(['Q_YAHYA_FINANCES', 'Q_YAHYA_DAGGER', 'Q_YAHYA_BALCONY']),
-  Object.freeze(['Q_FATIMA_DISCOVERY', 'Q_FATIMA_DOOR', 'Q_FATIMA_WINDOW']),
+  Object.freeze(['Q_FATIMA_DISCOVERY', 'Q_FATIMA_DOOR', 'Q_FATIMA_WINDOW', 'Q_FATIMA_YAHYA_OBSERVATION']),
   Object.freeze(['Q_OMAR_PATROL', 'Q_OMAR_GATE', 'Q_OMAR_NOISE'])
 ]);
 
@@ -26,13 +26,18 @@ export function getCaseZeroPresentationQuestions(suspectIndex, translatedSuspect
   if (!questionIds || !translatedSuspect || !Array.isArray(translatedSuspect.qs)) {
     throw new Error(`Unknown Case 0 presentation suspect index: ${suspectIndex}`);
   }
-  return translatedSuspect.qs
-    .slice(0, questionIds.length)
-    .map((text, index) => ({
-      id: questionIds[index],
-      questionText: text.q,
-      responseText: text.a
-    }));
+  return questionIds.map((questionId, index) => {
+    const text = translatedSuspect.qs[index];
+    if (text) return { id: questionId, questionText: text.q, responseText: text.a };
+    if (questionId === 'Q_FATIMA_YAHYA_OBSERVATION') {
+      return {
+        id: questionId,
+        questionText: 'Did you see anyone near the study that night?',
+        responseText: 'I saw Yahya heading toward the study a little before I went to bed.'
+      };
+    }
+    return null;
+  }).filter(Boolean);
 }
 
 export function getCaseZeroPresentationSuspectId(suspectIndex) {
