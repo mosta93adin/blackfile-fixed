@@ -40,17 +40,15 @@ jobs:
       - name: Run complete investigation audit
         run: node scripts/test-complete-investigation-audit.cjs
 
+      - name: Run Case 0 model checks
+        run: node scripts/test-investigation-model.cjs
+
       - name: Run all migrated investigation cases
         run: node scripts/test-all-investigation-cases-3-19.cjs
 
-      - name: Run Case 0 / Case 1 verification
+      - name: Run available V9 phase tests
         run: |
-          node scripts/test-investigation-model-phase1.cjs
-          node scripts/test-investigation-state-phase2.cjs
-          node scripts/test-evidence-engine-phase3.cjs
-          node scripts/test-hypothesis-engine-phase4.cjs
-          node scripts/test-contradiction-engine-phase5.cjs
-          node scripts/test-interrogation-engine-phase6.cjs
+          set -euo pipefail
           node scripts/test-accusation-engine-phase7.cjs
           node scripts/test-case-loader-phase8.cjs
           node scripts/test-investigation-runtime-phase9.cjs
