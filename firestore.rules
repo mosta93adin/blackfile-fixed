@@ -29,7 +29,10 @@ service cloud.firestore {
           && data.casesSolved <= 20
           && data.avgHints is number
           && data.avgHints >= 0
-          && (data.fastestMs is number || data.fastestMs == null)
+          && data.avgHints <= 3
+          && (data.fastestMs == null
+              || (data.fastestMs is number
+                  && data.fastestMs >= 0))
           && (data.updatedAt is timestamp || data.updatedAt == null);
     }
 
@@ -122,10 +125,14 @@ service cloud.firestore {
        allow create: if request.auth != null
                      && request.resource.data.used == false
                      && request.resource.data.createdBy == request.auth.uid;
-       allow update: if resource.data.used == false
+       allow update: if request.auth != null
+                     && request.auth.uid != resource.data.createdBy
+                     && resource.data.used == false
                      && request.resource.data.used == true
+                     && request.resource.data.usedBy == request.auth.uid
+                     && request.resource.data.usedAt is timestamp
                      && request.resource.data.diff(resource.data).affectedKeys()
-                       .hasOnly(['used', 'usedAt', 'usedBy']);
+                       .hasOnly(['used', 'usedBy', 'usedAt']);
        allow delete: if false;
      }
 

@@ -1,6 +1,6 @@
 {
 	"appId": "com.othmaneettoumi.blackfile",
-	"appName": "the-black-file",
+	"appName": "The Black File",
 	"webDir": "www",
 	"server": {
 		"cleartext": false

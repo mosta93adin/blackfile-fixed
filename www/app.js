@@ -1986,10 +1986,13 @@ import {
     async function registerRoom(code, isPublic) {
         const uid = firebaseAuth.currentUser?.uid;
         if (!uid) return;
+        const hostName = String(userProfile.name || 'Detective').trim().slice(0, 50) || 'Detective';
         try {
             await setDoc(doc(db, 'rooms', code), {
                 isPublic,
                 hostUid: uid,
+                hostName,
+                status: 'waiting',
                 createdAt: serverTimestamp()
             });
             mpHostedRoomCode = code;
