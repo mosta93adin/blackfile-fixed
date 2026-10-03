@@ -140,15 +140,19 @@ jobs:
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease bundleRelease
-      - name: Verify APK Signature (CN=Othmane ettoumi)
+      - name: Verify APK Signature (release key fingerprint)
         run: |
           CERT_INFO=$(keytool -printcert -jarfile android/app/build/outputs/apk/release/app-release.apk 2>&1)
           echo "$CERT_INFO"
-          if ! echo "$CERT_INFO" | grep -q "CN=Othmane ettoumi"; then
-            echo "ERROR: APK signature Owner is not CN=Othmane ettoumi. Release build rejected."
+          EXPECTED_FINGERPRINT="EE68EBA0F816B629DA470DD4DA13D4BF2230CA73E98C6CE8B0F9CF7CEE402D67"
+          ACTUAL_FINGERPRINT=$(printf '%s\n' "$CERT_INFO" | awk -F': +' 'tolower($1) ~ /sha256/ {print $2; exit}' | tr -d ':' | tr '[:lower:]' '[:upper:]')
+          if [ "$ACTUAL_FINGERPRINT" != "$EXPECTED_FINGERPRINT" ]; then
+            echo "ERROR: APK signing certificate SHA-256 fingerprint mismatch. Release build rejected."
+            echo "Expected: $EXPECTED_FINGERPRINT"
+            echo "Actual: ${ACTUAL_FINGERPRINT:-<missing>}"
             exit 1
           fi
-          echo "APK signature verified: CN=Othmane ettoumi"
+          echo "APK signing certificate SHA-256 fingerprint verified."
       - name: Verify AAB Exists
         run: |
           if [ ! -s "android/app/build/outputs/bundle/release/app-release.aab" ]; then
