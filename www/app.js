@@ -52,14 +52,49 @@ import {
         // بغض النظر عن اللغة اللي بدلها المستخدم قبل. دابا كنقراوها من
         // localStorage عند الإقلاع، وكنحفظوها فـ changeLang().
         const LANG_STORAGE_KEY = 'tf_lang';
+        const DEVICE_LANG_MAP = {
+            en: 'en',
+            'ar-ma': 'ary',
+            ar: 'ar',
+            ary: 'ary',
+            fr: 'fr',
+            es: 'es',
+            it: 'it',
+            de: 'de',
+            pt: 'pt'
+        };
         function loadSavedLang() {
             try {
                 const saved = localStorage.getItem(LANG_STORAGE_KEY);
                 if (saved && TRANSLATIONS[saved]) return saved;
-            } catch (e) { /* storage blocked — fall back to default */ }
+            } catch (e) { /* storage blocked — fall back to device language */ }
+            return detectDeviceLang();
+        }
+        function detectDeviceLang() {
+            try {
+                const deviceLanguages = navigator.languages?.length
+                    ? navigator.languages
+                    : [navigator.language];
+                for (const locale of deviceLanguages) {
+                    if (typeof locale !== 'string') continue;
+                    const normalized = locale.toLowerCase();
+                    const fullTag = DEVICE_LANG_MAP[normalized];
+                    if (fullTag && TRANSLATIONS[fullTag]) return fullTag;
+                    const baseLanguage = DEVICE_LANG_MAP[normalized.split('-')[0]];
+                    if (baseLanguage && TRANSLATIONS[baseLanguage]) return baseLanguage;
+                }
+            } catch (e) { /* navigator unavailable — fall back to default */ }
             return 'en';
         }
         let currentLang = loadSavedLang();
+        function applyLanguageDocumentAttributes() {
+            const isRTL = currentLang === 'ar' || currentLang === 'ary';
+            document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
+            document.documentElement.setAttribute('lang', currentLang);
+            const body = document.getElementById('body-tag');
+            if (body) body.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
+        }
+        applyLanguageDocumentAttributes();
     let currentCaseIndex = 0;
     let investigationRuntime = null;
     let selectedSuspect = null;
@@ -371,14 +406,7 @@ import {
         setTimeout(() => {
             currentLang = TRANSLATIONS[lang] ? lang : 'en';
             try { localStorage.setItem(LANG_STORAGE_KEY, currentLang); } catch (e) { /* storage blocked — language just won't persist */ }
-            const body = document.getElementById('body-tag');
-            if (currentLang === 'ar' || currentLang === 'ary') {
-                body.setAttribute('dir', 'rtl');
-            } else {
-                body.setAttribute('dir', 'ltr');
-            }
-            document.documentElement.setAttribute('dir', (currentLang === 'ar' || currentLang === 'ary') ? 'rtl' : 'ltr');
-            document.documentElement.setAttribute('lang', currentLang);
+            applyLanguageDocumentAttributes();
             updateUITexts();
             updateExtraUITexts();
             renderMenu(activeFilter);
@@ -2219,12 +2247,7 @@ import {
 
     let isDragging = false, widgetStartX = 0, widgetStartY = 0, widgetLeft = 0, widgetTop = 0;
         window.addEventListener('DOMContentLoaded', () => {
-        // إصلاح: كان body-tag بلا dir attribute عند أول تحميل، فكانت
-        // selectors ديال CSS (body[dir="ltr"]/[dir="rtl"]) ما كتخدمش
-        // حتى تبدل اللغة — هادشي كان سبب تداخل settings/profile.
-        document.getElementById('body-tag').setAttribute('dir', (currentLang === 'ar' || currentLang === 'ary') ? 'rtl' : 'ltr');
-        document.documentElement.setAttribute('dir', (currentLang === 'ar' || currentLang === 'ary') ? 'rtl' : 'ltr');
-        document.documentElement.setAttribute('lang', currentLang);
+        applyLanguageDocumentAttributes();
         // مزامنة قائمة اللغة فالإعدادات مع اللغة المحفوظة فعلياً (كانت دايماً كتبان
         // "English" فالقائمة حتى لو كانت اللغة الفعلية عربية مثلاً).
         const langSelectEl = document.getElementById('lang-select');
@@ -2234,6 +2257,8 @@ import {
         renderMenu('all');
         applyAccessSettings();
         updateExtraUITexts();
+        const lampWrapper = document.getElementById('lamp-wrapper');
+        if (lampWrapper) lampWrapper.style.visibility = 'visible';
         setupDailyReminderCheck();
         const muteBtn = document.getElementById('mute-btn');
         if (muteBtn) muteBtn.textContent = soundMuted ? '🔇' : '🔊';
