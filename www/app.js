@@ -1030,13 +1030,13 @@ import {
 
     function getCaseOneLocalizedObjectionText(objectionId) {
         const key = getCaseOneObjectionTextKey(objectionId);
-        const localized = key ? txx(key) : '';
+        const localized = key ? txxOrEmpty(key) : '';
         return localized || getCaseOneObjectionText(objectionId);
     }
 
     function getCaseOneLocalizedDeductionText(deductionId) {
         const key = getCaseOneDeductionTextKey(deductionId);
-        const localized = key ? txx(key) : '';
+        const localized = key ? txxOrEmpty(key) : '';
         return localized || getCaseOneDeductionText(deductionId);
     }
 
@@ -1055,13 +1055,13 @@ import {
             let text = '';
             if (isCaseZeroInvestigation()) {
                 const key = getCaseZeroObjectionTextKey(objectionId);
-                const localized = key ? txx(key) : '';
+                const localized = key ? txxOrEmpty(key) : '';
                 text = localized || getCaseZeroObjectionText(objectionId) || '';
             } else if (isCaseOneInvestigation()) {
                 text = getCaseOneLocalizedObjectionText(objectionId);
             } else {
                 const keys = getInvestigationActionTextKeys(investigationRuntime.getCaseId(), objectionId, null);
-                text = keys.objectionKey ? txx(keys.objectionKey) : '';
+                text = keys.objectionKey ? txxOrEmpty(keys.objectionKey) : '';
             }
             if (!text) continue;
             const button = document.createElement('button');
@@ -1079,13 +1079,13 @@ import {
             let text = '';
             if (isCaseZeroInvestigation()) {
                 const key = getCaseZeroDeductionTextKey(deductionId);
-                const localized = key ? txx(key) : '';
+                const localized = key ? txxOrEmpty(key) : '';
                 text = localized || getCaseZeroDeductionText(deductionId) || '';
             } else if (isCaseOneInvestigation()) {
                 text = getCaseOneLocalizedDeductionText(deductionId);
             } else {
                 const keys = getInvestigationActionTextKeys(investigationRuntime.getCaseId(), null, deductionId);
-                text = keys.deductionKey ? txx(keys.deductionKey) : '';
+                text = keys.deductionKey ? txxOrEmpty(keys.deductionKey) : '';
             }
             if (!text) continue;
             const button = document.createElement('button');
@@ -1327,14 +1327,8 @@ import {
             playSuccessSound();
         } else {
             resIcon.textContent = outcome === 'PREMATURE' ? '🔎' : '❌';
-            // إصلاح: كان العنوان دائماً "اتهام خاطئ!" حتى فحالة PREMATURE، أي حتى
-            // لو كان المشتبه به المختار هو الجاني الحقيقي فعلاً، لكن التحقيق لم
-            // يكتمل بعد (أدلة/فرضيات/اعتراضات ناقصة). هذا كان يخلي اللاعب يظن
-            // أنه اتهم الشخص الخطأ بينما فالواقع غير خاصو يكمل التحقيق.
-            resTitle.textContent = outcome === 'PREMATURE'
-                ? (data.investigationPrematureTitle || txx('investigationPrematureTitle') || data.resultWrongTitle)
-                : data.resultWrongTitle;
-            resTitle.style.color = outcome === 'PREMATURE' ? 'var(--gold)' : 'var(--blood)';
+            resTitle.textContent = data.resultWrongTitle;
+            resTitle.style.color = 'var(--blood)';
             const detail = outcome === 'PREMATURE'
                 ? txx('investigationPrematureAccusation')
                 : data.resultWrongDesc;
@@ -1380,6 +1374,17 @@ import {
         }
         if (investigationRuntime) {
             const suspectId = getInvestigationSuspectId(selectedSuspectIndex);
+            // FIX: an accusation made before the case is fully investigated (objection + deduction
+            // not completed yet) used to be treated as a lost attempt and shown with the
+            // "Wrong Accusation!" title — even when the player had picked the real culprit.
+            // It is not a wrong accusation: keep the player inside the investigation, do not count
+            // an attempt, do not reset the streak and do not reveal the case explanation.
+            const preview = investigationRuntime.evaluateAccusation(suspectId);
+            if (preview.outcome === 'PREMATURE') {
+                closeModal('modal-accuse');
+                showToast(txx('investigationPrematureAccusation'), 5000);
+                return;
+            }
             const result = investigationRuntime.applyAccusation(suspectId);
             closeModal('modal-accuse');
             await finalizeInvestigationAccusation(result.result.outcome);
@@ -3195,9 +3200,22 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
     function txx(key) {
         const dict = EXTRA_TRANGS[currentLang] || EXTRA_TRANGS.en;
         if (dict[key] !== undefined) return dict[key];
+        // FIX: several keys (investigationPrematureAccusation, investigationObjCase2/DedCase2, ...)
+        // live in translations.js (TRANSLATIONS), not in EXTRA_TRANGS. They used to fall through to
+        // the "[key]" placeholder, so the player saw a raw key name instead of the real message.
+        const mainDict = (typeof TRANSLATIONS !== 'undefined') ? (TRANSLATIONS[currentLang] || null) : null;
+        if (mainDict && typeof mainDict[key] === 'string') return mainDict[key];
         if (EXTRA_TRANGS.en[key] !== undefined) return EXTRA_TRANGS.en[key];
+        if (typeof TRANSLATIONS !== 'undefined' && TRANSLATIONS.en && typeof TRANSLATIONS.en[key] === 'string') return TRANSLATIONS.en[key];
         // Fallback: return key name wrapped in brackets so missing translations are visible
         return '[' + key + ']';
+    }
+
+    // Like txx(), but returns '' when the key has no translation anywhere, so callers can use
+    // their own authored fallback text instead of showing the "[key]" placeholder.
+    function txxOrEmpty(key) {
+        const value = txx(key);
+        return (typeof value === 'string' && value === '[' + key + ']') ? '' : value;
     }
 
     function todayStr() {
@@ -4009,27 +4027,31 @@ function setOfflineMode(value) {
   } catch (e) { /* ignore: storage may be blocked */ }
 }
 
-// إصلاح: كانت شاشة splash الافتراضية ديال Android (بيضاء) كتبان ثم تختفي
-// قبل ما يكمل Firebase استعادة السيشن المحفوظة (خصوصا مع حساب Google)، فكيبان
-// للمستخدم وكأن فما "لاگ" ديال بضع ثواني بين اختفاء splash ودخوله للصفحة
-// الرئيسية. دابا كنخليو splash السوداء (نفس لون شاشة اللمبة) معروضة يدوياً
-// حتى نعرفو بالضبط الحالة الصحيحة (تسجيل دخول أو داخل اللعبة)، بحال ماكاين
-// حتى انتقال محسوس.
-let nativeSplashHidden = false;
-function hideNativeSplash() {
-    if (nativeSplashHidden) return;
-    nativeSplashHidden = true;
-    try {
-        const SplashScreen = window.Capacitor?.Plugins?.SplashScreen;
-        if (SplashScreen && typeof SplashScreen.hide === 'function') {
-            SplashScreen.hide();
-        }
-    } catch (e) { /* ignore: plugin may be unavailable (e.g. web/Electron build) */ }
+// FIX (startup lag): remember that this device already has a signed-in session, so the app can open
+// the main menu immediately on the next launch instead of staring at a blank screen while Firebase
+// restores/validates the session over the network (that wait was the 3+ second lag).
+// Firebase still has the final word: if it reports "no user", we fall back to the login screen.
+const SESSION_HINT_KEY = 'tf_sessionHint';
+
+function hasSessionHint() {
+  try {
+    return localStorage.getItem(SESSION_HINT_KEY) === '1';
+  } catch (e) {
+    return false;
+  }
+}
+
+function setSessionHint(value) {
+  try {
+    if (value) localStorage.setItem(SESSION_HINT_KEY, '1');
+    else localStorage.removeItem(SESSION_HINT_KEY);
+  } catch (e) { /* ignore: storage may be blocked */ }
 }
 
 function showBootLoadingUI() {
   // Keep the initial black/off screen visible while Firebase restores the session.
   // The lamp stays OFF until the user pulls the string.
+  document.documentElement.classList.remove('has-session-hint');
   const wrapper = document.getElementById('lamp-wrapper');
   const appRoot = document.querySelector('.app');
   if (wrapper) {
@@ -4042,7 +4064,7 @@ function showBootLoadingUI() {
 }
 
 function showLoginUI() {
-  hideNativeSplash();
+  document.documentElement.classList.remove('has-session-hint');
   if (typeof hideLoader === 'function') hideLoader();
   const wrapper = document.getElementById('lamp-wrapper');
   const appRoot = document.querySelector('.app');
@@ -4059,7 +4081,6 @@ function showLoginUI() {
 }
 
 function showGameUI() {
-  hideNativeSplash();
   if (typeof hideLoader === 'function') hideLoader();
   const wrapper = document.getElementById('lamp-wrapper');
   const appRoot = document.querySelector('.app');
@@ -4112,14 +4133,19 @@ function syncAuthUI(user) {
   if (user) {
     authUiMode = 'authenticated';
     setOfflineMode(false);
+    setSessionHint(true);
     // Reset cloud progress cache for new user (prevents stale data from previous user)
     cloudSolvedCases = null;
     cloudProgressLoaded = false;
     // Load server-validated progress (solvedCases) from Firestore
     void loadCloudProgress();
-    showGameUI();
+    // FIX: when the menu was already opened from the saved session hint, do not rebuild it
+    // (that would reset the screen the player is on and repeat the onboarding check).
+    const appRootEl = document.querySelector('.app');
+    if (appRootEl?.style.display !== 'block') showGameUI();
   } else {
     authUiMode = 'logged-out';
+    setSessionHint(false);
     showLoginUI();
   }
 }
@@ -4134,11 +4160,12 @@ function playOffline() {
 }
 
 async function bootstrapAuthFlow() {
-  try {
-    await initializeAuthPersistence();
-  } catch (error) {
+  // FIX (startup lag): setPersistence() waits for Firebase's auth initialization, which includes a
+  // network round-trip to validate the stored session. Awaiting it here delayed everything below
+  // by several seconds on slow connections, so it now runs in the background.
+  initializeAuthPersistence().catch((error) => {
     console.error('Firebase persistence setup failed:', error);
-  }
+  });
 
   // تحقق من وجود مستخدم مسجل الدخول حالياً (من جلسة محفوظة)
   // مع إعطاء الأولوية لوضع أوفلاين المحفوظ مسبقاً.
@@ -4168,6 +4195,10 @@ async function bootstrapAuthFlow() {
 if (isOfflineMode()) {
   authUiMode = 'offline';
   showGameUI();
+} else if (hasSessionHint()) {
+  // Returning signed-in player: open the menu right away; Firebase confirms in the background.
+  authUiMode = 'hinted';
+  showGameUI();
 } else {
   showBootLoadingUI();
 }
@@ -4177,11 +4208,6 @@ onAuthStateChanged(firebaseAuth, (user) => {
 });
 
 void bootstrapAuthFlow();
-
-// شبكة أمان: إيلا لسبب ما (مشكل شبكة، تعليق فـ Firebase...) ماوصلاتش
-// syncAuthUI/showLoginUI/showGameUI فـ4 ثواني، نحيدو splash بزربة حتى
-// لا يبقى المستخدم واقف قدام شاشة سوداء بلا ما يعرف علاش.
-setTimeout(hideNativeSplash, 4000);
 
 // --- ربط النموذج بـ Firebase (الذي أنشأناه مسبقاً) ---
 const loginForm = document.getElementById('login-form');
