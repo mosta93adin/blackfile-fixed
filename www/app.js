@@ -2581,8 +2581,6 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
         loginResetFailedFallback: "ما قدرناش نصيفطو إيميل إعادة التعيين. عاود المحاولة.",
         loginConnectingGoogleFallback: "جاري الاتصال بـ Google...",
         loginGoogleFailedFallback: "ما قدرناش نسجلو الدخول عبر Google.",
-        inviteFriendBtn: "دعوة صاحب",
-,
         inviteFriendBtn: "👤 عيط لصاحب"},
         fr: {
             appTitle: "Le Dossier Noir",
@@ -3831,6 +3829,8 @@ const stringLine = document.getElementById('string-line');
 let isOn = wrapper?.classList.contains('on') ?? false;
 let dragging = false;
 let moved = false;
+let activePointerId = null;
+let lampMoveLogged = false;
 let startX = 0, startY = 0;
 let offsetX = 0, offsetY = 0;
 const constraints = { top: 0, bottom: 60, left: -50, right: 50 };
@@ -3862,45 +3862,69 @@ function resetHandlePosition() {
   }, 250);
 }
 
+function getLampScale() {
+  const lamp = handle?.parentElement;
+  if (!lamp || !lamp.offsetWidth) return 1;
+  const scale = lamp.getBoundingClientRect().width / lamp.offsetWidth;
+  return Number.isFinite(scale) && scale > 0 ? scale : 1;
+}
+
 if (handle && wrapper) {
   function onPointerDown(e) {
+    if (dragging) return;
     dragging = true;
     moved = false;
+    activePointerId = e.pointerId;
+    lampMoveLogged = false;
     handle.style.cursor = 'grabbing';
-    const point = e.touches ? e.touches[0] : e;
-    startX = point.clientX;
-    startY = point.clientY;
     e.preventDefault();
+    handle.setPointerCapture(e.pointerId);
+    startX = e.clientX;
+    startY = e.clientY;
+    // TEMP-DEBUG
+    console.log('[LAMP] pointerdown', { pointerType: e.pointerType, x: startX, y: startY });
   }
 
   function onPointerMove(e) {
-    if (!dragging) return;
-    const point = e.touches ? e.touches[0] : e;
-    let dx = clamp(point.clientX - startX, constraints.left, constraints.right);
-    let dy = clamp(point.clientY - startY, constraints.top, constraints.bottom);
+    if (!dragging || e.pointerId !== activePointerId) return;
+    const scale = getLampScale();
+    let dx = clamp((e.clientX - startX) / scale, constraints.left, constraints.right);
+    let dy = clamp((e.clientY - startY) / scale, constraints.top, constraints.bottom);
     offsetX = dx;
     offsetY = dy;
     moved = moved || Math.abs(dx) > 1 || Math.abs(dy) > 1;
     updateHandlePosition(dx, dy);
+    // TEMP-DEBUG
+    if (!lampMoveLogged) {
+      lampMoveLogged = true;
+      console.log('[LAMP] pointermove', { pointerType: e.pointerType, dx, dy, scale });
+    }
   }
 
-  function onPointerUp() {
-    if (!dragging) return;
+  function onPointerUp(e) {
+    if (!dragging || e.pointerId !== activePointerId) return;
     dragging = false;
+    activePointerId = null;
     handle.style.cursor = 'grab';
     const distance = Math.sqrt(offsetX ** 2 + offsetY ** 2);
-    if (distance > 3 || !moved) {
-      toggleLampState();
-    }
+    // TEMP-DEBUG
+    console.log('[LAMP] pointerup', { distance, moved });
+    if (moved && distance > 3) toggleLampState();
     resetHandlePosition();
   }
 
-  handle.addEventListener('mousedown', onPointerDown);
-  window.addEventListener('mousemove', onPointerMove);
-  window.addEventListener('mouseup', onPointerUp);
-  handle.addEventListener('touchstart', onPointerDown, { passive: false });
-  window.addEventListener('touchmove', onPointerMove, { passive: false });
-  window.addEventListener('touchend', onPointerUp);
+  function onPointerCancel(e) {
+    if (!dragging || e.pointerId !== activePointerId) return;
+    dragging = false;
+    activePointerId = null;
+    handle.style.cursor = 'grab';
+    resetHandlePosition();
+  }
+
+  handle.addEventListener('pointerdown', onPointerDown);
+  handle.addEventListener('pointermove', onPointerMove);
+  handle.addEventListener('pointerup', onPointerUp);
+  handle.addEventListener('pointercancel', onPointerCancel);
 }
 
 // --- إظهار وإخفاء كلمات المرور ---
