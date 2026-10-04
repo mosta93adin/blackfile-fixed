@@ -413,6 +413,19 @@ import {
         }
     }
 
+    function backToArchive() {
+        try {
+            show('scr-menu');
+            renderMenu(activeFilter || 'all');
+        } catch (err) {
+            console.error('[BACK]', err); // TEMP-DEBUG
+        } finally {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('scr-menu')?.classList.add('active');
+            window.scrollTo(0, 0);
+        }
+    }
+
     // دعم زر الرجوع: يرجع لآخر شاشة بدل إغلاق التطبيق، وإذا كنا في القائمة الرئيسية
     // نطلب تأكيد الخروج (سلوك معتاد في تطبيقات أندرويد)
     window.addEventListener('popstate', (e) => {
@@ -4310,6 +4323,11 @@ document.addEventListener('click', (e) => {
   
   if (directActions[action]) {
     directActions[action]();
+    return;
+  }
+
+  if (action === 'show_scr-menu') {
+    backToArchive();
     return;
   }
   
