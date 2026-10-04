@@ -52,49 +52,14 @@ import {
         // بغض النظر عن اللغة اللي بدلها المستخدم قبل. دابا كنقراوها من
         // localStorage عند الإقلاع، وكنحفظوها فـ changeLang().
         const LANG_STORAGE_KEY = 'tf_lang';
-        const DEVICE_LANG_MAP = {
-            en: 'en',
-            'ar-ma': 'ary',
-            ar: 'ar',
-            ary: 'ary',
-            fr: 'fr',
-            es: 'es',
-            it: 'it',
-            de: 'de',
-            pt: 'pt'
-        };
         function loadSavedLang() {
             try {
                 const saved = localStorage.getItem(LANG_STORAGE_KEY);
                 if (saved && TRANSLATIONS[saved]) return saved;
-            } catch (e) { /* storage blocked — fall back to device language */ }
-            return detectDeviceLang();
-        }
-        function detectDeviceLang() {
-            try {
-                const deviceLanguages = navigator.languages?.length
-                    ? navigator.languages
-                    : [navigator.language];
-                for (const locale of deviceLanguages) {
-                    if (typeof locale !== 'string') continue;
-                    const normalized = locale.toLowerCase();
-                    const fullTag = DEVICE_LANG_MAP[normalized];
-                    if (fullTag && TRANSLATIONS[fullTag]) return fullTag;
-                    const baseLanguage = DEVICE_LANG_MAP[normalized.split('-')[0]];
-                    if (baseLanguage && TRANSLATIONS[baseLanguage]) return baseLanguage;
-                }
-            } catch (e) { /* navigator unavailable — fall back to default */ }
+            } catch (e) { /* storage blocked — fall back to default */ }
             return 'en';
         }
         let currentLang = loadSavedLang();
-        function applyLanguageDocumentAttributes() {
-            const isRTL = currentLang === 'ar' || currentLang === 'ary';
-            document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
-            document.documentElement.setAttribute('lang', currentLang);
-            const body = document.getElementById('body-tag');
-            if (body) body.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
-        }
-        applyLanguageDocumentAttributes();
     let currentCaseIndex = 0;
     let investigationRuntime = null;
     let selectedSuspect = null;
@@ -406,7 +371,14 @@ import {
         setTimeout(() => {
             currentLang = TRANSLATIONS[lang] ? lang : 'en';
             try { localStorage.setItem(LANG_STORAGE_KEY, currentLang); } catch (e) { /* storage blocked — language just won't persist */ }
-            applyLanguageDocumentAttributes();
+            const body = document.getElementById('body-tag');
+            if (currentLang === 'ar' || currentLang === 'ary') {
+                body.setAttribute('dir', 'rtl');
+            } else {
+                body.setAttribute('dir', 'ltr');
+            }
+            document.documentElement.setAttribute('dir', (currentLang === 'ar' || currentLang === 'ary') ? 'rtl' : 'ltr');
+            document.documentElement.setAttribute('lang', currentLang);
             updateUITexts();
             updateExtraUITexts();
             renderMenu(activeFilter);
@@ -419,8 +391,14 @@ import {
 
     // دالة أساسية ناقصة كانت سبب توقف كل نظام التنقل بين الشاشات (case click ما كان خدام والو)
     function show(screenId, fromHistoryNav) {
+        // Never leave the app with no active screen (that is the dark/blank page):
+        // an unknown screen id falls back to the main menu.
+        let target = document.getElementById(screenId);
+        if (!target || !target.classList.contains('screen')) {
+            screenId = 'scr-menu';
+            target = document.getElementById(screenId);
+        }
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        const target = document.getElementById(screenId);
         if (target) target.classList.add('active');
         if (screenId === 'scr-investigation') {
             // تمت إزالة الصوت المحيطي (ambient drone) نهائياً بطلب المستخدم — كان مزعجاً
@@ -1030,13 +1008,13 @@ import {
 
     function getCaseOneLocalizedObjectionText(objectionId) {
         const key = getCaseOneObjectionTextKey(objectionId);
-        const localized = key ? txxOrEmpty(key) : '';
+        const localized = key ? txx(key) : '';
         return localized || getCaseOneObjectionText(objectionId);
     }
 
     function getCaseOneLocalizedDeductionText(deductionId) {
         const key = getCaseOneDeductionTextKey(deductionId);
-        const localized = key ? txxOrEmpty(key) : '';
+        const localized = key ? txx(key) : '';
         return localized || getCaseOneDeductionText(deductionId);
     }
 
@@ -1055,13 +1033,13 @@ import {
             let text = '';
             if (isCaseZeroInvestigation()) {
                 const key = getCaseZeroObjectionTextKey(objectionId);
-                const localized = key ? txxOrEmpty(key) : '';
+                const localized = key ? txx(key) : '';
                 text = localized || getCaseZeroObjectionText(objectionId) || '';
             } else if (isCaseOneInvestigation()) {
                 text = getCaseOneLocalizedObjectionText(objectionId);
             } else {
                 const keys = getInvestigationActionTextKeys(investigationRuntime.getCaseId(), objectionId, null);
-                text = keys.objectionKey ? txxOrEmpty(keys.objectionKey) : '';
+                text = keys.objectionKey ? txx(keys.objectionKey) : '';
             }
             if (!text) continue;
             const button = document.createElement('button');
@@ -1079,13 +1057,13 @@ import {
             let text = '';
             if (isCaseZeroInvestigation()) {
                 const key = getCaseZeroDeductionTextKey(deductionId);
-                const localized = key ? txxOrEmpty(key) : '';
+                const localized = key ? txx(key) : '';
                 text = localized || getCaseZeroDeductionText(deductionId) || '';
             } else if (isCaseOneInvestigation()) {
                 text = getCaseOneLocalizedDeductionText(deductionId);
             } else {
                 const keys = getInvestigationActionTextKeys(investigationRuntime.getCaseId(), null, deductionId);
-                text = keys.deductionKey ? txxOrEmpty(keys.deductionKey) : '';
+                text = keys.deductionKey ? txx(keys.deductionKey) : '';
             }
             if (!text) continue;
             const button = document.createElement('button');
@@ -1300,6 +1278,19 @@ import {
         const isCorrect = outcome === 'CORRECT';
         const alreadySolved = userProfile.solvedCases.includes(currentCaseIndex);
 
+        // PREMATURE is not a verdict: the required investigation steps are still incomplete,
+        // so it must not be shown as a wrong accusation, reveal the solution, or count as a failed attempt.
+        if (outcome === 'PREMATURE') {
+            document.getElementById('res-icon').textContent = '🔎';
+            const prematureTitle = document.getElementById('res-title');
+            prematureTitle.textContent = data.investigationPrematureAccusation;
+            prematureTitle.style.color = 'var(--gold)';
+            document.getElementById('res-desc').textContent = data.investigationHintFinal;
+            saveInvestigationRuntimeState();
+            show('scr-result');
+            return;
+        }
+
         // Keep investigation cases on the same progression/statistics path as legacy cases.
         if (!alreadySolved) userProfile.attempts += 1;
 
@@ -1374,17 +1365,6 @@ import {
         }
         if (investigationRuntime) {
             const suspectId = getInvestigationSuspectId(selectedSuspectIndex);
-            // FIX: an accusation made before the case is fully investigated (objection + deduction
-            // not completed yet) used to be treated as a lost attempt and shown with the
-            // "Wrong Accusation!" title — even when the player had picked the real culprit.
-            // It is not a wrong accusation: keep the player inside the investigation, do not count
-            // an attempt, do not reset the streak and do not reveal the case explanation.
-            const preview = investigationRuntime.evaluateAccusation(suspectId);
-            if (preview.outcome === 'PREMATURE') {
-                closeModal('modal-accuse');
-                showToast(txx('investigationPrematureAccusation'), 5000);
-                return;
-            }
             const result = investigationRuntime.applyAccusation(suspectId);
             closeModal('modal-accuse');
             await finalizeInvestigationAccusation(result.result.outcome);
@@ -2258,7 +2238,12 @@ import {
 
     let isDragging = false, widgetStartX = 0, widgetStartY = 0, widgetLeft = 0, widgetTop = 0;
         window.addEventListener('DOMContentLoaded', () => {
-        applyLanguageDocumentAttributes();
+        // إصلاح: كان body-tag بلا dir attribute عند أول تحميل، فكانت
+        // selectors ديال CSS (body[dir="ltr"]/[dir="rtl"]) ما كتخدمش
+        // حتى تبدل اللغة — هادشي كان سبب تداخل settings/profile.
+        document.getElementById('body-tag').setAttribute('dir', (currentLang === 'ar' || currentLang === 'ary') ? 'rtl' : 'ltr');
+        document.documentElement.setAttribute('dir', (currentLang === 'ar' || currentLang === 'ary') ? 'rtl' : 'ltr');
+        document.documentElement.setAttribute('lang', currentLang);
         // مزامنة قائمة اللغة فالإعدادات مع اللغة المحفوظة فعلياً (كانت دايماً كتبان
         // "English" فالقائمة حتى لو كانت اللغة الفعلية عربية مثلاً).
         const langSelectEl = document.getElementById('lang-select');
@@ -2268,8 +2253,6 @@ import {
         renderMenu('all');
         applyAccessSettings();
         updateExtraUITexts();
-        const lampWrapper = document.getElementById('lamp-wrapper');
-        if (lampWrapper) lampWrapper.style.visibility = 'visible';
         setupDailyReminderCheck();
         const muteBtn = document.getElementById('mute-btn');
         if (muteBtn) muteBtn.textContent = soundMuted ? '🔇' : '🔊';
@@ -3200,22 +3183,9 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
     function txx(key) {
         const dict = EXTRA_TRANGS[currentLang] || EXTRA_TRANGS.en;
         if (dict[key] !== undefined) return dict[key];
-        // FIX: several keys (investigationPrematureAccusation, investigationObjCase2/DedCase2, ...)
-        // live in translations.js (TRANSLATIONS), not in EXTRA_TRANGS. They used to fall through to
-        // the "[key]" placeholder, so the player saw a raw key name instead of the real message.
-        const mainDict = (typeof TRANSLATIONS !== 'undefined') ? (TRANSLATIONS[currentLang] || null) : null;
-        if (mainDict && typeof mainDict[key] === 'string') return mainDict[key];
         if (EXTRA_TRANGS.en[key] !== undefined) return EXTRA_TRANGS.en[key];
-        if (typeof TRANSLATIONS !== 'undefined' && TRANSLATIONS.en && typeof TRANSLATIONS.en[key] === 'string') return TRANSLATIONS.en[key];
         // Fallback: return key name wrapped in brackets so missing translations are visible
         return '[' + key + ']';
-    }
-
-    // Like txx(), but returns '' when the key has no translation anywhere, so callers can use
-    // their own authored fallback text instead of showing the "[key]" placeholder.
-    function txxOrEmpty(key) {
-        const value = txx(key);
-        return (typeof value === 'string' && value === '[' + key + ']') ? '' : value;
     }
 
     function todayStr() {
@@ -4027,31 +3997,9 @@ function setOfflineMode(value) {
   } catch (e) { /* ignore: storage may be blocked */ }
 }
 
-// FIX (startup lag): remember that this device already has a signed-in session, so the app can open
-// the main menu immediately on the next launch instead of staring at a blank screen while Firebase
-// restores/validates the session over the network (that wait was the 3+ second lag).
-// Firebase still has the final word: if it reports "no user", we fall back to the login screen.
-const SESSION_HINT_KEY = 'tf_sessionHint';
-
-function hasSessionHint() {
-  try {
-    return localStorage.getItem(SESSION_HINT_KEY) === '1';
-  } catch (e) {
-    return false;
-  }
-}
-
-function setSessionHint(value) {
-  try {
-    if (value) localStorage.setItem(SESSION_HINT_KEY, '1');
-    else localStorage.removeItem(SESSION_HINT_KEY);
-  } catch (e) { /* ignore: storage may be blocked */ }
-}
-
 function showBootLoadingUI() {
   // Keep the initial black/off screen visible while Firebase restores the session.
   // The lamp stays OFF until the user pulls the string.
-  document.documentElement.classList.remove('has-session-hint');
   const wrapper = document.getElementById('lamp-wrapper');
   const appRoot = document.querySelector('.app');
   if (wrapper) {
@@ -4064,7 +4012,6 @@ function showBootLoadingUI() {
 }
 
 function showLoginUI() {
-  document.documentElement.classList.remove('has-session-hint');
   if (typeof hideLoader === 'function') hideLoader();
   const wrapper = document.getElementById('lamp-wrapper');
   const appRoot = document.querySelector('.app');
@@ -4133,19 +4080,14 @@ function syncAuthUI(user) {
   if (user) {
     authUiMode = 'authenticated';
     setOfflineMode(false);
-    setSessionHint(true);
     // Reset cloud progress cache for new user (prevents stale data from previous user)
     cloudSolvedCases = null;
     cloudProgressLoaded = false;
     // Load server-validated progress (solvedCases) from Firestore
     void loadCloudProgress();
-    // FIX: when the menu was already opened from the saved session hint, do not rebuild it
-    // (that would reset the screen the player is on and repeat the onboarding check).
-    const appRootEl = document.querySelector('.app');
-    if (appRootEl?.style.display !== 'block') showGameUI();
+    showGameUI();
   } else {
     authUiMode = 'logged-out';
-    setSessionHint(false);
     showLoginUI();
   }
 }
@@ -4160,12 +4102,11 @@ function playOffline() {
 }
 
 async function bootstrapAuthFlow() {
-  // FIX (startup lag): setPersistence() waits for Firebase's auth initialization, which includes a
-  // network round-trip to validate the stored session. Awaiting it here delayed everything below
-  // by several seconds on slow connections, so it now runs in the background.
-  initializeAuthPersistence().catch((error) => {
+  try {
+    await initializeAuthPersistence();
+  } catch (error) {
     console.error('Firebase persistence setup failed:', error);
-  });
+  }
 
   // تحقق من وجود مستخدم مسجل الدخول حالياً (من جلسة محفوظة)
   // مع إعطاء الأولوية لوضع أوفلاين المحفوظ مسبقاً.
@@ -4194,10 +4135,6 @@ async function bootstrapAuthFlow() {
 // bootstrapAuthFlow ليقررا الحالة الصحيحة (لعبة أو تسجيل دخول) دفعة وحدة.
 if (isOfflineMode()) {
   authUiMode = 'offline';
-  showGameUI();
-} else if (hasSessionHint()) {
-  // Returning signed-in player: open the menu right away; Firebase confirms in the background.
-  authUiMode = 'hinted';
   showGameUI();
 } else {
   showBootLoadingUI();
@@ -4415,8 +4352,10 @@ document.addEventListener('click', (e) => {
   
   // Actions with arguments (action_arg format)
   if (action.startsWith('show_')) {
-    const screen = action.replace('show_', 'scr-');
-    show(screen);
+    // data-action="show_scr-brief" already carries the "scr-" prefix; the old replace()
+    // turned it into "scr-scr-brief" (no such screen) which blanked the page.
+    const screenName = action.slice('show_'.length);
+    show(screenName.startsWith('scr-') ? screenName : 'scr-' + screenName);
     return;
   }
   

@@ -52,49 +52,14 @@ import {
         // بغض النظر عن اللغة اللي بدلها المستخدم قبل. دابا كنقراوها من
         // localStorage عند الإقلاع، وكنحفظوها فـ changeLang().
         const LANG_STORAGE_KEY = 'tf_lang';
-        const DEVICE_LANG_MAP = {
-            en: 'en',
-            'ar-ma': 'ary',
-            ar: 'ar',
-            ary: 'ary',
-            fr: 'fr',
-            es: 'es',
-            it: 'it',
-            de: 'de',
-            pt: 'pt'
-        };
         function loadSavedLang() {
             try {
                 const saved = localStorage.getItem(LANG_STORAGE_KEY);
                 if (saved && TRANSLATIONS[saved]) return saved;
-            } catch (e) { /* storage blocked — fall back to device language */ }
-            return detectDeviceLang();
-        }
-        function detectDeviceLang() {
-            try {
-                const deviceLanguages = navigator.languages?.length
-                    ? navigator.languages
-                    : [navigator.language];
-                for (const locale of deviceLanguages) {
-                    if (typeof locale !== 'string') continue;
-                    const normalized = locale.toLowerCase();
-                    const fullTag = DEVICE_LANG_MAP[normalized];
-                    if (fullTag && TRANSLATIONS[fullTag]) return fullTag;
-                    const baseLanguage = DEVICE_LANG_MAP[normalized.split('-')[0]];
-                    if (baseLanguage && TRANSLATIONS[baseLanguage]) return baseLanguage;
-                }
-            } catch (e) { /* navigator unavailable — fall back to default */ }
+            } catch (e) { /* storage blocked — fall back to default */ }
             return 'en';
         }
         let currentLang = loadSavedLang();
-        function applyLanguageDocumentAttributes() {
-            const isRTL = currentLang === 'ar' || currentLang === 'ary';
-            document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
-            document.documentElement.setAttribute('lang', currentLang);
-            const body = document.getElementById('body-tag');
-            if (body) body.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
-        }
-        applyLanguageDocumentAttributes();
     let currentCaseIndex = 0;
     let investigationRuntime = null;
     let selectedSuspect = null;
@@ -406,7 +371,14 @@ import {
         setTimeout(() => {
             currentLang = TRANSLATIONS[lang] ? lang : 'en';
             try { localStorage.setItem(LANG_STORAGE_KEY, currentLang); } catch (e) { /* storage blocked — language just won't persist */ }
-            applyLanguageDocumentAttributes();
+            const body = document.getElementById('body-tag');
+            if (currentLang === 'ar' || currentLang === 'ary') {
+                body.setAttribute('dir', 'rtl');
+            } else {
+                body.setAttribute('dir', 'ltr');
+            }
+            document.documentElement.setAttribute('dir', (currentLang === 'ar' || currentLang === 'ary') ? 'rtl' : 'ltr');
+            document.documentElement.setAttribute('lang', currentLang);
             updateUITexts();
             updateExtraUITexts();
             renderMenu(activeFilter);
@@ -419,8 +391,14 @@ import {
 
     // دالة أساسية ناقصة كانت سبب توقف كل نظام التنقل بين الشاشات (case click ما كان خدام والو)
     function show(screenId, fromHistoryNav) {
+        // Never leave the app with no active screen (that is the dark/blank page):
+        // an unknown screen id falls back to the main menu.
+        let target = document.getElementById(screenId);
+        if (!target || !target.classList.contains('screen')) {
+            screenId = 'scr-menu';
+            target = document.getElementById(screenId);
+        }
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        const target = document.getElementById(screenId);
         if (target) target.classList.add('active');
         if (screenId === 'scr-investigation') {
             // تمت إزالة الصوت المحيطي (ambient drone) نهائياً بطلب المستخدم — كان مزعجاً
@@ -1300,6 +1278,19 @@ import {
         const isCorrect = outcome === 'CORRECT';
         const alreadySolved = userProfile.solvedCases.includes(currentCaseIndex);
 
+        // PREMATURE is not a verdict: the required investigation steps are still incomplete,
+        // so it must not be shown as a wrong accusation, reveal the solution, or count as a failed attempt.
+        if (outcome === 'PREMATURE') {
+            document.getElementById('res-icon').textContent = '🔎';
+            const prematureTitle = document.getElementById('res-title');
+            prematureTitle.textContent = data.investigationPrematureAccusation;
+            prematureTitle.style.color = 'var(--gold)';
+            document.getElementById('res-desc').textContent = data.investigationHintFinal;
+            saveInvestigationRuntimeState();
+            show('scr-result');
+            return;
+        }
+
         // Keep investigation cases on the same progression/statistics path as legacy cases.
         if (!alreadySolved) userProfile.attempts += 1;
 
@@ -1327,14 +1318,8 @@ import {
             playSuccessSound();
         } else {
             resIcon.textContent = outcome === 'PREMATURE' ? '🔎' : '❌';
-            // إصلاح: كان العنوان دائماً "اتهام خاطئ!" حتى فحالة PREMATURE، أي حتى
-            // لو كان المشتبه به المختار هو الجاني الحقيقي فعلاً، لكن التحقيق لم
-            // يكتمل بعد (أدلة/فرضيات/اعتراضات ناقصة). هذا كان يخلي اللاعب يظن
-            // أنه اتهم الشخص الخطأ بينما فالواقع غير خاصو يكمل التحقيق.
-            resTitle.textContent = outcome === 'PREMATURE'
-                ? (data.investigationPrematureTitle || txx('investigationPrematureTitle') || data.resultWrongTitle)
-                : data.resultWrongTitle;
-            resTitle.style.color = outcome === 'PREMATURE' ? 'var(--gold)' : 'var(--blood)';
+            resTitle.textContent = data.resultWrongTitle;
+            resTitle.style.color = 'var(--blood)';
             const detail = outcome === 'PREMATURE'
                 ? txx('investigationPrematureAccusation')
                 : data.resultWrongDesc;
@@ -2253,7 +2238,12 @@ import {
 
     let isDragging = false, widgetStartX = 0, widgetStartY = 0, widgetLeft = 0, widgetTop = 0;
         window.addEventListener('DOMContentLoaded', () => {
-        applyLanguageDocumentAttributes();
+        // إصلاح: كان body-tag بلا dir attribute عند أول تحميل، فكانت
+        // selectors ديال CSS (body[dir="ltr"]/[dir="rtl"]) ما كتخدمش
+        // حتى تبدل اللغة — هادشي كان سبب تداخل settings/profile.
+        document.getElementById('body-tag').setAttribute('dir', (currentLang === 'ar' || currentLang === 'ary') ? 'rtl' : 'ltr');
+        document.documentElement.setAttribute('dir', (currentLang === 'ar' || currentLang === 'ary') ? 'rtl' : 'ltr');
+        document.documentElement.setAttribute('lang', currentLang);
         // مزامنة قائمة اللغة فالإعدادات مع اللغة المحفوظة فعلياً (كانت دايماً كتبان
         // "English" فالقائمة حتى لو كانت اللغة الفعلية عربية مثلاً).
         const langSelectEl = document.getElementById('lang-select');
@@ -2263,8 +2253,6 @@ import {
         renderMenu('all');
         applyAccessSettings();
         updateExtraUITexts();
-        const lampWrapper = document.getElementById('lamp-wrapper');
-        if (lampWrapper) lampWrapper.style.visibility = 'visible';
         setupDailyReminderCheck();
         const muteBtn = document.getElementById('mute-btn');
         if (muteBtn) muteBtn.textContent = soundMuted ? '🔇' : '🔊';
@@ -4009,24 +3997,6 @@ function setOfflineMode(value) {
   } catch (e) { /* ignore: storage may be blocked */ }
 }
 
-// إصلاح: كانت شاشة splash الافتراضية ديال Android (بيضاء) كتبان ثم تختفي
-// قبل ما يكمل Firebase استعادة السيشن المحفوظة (خصوصا مع حساب Google)، فكيبان
-// للمستخدم وكأن فما "لاگ" ديال بضع ثواني بين اختفاء splash ودخوله للصفحة
-// الرئيسية. دابا كنخليو splash السوداء (نفس لون شاشة اللمبة) معروضة يدوياً
-// حتى نعرفو بالضبط الحالة الصحيحة (تسجيل دخول أو داخل اللعبة)، بحال ماكاين
-// حتى انتقال محسوس.
-let nativeSplashHidden = false;
-function hideNativeSplash() {
-    if (nativeSplashHidden) return;
-    nativeSplashHidden = true;
-    try {
-        const SplashScreen = window.Capacitor?.Plugins?.SplashScreen;
-        if (SplashScreen && typeof SplashScreen.hide === 'function') {
-            SplashScreen.hide();
-        }
-    } catch (e) { /* ignore: plugin may be unavailable (e.g. web/Electron build) */ }
-}
-
 function showBootLoadingUI() {
   // Keep the initial black/off screen visible while Firebase restores the session.
   // The lamp stays OFF until the user pulls the string.
@@ -4042,7 +4012,6 @@ function showBootLoadingUI() {
 }
 
 function showLoginUI() {
-  hideNativeSplash();
   if (typeof hideLoader === 'function') hideLoader();
   const wrapper = document.getElementById('lamp-wrapper');
   const appRoot = document.querySelector('.app');
@@ -4059,7 +4028,6 @@ function showLoginUI() {
 }
 
 function showGameUI() {
-  hideNativeSplash();
   if (typeof hideLoader === 'function') hideLoader();
   const wrapper = document.getElementById('lamp-wrapper');
   const appRoot = document.querySelector('.app');
@@ -4177,11 +4145,6 @@ onAuthStateChanged(firebaseAuth, (user) => {
 });
 
 void bootstrapAuthFlow();
-
-// شبكة أمان: إيلا لسبب ما (مشكل شبكة، تعليق فـ Firebase...) ماوصلاتش
-// syncAuthUI/showLoginUI/showGameUI فـ4 ثواني، نحيدو splash بزربة حتى
-// لا يبقى المستخدم واقف قدام شاشة سوداء بلا ما يعرف علاش.
-setTimeout(hideNativeSplash, 4000);
 
 // --- ربط النموذج بـ Firebase (الذي أنشأناه مسبقاً) ---
 const loginForm = document.getElementById('login-form');
@@ -4389,8 +4352,10 @@ document.addEventListener('click', (e) => {
   
   // Actions with arguments (action_arg format)
   if (action.startsWith('show_')) {
-    const screen = action.replace('show_', 'scr-');
-    show(screen);
+    // data-action="show_scr-brief" already carries the "scr-" prefix; the old replace()
+    // turned it into "scr-scr-brief" (no such screen) which blanked the page.
+    const screenName = action.slice('show_'.length);
+    show(screenName.startsWith('scr-') ? screenName : 'scr-' + screenName);
     return;
   }
   

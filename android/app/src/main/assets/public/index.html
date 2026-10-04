@@ -20,8 +20,7 @@
   /* Critical first-paint state: the screen starts black/off.
      Pulling the string turns the lamp on and reveals the login interface. */
   html, body { margin: 0; background: #080808; }
-  #lamp-wrapper.lamp-login-wrapper { display: flex; position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 999999; visibility: hidden; animation: reveal-login-wrapper 0s 1.5s forwards; }
-  @keyframes reveal-login-wrapper { to { visibility: visible; } }
+  #lamp-wrapper.lamp-login-wrapper { display: flex; position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 999999; }
   .app { display: none; }
 </style>
 <link rel="stylesheet" href="styles.css">

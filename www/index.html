@@ -16,29 +16,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="The Black File">
-<!-- Startup speed: start downloading the Firebase modules immediately (they are imported by firebase.js / app.js) -->
-<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js" crossorigin>
-<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js" crossorigin>
-<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js" crossorigin>
-<link rel="modulepreload" href="firebase.js">
-<link rel="modulepreload" href="app.js">
-<script>
-  /* Returning signed-in player: never flash the login lamp while the app starts. */
-  try {
-    if (localStorage.getItem('tf_sessionHint') === '1' && localStorage.getItem('tf_offlineMode') !== 'true') {
-      document.documentElement.classList.add('has-session-hint');
-    }
-  } catch (e) { /* storage blocked: normal startup */ }
-</script>
 <style id="critical-first-screen">
   /* Critical first-paint state: the screen starts black/off.
      Pulling the string turns the lamp on and reveals the login interface. */
   html, body { margin: 0; background: #080808; }
-  #lamp-wrapper.lamp-login-wrapper { display: flex; position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 999999; visibility: hidden; animation: reveal-login-wrapper 0s 1.5s forwards; }
-  @keyframes reveal-login-wrapper { to { visibility: visible; } }
+  #lamp-wrapper.lamp-login-wrapper { display: flex; position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 999999; }
   .app { display: none; }
-  html.has-session-hint #lamp-wrapper.lamp-login-wrapper { display: none; }
 </style>
 <link rel="stylesheet" href="styles.css">
 <script src="peerjs.min.js" defer></script>
@@ -588,12 +571,6 @@
 </div>
 
 <div id="loading-overlay"><div class="spinner"></div></div>
-<script>
-  /* Show the spinner (instead of a blank screen) until the menu opens for a returning player. */
-  if (document.documentElement.classList.contains('has-session-hint')) {
-    document.getElementById('loading-overlay').classList.add('active');
-  }
-</script>
 <div id="achievement-toast-container"></div>
 
 <!-- CHAT WIDGET -->
