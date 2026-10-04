@@ -1327,8 +1327,14 @@ import {
             playSuccessSound();
         } else {
             resIcon.textContent = outcome === 'PREMATURE' ? '🔎' : '❌';
-            resTitle.textContent = data.resultWrongTitle;
-            resTitle.style.color = 'var(--blood)';
+            // إصلاح: كان العنوان دائماً "اتهام خاطئ!" حتى فحالة PREMATURE، أي حتى
+            // لو كان المشتبه به المختار هو الجاني الحقيقي فعلاً، لكن التحقيق لم
+            // يكتمل بعد (أدلة/فرضيات/اعتراضات ناقصة). هذا كان يخلي اللاعب يظن
+            // أنه اتهم الشخص الخطأ بينما فالواقع غير خاصو يكمل التحقيق.
+            resTitle.textContent = outcome === 'PREMATURE'
+                ? (data.investigationPrematureTitle || txx('investigationPrematureTitle') || data.resultWrongTitle)
+                : data.resultWrongTitle;
+            resTitle.style.color = outcome === 'PREMATURE' ? 'var(--gold)' : 'var(--blood)';
             const detail = outcome === 'PREMATURE'
                 ? txx('investigationPrematureAccusation')
                 : data.resultWrongDesc;
@@ -4003,6 +4009,24 @@ function setOfflineMode(value) {
   } catch (e) { /* ignore: storage may be blocked */ }
 }
 
+// إصلاح: كانت شاشة splash الافتراضية ديال Android (بيضاء) كتبان ثم تختفي
+// قبل ما يكمل Firebase استعادة السيشن المحفوظة (خصوصا مع حساب Google)، فكيبان
+// للمستخدم وكأن فما "لاگ" ديال بضع ثواني بين اختفاء splash ودخوله للصفحة
+// الرئيسية. دابا كنخليو splash السوداء (نفس لون شاشة اللمبة) معروضة يدوياً
+// حتى نعرفو بالضبط الحالة الصحيحة (تسجيل دخول أو داخل اللعبة)، بحال ماكاين
+// حتى انتقال محسوس.
+let nativeSplashHidden = false;
+function hideNativeSplash() {
+    if (nativeSplashHidden) return;
+    nativeSplashHidden = true;
+    try {
+        const SplashScreen = window.Capacitor?.Plugins?.SplashScreen;
+        if (SplashScreen && typeof SplashScreen.hide === 'function') {
+            SplashScreen.hide();
+        }
+    } catch (e) { /* ignore: plugin may be unavailable (e.g. web/Electron build) */ }
+}
+
 function showBootLoadingUI() {
   // Keep the initial black/off screen visible while Firebase restores the session.
   // The lamp stays OFF until the user pulls the string.
@@ -4018,6 +4042,7 @@ function showBootLoadingUI() {
 }
 
 function showLoginUI() {
+  hideNativeSplash();
   if (typeof hideLoader === 'function') hideLoader();
   const wrapper = document.getElementById('lamp-wrapper');
   const appRoot = document.querySelector('.app');
@@ -4034,6 +4059,7 @@ function showLoginUI() {
 }
 
 function showGameUI() {
+  hideNativeSplash();
   if (typeof hideLoader === 'function') hideLoader();
   const wrapper = document.getElementById('lamp-wrapper');
   const appRoot = document.querySelector('.app');
@@ -4151,6 +4177,11 @@ onAuthStateChanged(firebaseAuth, (user) => {
 });
 
 void bootstrapAuthFlow();
+
+// شبكة أمان: إيلا لسبب ما (مشكل شبكة، تعليق فـ Firebase...) ماوصلاتش
+// syncAuthUI/showLoginUI/showGameUI فـ4 ثواني، نحيدو splash بزربة حتى
+// لا يبقى المستخدم واقف قدام شاشة سوداء بلا ما يعرف علاش.
+setTimeout(hideNativeSplash, 4000);
 
 // --- ربط النموذج بـ Firebase (الذي أنشأناه مسبقاً) ---
 const loginForm = document.getElementById('login-form');

@@ -417,6 +417,9 @@ body[dir="rtl"] .story-frag { border-left: none; border-right: 3px solid var(--g
   height: 100%;
   pointer-events: none;
   z-index: 14;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 #lamp-wrapper .pull-handle {
@@ -431,23 +434,23 @@ body[dir="rtl"] .story-frag { border-left: none; border-right: 3px solid var(--g
   z-index: 20;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
   touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 #lamp-wrapper .pull-handle:active {
   cursor: grabbing;
 }
 
-/* Invisible 44x44 hit area around the string handle — the visible handle is
-   only 10x16px, far below the 44px minimum touch target (Apple HIG / Material).
-   The pseudo-element is transparent and keeps the design pixel-perfect. */
+/* Invisible hit area around the string handle; sized for responsive lamp scaling. */
 #lamp-wrapper .pull-handle::after {
   content: '';
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
 }
 
 #lamp-wrapper.lamp-login-wrapper.on .pull-handle {
@@ -460,6 +463,9 @@ body[dir="rtl"] .story-frag { border-left: none; border-right: 3px solid var(--g
   height: 330px;
   background-color: #161618;
   z-index: 5;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 #lamp-wrapper .base {
@@ -662,6 +668,7 @@ body[dir="rtl"] .story-frag { border-left: none; border-right: 3px solid var(--g
     transform-origin: top center;
     margin-bottom: -84px; /* ~380px * (1 - 0.78) */
   }
+  #lamp-wrapper .pull-handle::after { width: 62px; height: 62px; }
   #lamp-wrapper .form-container {
     width: 100%;
     max-width: 360px;
@@ -676,6 +683,7 @@ body[dir="rtl"] .story-frag { border-left: none; border-right: 3px solid var(--g
     transform-origin: top center;
     margin-bottom: -152px; /* ~380px * (1 - 0.6) */
   }
+  #lamp-wrapper .pull-handle::after { width: 80px; height: 80px; }
   #lamp-wrapper .form-container {
     width: 100%;
     max-width: 320px;
@@ -696,6 +704,7 @@ body[dir="rtl"] .story-frag { border-left: none; border-right: 3px solid var(--g
     transform-origin: top center;
     margin-bottom: -190px; /* ~380px * (1 - 0.5) */
   }
+  #lamp-wrapper .pull-handle::after { width: 96px; height: 96px; }
 }
 
 /* Chat widget: fixed 320px width overflowed very narrow phones */

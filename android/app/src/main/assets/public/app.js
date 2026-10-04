@@ -52,14 +52,49 @@ import {
         // بغض النظر عن اللغة اللي بدلها المستخدم قبل. دابا كنقراوها من
         // localStorage عند الإقلاع، وكنحفظوها فـ changeLang().
         const LANG_STORAGE_KEY = 'tf_lang';
+        const DEVICE_LANG_MAP = {
+            en: 'en',
+            'ar-ma': 'ary',
+            ar: 'ar',
+            ary: 'ary',
+            fr: 'fr',
+            es: 'es',
+            it: 'it',
+            de: 'de',
+            pt: 'pt'
+        };
         function loadSavedLang() {
             try {
                 const saved = localStorage.getItem(LANG_STORAGE_KEY);
                 if (saved && TRANSLATIONS[saved]) return saved;
-            } catch (e) { /* storage blocked — fall back to default */ }
+            } catch (e) { /* storage blocked — fall back to device language */ }
+            return detectDeviceLang();
+        }
+        function detectDeviceLang() {
+            try {
+                const deviceLanguages = navigator.languages?.length
+                    ? navigator.languages
+                    : [navigator.language];
+                for (const locale of deviceLanguages) {
+                    if (typeof locale !== 'string') continue;
+                    const normalized = locale.toLowerCase();
+                    const fullTag = DEVICE_LANG_MAP[normalized];
+                    if (fullTag && TRANSLATIONS[fullTag]) return fullTag;
+                    const baseLanguage = DEVICE_LANG_MAP[normalized.split('-')[0]];
+                    if (baseLanguage && TRANSLATIONS[baseLanguage]) return baseLanguage;
+                }
+            } catch (e) { /* navigator unavailable — fall back to default */ }
             return 'en';
         }
         let currentLang = loadSavedLang();
+        function applyLanguageDocumentAttributes() {
+            const isRTL = currentLang === 'ar' || currentLang === 'ary';
+            document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
+            document.documentElement.setAttribute('lang', currentLang);
+            const body = document.getElementById('body-tag');
+            if (body) body.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
+        }
+        applyLanguageDocumentAttributes();
     let currentCaseIndex = 0;
     let investigationRuntime = null;
     let selectedSuspect = null;
@@ -371,14 +406,7 @@ import {
         setTimeout(() => {
             currentLang = TRANSLATIONS[lang] ? lang : 'en';
             try { localStorage.setItem(LANG_STORAGE_KEY, currentLang); } catch (e) { /* storage blocked — language just won't persist */ }
-            const body = document.getElementById('body-tag');
-            if (currentLang === 'ar' || currentLang === 'ary') {
-                body.setAttribute('dir', 'rtl');
-            } else {
-                body.setAttribute('dir', 'ltr');
-            }
-            document.documentElement.setAttribute('dir', (currentLang === 'ar' || currentLang === 'ary') ? 'rtl' : 'ltr');
-            document.documentElement.setAttribute('lang', currentLang);
+            applyLanguageDocumentAttributes();
             updateUITexts();
             updateExtraUITexts();
             renderMenu(activeFilter);
@@ -410,6 +438,19 @@ import {
                     history.pushState({ screenId }, '');
                 }
             } catch (e) { /* ignore */ }
+        }
+    }
+
+    function backToArchive() {
+        try {
+            show('scr-menu');
+            renderMenu(activeFilter || 'all');
+        } catch (err) {
+            console.error('[BACK]', err); // TEMP-DEBUG
+        } finally {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('scr-menu')?.classList.add('active');
+            window.scrollTo(0, 0);
         }
     }
 
@@ -1286,8 +1327,14 @@ import {
             playSuccessSound();
         } else {
             resIcon.textContent = outcome === 'PREMATURE' ? '🔎' : '❌';
-            resTitle.textContent = data.resultWrongTitle;
-            resTitle.style.color = 'var(--blood)';
+            // إصلاح: كان العنوان دائماً "اتهام خاطئ!" حتى فحالة PREMATURE، أي حتى
+            // لو كان المشتبه به المختار هو الجاني الحقيقي فعلاً، لكن التحقيق لم
+            // يكتمل بعد (أدلة/فرضيات/اعتراضات ناقصة). هذا كان يخلي اللاعب يظن
+            // أنه اتهم الشخص الخطأ بينما فالواقع غير خاصو يكمل التحقيق.
+            resTitle.textContent = outcome === 'PREMATURE'
+                ? (data.investigationPrematureTitle || txx('investigationPrematureTitle') || data.resultWrongTitle)
+                : data.resultWrongTitle;
+            resTitle.style.color = outcome === 'PREMATURE' ? 'var(--gold)' : 'var(--blood)';
             const detail = outcome === 'PREMATURE'
                 ? txx('investigationPrematureAccusation')
                 : data.resultWrongDesc;
@@ -1986,10 +2033,13 @@ import {
     async function registerRoom(code, isPublic) {
         const uid = firebaseAuth.currentUser?.uid;
         if (!uid) return;
+        const hostName = String(userProfile.name || 'Detective').trim().slice(0, 50) || 'Detective';
         try {
             await setDoc(doc(db, 'rooms', code), {
                 isPublic,
                 hostUid: uid,
+                hostName,
+                status: 'waiting',
                 createdAt: serverTimestamp()
             });
             mpHostedRoomCode = code;
@@ -2203,12 +2253,7 @@ import {
 
     let isDragging = false, widgetStartX = 0, widgetStartY = 0, widgetLeft = 0, widgetTop = 0;
         window.addEventListener('DOMContentLoaded', () => {
-        // إصلاح: كان body-tag بلا dir attribute عند أول تحميل، فكانت
-        // selectors ديال CSS (body[dir="ltr"]/[dir="rtl"]) ما كتخدمش
-        // حتى تبدل اللغة — هادشي كان سبب تداخل settings/profile.
-        document.getElementById('body-tag').setAttribute('dir', (currentLang === 'ar' || currentLang === 'ary') ? 'rtl' : 'ltr');
-        document.documentElement.setAttribute('dir', (currentLang === 'ar' || currentLang === 'ary') ? 'rtl' : 'ltr');
-        document.documentElement.setAttribute('lang', currentLang);
+        applyLanguageDocumentAttributes();
         // مزامنة قائمة اللغة فالإعدادات مع اللغة المحفوظة فعلياً (كانت دايماً كتبان
         // "English" فالقائمة حتى لو كانت اللغة الفعلية عربية مثلاً).
         const langSelectEl = document.getElementById('lang-select');
@@ -2218,6 +2263,8 @@ import {
         renderMenu('all');
         applyAccessSettings();
         updateExtraUITexts();
+        const lampWrapper = document.getElementById('lamp-wrapper');
+        if (lampWrapper) lampWrapper.style.visibility = 'visible';
         setupDailyReminderCheck();
         const muteBtn = document.getElementById('mute-btn');
         if (muteBtn) muteBtn.textContent = soundMuted ? '🔇' : '🔊';
@@ -2578,8 +2625,6 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
         loginResetFailedFallback: "ما قدرناش نصيفطو إيميل إعادة التعيين. عاود المحاولة.",
         loginConnectingGoogleFallback: "جاري الاتصال بـ Google...",
         loginGoogleFailedFallback: "ما قدرناش نسجلو الدخول عبر Google.",
-        inviteFriendBtn: "دعوة صاحب",
-,
         inviteFriendBtn: "👤 عيط لصاحب"},
         fr: {
             appTitle: "Le Dossier Noir",
@@ -3828,6 +3873,8 @@ const stringLine = document.getElementById('string-line');
 let isOn = wrapper?.classList.contains('on') ?? false;
 let dragging = false;
 let moved = false;
+let activePointerId = null;
+let lampMoveLogged = false;
 let startX = 0, startY = 0;
 let offsetX = 0, offsetY = 0;
 const constraints = { top: 0, bottom: 60, left: -50, right: 50 };
@@ -3859,45 +3906,69 @@ function resetHandlePosition() {
   }, 250);
 }
 
+function getLampScale() {
+  const lamp = handle?.parentElement;
+  if (!lamp || !lamp.offsetWidth) return 1;
+  const scale = lamp.getBoundingClientRect().width / lamp.offsetWidth;
+  return Number.isFinite(scale) && scale > 0 ? scale : 1;
+}
+
 if (handle && wrapper) {
   function onPointerDown(e) {
+    if (dragging) return;
     dragging = true;
     moved = false;
+    activePointerId = e.pointerId;
+    lampMoveLogged = false;
     handle.style.cursor = 'grabbing';
-    const point = e.touches ? e.touches[0] : e;
-    startX = point.clientX;
-    startY = point.clientY;
     e.preventDefault();
+    handle.setPointerCapture(e.pointerId);
+    startX = e.clientX;
+    startY = e.clientY;
+    // TEMP-DEBUG
+    console.log('[LAMP] pointerdown', { pointerType: e.pointerType, x: startX, y: startY });
   }
 
   function onPointerMove(e) {
-    if (!dragging) return;
-    const point = e.touches ? e.touches[0] : e;
-    let dx = clamp(point.clientX - startX, constraints.left, constraints.right);
-    let dy = clamp(point.clientY - startY, constraints.top, constraints.bottom);
+    if (!dragging || e.pointerId !== activePointerId) return;
+    const scale = getLampScale();
+    let dx = clamp((e.clientX - startX) / scale, constraints.left, constraints.right);
+    let dy = clamp((e.clientY - startY) / scale, constraints.top, constraints.bottom);
     offsetX = dx;
     offsetY = dy;
     moved = moved || Math.abs(dx) > 1 || Math.abs(dy) > 1;
     updateHandlePosition(dx, dy);
+    // TEMP-DEBUG
+    if (!lampMoveLogged) {
+      lampMoveLogged = true;
+      console.log('[LAMP] pointermove', { pointerType: e.pointerType, dx, dy, scale });
+    }
   }
 
-  function onPointerUp() {
-    if (!dragging) return;
+  function onPointerUp(e) {
+    if (!dragging || e.pointerId !== activePointerId) return;
     dragging = false;
+    activePointerId = null;
     handle.style.cursor = 'grab';
     const distance = Math.sqrt(offsetX ** 2 + offsetY ** 2);
-    if (distance > 3 || !moved) {
-      toggleLampState();
-    }
+    // TEMP-DEBUG
+    console.log('[LAMP] pointerup', { distance, moved });
+    if (moved && distance > 3) toggleLampState();
     resetHandlePosition();
   }
 
-  handle.addEventListener('mousedown', onPointerDown);
-  window.addEventListener('mousemove', onPointerMove);
-  window.addEventListener('mouseup', onPointerUp);
-  handle.addEventListener('touchstart', onPointerDown, { passive: false });
-  window.addEventListener('touchmove', onPointerMove, { passive: false });
-  window.addEventListener('touchend', onPointerUp);
+  function onPointerCancel(e) {
+    if (!dragging || e.pointerId !== activePointerId) return;
+    dragging = false;
+    activePointerId = null;
+    handle.style.cursor = 'grab';
+    resetHandlePosition();
+  }
+
+  handle.addEventListener('pointerdown', onPointerDown);
+  handle.addEventListener('pointermove', onPointerMove);
+  handle.addEventListener('pointerup', onPointerUp);
+  handle.addEventListener('pointercancel', onPointerCancel);
 }
 
 // --- إظهار وإخفاء كلمات المرور ---
@@ -3938,6 +4009,24 @@ function setOfflineMode(value) {
   } catch (e) { /* ignore: storage may be blocked */ }
 }
 
+// إصلاح: كانت شاشة splash الافتراضية ديال Android (بيضاء) كتبان ثم تختفي
+// قبل ما يكمل Firebase استعادة السيشن المحفوظة (خصوصا مع حساب Google)، فكيبان
+// للمستخدم وكأن فما "لاگ" ديال بضع ثواني بين اختفاء splash ودخوله للصفحة
+// الرئيسية. دابا كنخليو splash السوداء (نفس لون شاشة اللمبة) معروضة يدوياً
+// حتى نعرفو بالضبط الحالة الصحيحة (تسجيل دخول أو داخل اللعبة)، بحال ماكاين
+// حتى انتقال محسوس.
+let nativeSplashHidden = false;
+function hideNativeSplash() {
+    if (nativeSplashHidden) return;
+    nativeSplashHidden = true;
+    try {
+        const SplashScreen = window.Capacitor?.Plugins?.SplashScreen;
+        if (SplashScreen && typeof SplashScreen.hide === 'function') {
+            SplashScreen.hide();
+        }
+    } catch (e) { /* ignore: plugin may be unavailable (e.g. web/Electron build) */ }
+}
+
 function showBootLoadingUI() {
   // Keep the initial black/off screen visible while Firebase restores the session.
   // The lamp stays OFF until the user pulls the string.
@@ -3953,6 +4042,7 @@ function showBootLoadingUI() {
 }
 
 function showLoginUI() {
+  hideNativeSplash();
   if (typeof hideLoader === 'function') hideLoader();
   const wrapper = document.getElementById('lamp-wrapper');
   const appRoot = document.querySelector('.app');
@@ -3969,6 +4059,7 @@ function showLoginUI() {
 }
 
 function showGameUI() {
+  hideNativeSplash();
   if (typeof hideLoader === 'function') hideLoader();
   const wrapper = document.getElementById('lamp-wrapper');
   const appRoot = document.querySelector('.app');
@@ -4086,6 +4177,11 @@ onAuthStateChanged(firebaseAuth, (user) => {
 });
 
 void bootstrapAuthFlow();
+
+// شبكة أمان: إيلا لسبب ما (مشكل شبكة، تعليق فـ Firebase...) ماوصلاتش
+// syncAuthUI/showLoginUI/showGameUI فـ4 ثواني، نحيدو splash بزربة حتى
+// لا يبقى المستخدم واقف قدام شاشة سوداء بلا ما يعرف علاش.
+setTimeout(hideNativeSplash, 4000);
 
 // --- ربط النموذج بـ Firebase (الذي أنشأناه مسبقاً) ---
 const loginForm = document.getElementById('login-form');
@@ -4283,6 +4379,11 @@ document.addEventListener('click', (e) => {
   
   if (directActions[action]) {
     directActions[action]();
+    return;
+  }
+
+  if (action === 'show_scr-menu') {
+    backToArchive();
     return;
   }
   

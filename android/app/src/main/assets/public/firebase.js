@@ -81,36 +81,36 @@ export async function loginWithGoogle(txx) {
   try {
     await initializeAuthPersistence();
 
-    const FirebaseAuthentication = window?.Capacitor?.Plugins?.FirebaseAuthentication;
-    if (!FirebaseAuthentication) {
-      // Desktop (Electron) / PWA fallback: the native Google sign-in plugin only
-      // exists on Android, so use the Firebase JS SDK popup flow instead.
-      // The Electron build serves the app from http://localhost:<port>, which is
-      // already an authorized domain in Firebase by default — no Firebase Console
-      // setup is required for Google sign-in on desktop.
-      const provider = new GoogleAuthProvider();
-      await setPersistence(auth, browserLocalPersistence);
-      await signInWithPopup(auth, provider);
+    const capacitor = window?.Capacitor;
+    const isNativeAndroid = !!(capacitor && capacitor.isNativePlatform && capacitor.isNativePlatform());
+    const FirebaseAuthentication = capacitor?.Plugins?.FirebaseAuthentication;
+
+    if (isNativeAndroid && FirebaseAuthentication) {
+      // Native Android app path: use the Capacitor Firebase Authentication plugin.
+      // This is the only path that works reliably inside Android WebView / native app shells.
+      const result = await FirebaseAuthentication.signInWithGoogle();
+      const idToken = result?.credential?.idToken;
+      if (!idToken) {
+        throw new Error('No idToken received from Google.');
+      }
+
+      const credential = GoogleAuthProvider.credential(idToken);
+      await signInWithCredential(auth, credential);
       return;
     }
 
-    // Opens native Android Google sign-in (not WebView)
-    const result = await FirebaseAuthentication.signInWithGoogle();
-
-    const idToken = result?.credential?.idToken;
-    if (!idToken) {
-      throw new Error('No idToken received from Google.');
-    }
-
-    // Link native result with Firebase JS SDK so user appears in onAuthStateChanged
-    const credential = GoogleAuthProvider.credential(idToken);
-    await signInWithCredential(auth, credential);
+    // Desktop (Electron) / PWA fallback: use JS popup flow when no native app plugin is available.
+    const provider = new GoogleAuthProvider();
+    await setPersistence(auth, browserLocalPersistence);
+    await signInWithPopup(auth, provider);
   } catch (error) {
-    console.error('Google sign-in failed:', error);
-    // Use localized alert — pass the translator from app.js so errors show in
-    // the user's selected language. Falls back to English when unavailable.
+    const code = error?.code || 'UNKNOWN';
+    const message = error?.message || 'Unknown Google sign-in error';
+    console.error('Google sign-in failed:', { code, message, error });
+
     const msg = (translate && translate('loginGoogleFailedFallback')) || 'Google sign-in failed.';
-    alert(msg + ' ' + (error.message || ''));
+    // TEMP-DEBUG
+    alert(msg + ' [' + code + '] ' + message);
   }
 }
 
