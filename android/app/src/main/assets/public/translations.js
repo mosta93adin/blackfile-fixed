@@ -7895,7 +7895,7 @@ const TRANSLATIONS = {
         roomConnecting: "Conectando a la sala {code} mediante red segura...",
         roomRetrying: "Sala no encontrada todavía — reintentando... ({n} intento(s) restante(s))",
         roomConnected: "¡Conectado con éxito a la sala {code}! Listo para el reto.",
-        botName: "Inspector John",
+        botName: "Inspector Juan",
         botReplies: [
             "Asegúrate de inspeccionar toda la evidencia física con cuidado.",
             "Revisa las coartadas de los sospechosos en busca de contradicciones sutiles.",
@@ -8896,7 +8896,7 @@ const TRANSLATIONS = {
                 ],
                 suspects: [
                     {
-                        name: "Saleh Director",
+                        name: "Saleh el Director",
                         role: "Director de la Compañía",
                         alibi: "En reunión de junta directiva toda la mañana.",
                         qs: [
@@ -9278,7 +9278,7 @@ const TRANSLATIONS = {
                         ]
                     },
                     {
-                        name: "Sami Director",
+                        name: "Sami el Director",
                         role: "Director de Escena",
                         alibi: "Comprobando la iluminación con el equipo.",
                         qs: [
@@ -10231,7 +10231,7 @@ const TRANSLATIONS = {
                 ],
                 suspects: [
                     {
-                        name: "Ziad Rival",
+                        name: "Ziad el Rival",
                         role: "Magnate Rival",
                         alibi: "En reuniones bancarias todo el día.",
                         qs: [
@@ -10248,7 +10248,7 @@ const TRANSLATIONS = {
                                 a: "En la torre financiera."
                             },
                             {
-                                q: "Ziad Rival, las pruebas ahora lo vinculan con el registro de pago y el contrato. ¿Sigue negando su implicación?",
+                                q: "Ziad el Rival, las pruebas ahora lo vinculan con el registro de pago y el contrato. ¿Sigue negando su implicación?",
                                 a: "No. Niego mi implicación y mantengo que no utilicé esa prueba para cometer el crimen."
                             }
                         ]
@@ -10306,7 +10306,7 @@ const TRANSLATIONS = {
                             },
                             {
                                 q: "¿Quién te pagó?",
-                                a: "Rival Ziad."
+                                a: "Ziad, el rival."
                             }
                         ]
                     }
@@ -10359,8 +10359,8 @@ const TRANSLATIONS = {
         investigationDedCase17: "Cadena de pruebas y declaración establecida: el indicio relaciona a Nabil Sobrino con el caso mientras Nabil Sobrino niega haberlo usado o manipulado.",
         investigationObjCase18: "La declaración de Daniel Reportero contradice el indicio de investigación.",
         investigationDedCase18: "Cadena de pruebas y declaración establecida: el indicio relaciona a Daniel Reportero con el caso mientras Daniel Reportero niega haberlo usado o manipulado.",
-        investigationObjCase19: "La declaración de Ziad Rival contradice el indicio de investigación.",
-        investigationDedCase19: "Cadena de pruebas y declaración establecida: el indicio relaciona a Ziad Rival con el caso mientras Ziad Rival niega haberlo usado o manipulado."
+        investigationObjCase19: "La declaración de Ziad el Rival contradice el indicio de investigación.",
+        investigationDedCase19: "Cadena de pruebas y declaración establecida: el indicio relaciona a Ziad el Rival con el caso mientras Ziad el Rival niega haberlo usado o manipulado."
     },
     it: {
         appTitle: "Il File Nero | Othmane Ettoumi",
@@ -10881,7 +10881,7 @@ const TRANSLATIONS = {
                 ],
                 suspects: [
                     {
-                        name: "Mona Hostess",
+                        name: "Mona la Hostess",
                         role: "Hostess dell'Evento",
                         alibi: "Ha servito bevande secondo le istruzioni degli organizzatori.",
                         qs: [
@@ -11002,7 +11002,7 @@ const TRANSLATIONS = {
                 ],
                 suspects: [
                     {
-                        name: "Bahgat Partner",
+                        name: "Bahgat il Socio",
                         role: "Socio in Affari",
                         alibi: "A cena con i clienti al piano terra.",
                         qs: [
@@ -11997,7 +11997,7 @@ const TRANSLATIONS = {
                         ]
                     },
                     {
-                        name: "Majed Dispatcher",
+                        name: "Majed il Regolatore",
                         role: "Controllore di Segnale",
                         alibi: "Monitorava le linee dalla torre di controllo.",
                         qs: [
@@ -15411,7 +15411,7 @@ const TRANSLATIONS = {
                 ],
                 suspects: [
                     {
-                        name: "Ziad Rival",
+                        name: "Ziad o Rival",
                         role: "Magnata Rival",
                         alibi: "Em reuniões bancárias o dia todo.",
                         qs: [
@@ -15428,7 +15428,7 @@ const TRANSLATIONS = {
                                 a: "Na torre financeira."
                             },
                             {
-                                q: "Ziad Rival, as provas agora ligam-no ao registo de pagamento e ao contrato. Continua a negar o envolvimento?",
+                                q: "Ziad o Rival, as provas agora ligam-no ao registo de pagamento e ao contrato. Continua a negar o envolvimento?",
                                 a: "Não. Nego o meu envolvimento e mantenho que não usei essa prova para cometer o crime."
                             }
                         ]
@@ -15486,12 +15486,12 @@ const TRANSLATIONS = {
                             },
                             {
                                 q: "Quem te pagou?",
-                                a: "Rival Ziad."
+                                a: "O rival Ziad."
                             }
                         ]
                     }
                 ],
-                explain: "Ziad Rival contratou o mercenário Jehad para executar assassinato de longo alcance entre prédios.",
+                explain: "Ziad o Rival contratou o mercenário Jehad para executar assassinato de longo alcance entre prédios.",
                 hints: [
                     "Dica 1: Examine o microdardo envenenado e a besta profissional montada no prédio oposto.",
                     "Dica 2: Verifique o contrato dissolvido mostrando grandes perdas financeiras para o principal rival de mercado.",
@@ -15539,8 +15539,8 @@ const TRANSLATIONS = {
         investigationDedCase17: "Cadeia de prova e declaração estabelecida: a pista liga Nabil Sobrinho ao caso enquanto Nabil Sobrinho nega tê-la usado ou manuseado.",
         investigationObjCase18: "A declaração de Daniel Repórter contradiz a pista da investigação.",
         investigationDedCase18: "Cadeia de prova e declaração estabelecida: a pista liga Daniel Repórter ao caso enquanto Daniel Repórter nega tê-la usado ou manuseado.",
-        investigationObjCase19: "A declaração de Ziad Rival contradiz a pista da investigação.",
-        investigationDedCase19: "Cadeia de prova e declaração estabelecida: a pista liga Ziad Rival ao caso enquanto Ziad Rival nega tê-la usado ou manuseado."
+        investigationObjCase19: "A declaração de Ziad o Rival contradiz a pista da investigação.",
+        investigationDedCase19: "Cadeia de prova e declaração estabelecida: a pista liga Ziad o Rival ao caso enquanto Ziad o Rival nega tê-la usado ou manuseado."
     },
     de: {
         appTitle: "Die Schwarze Akte | Othmane Ettoumi",
@@ -16182,7 +16182,7 @@ const TRANSLATIONS = {
                 ],
                 suspects: [
                     {
-                        name: "Bahgat Partner",
+                        name: "Bahgat der Partner",
                         role: "Geschäftsmartner",
                         alibi: "Aß mit Kunden im Erdgeschoss zu Abend.",
                         qs: [
@@ -16545,7 +16545,7 @@ const TRANSLATIONS = {
                 ],
                 suspects: [
                     {
-                        name: "Maher Journalist",
+                        name: "Maher der Journalist",
                         role: "Wagenpassagier",
                         alibi: "Schrieb die ganze Fahrt über einen Artikel am Laptop.",
                         qs: [
@@ -17177,7 +17177,7 @@ const TRANSLATIONS = {
                         ]
                     },
                     {
-                        name: "Majed Dispatcher",
+                        name: "Majed der Disponent",
                         role: "Signalkontrolleur",
                         alibi: "Überwachte die Leitungen vom Kontrollturm aus.",
                         qs: [
@@ -17438,7 +17438,7 @@ const TRANSLATIONS = {
                         ]
                     },
                     {
-                        name: "Monir Investor",
+                        name: "Monir der Investor",
                         role: "Flugzeugbesitzer",
                         alibi: "Überprüfte Dokumente auf dem Beifahrersitz.",
                         qs: [

@@ -9,6 +9,13 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+// 🌍 Localised messages: app.js exposes its translator as window.__txx (all 8 languages).
+function tr(key, vars) {
+  let text = (typeof window.__txx === 'function') ? window.__txx(key) : key;
+  if (vars) Object.keys(vars).forEach(k => { text = text.split('{' + k + '}').join(vars[k]); });
+  return text;
+}
+
 // 🧬 إعدادات
 const INVITE_BASE_URL = window.location.origin + '/invite/';
 const CODE_LENGTH = 8;
@@ -17,7 +24,7 @@ const CODE_LENGTH = 8;
 async function generateInviteLink() {
   const user = firebaseAuth.currentUser;
   if (!user) {
-    showToast("❌ يجب تسجيل الدخول أولاً لتوليد رابط دعوة.");
+    showToast(tr('inviteLoginRequired'));
     return;
   }
 
@@ -32,7 +39,7 @@ async function generateInviteLink() {
     if (!snap.exists()) break; // الرمز غير مكرر
     attempts++;
     if (attempts > 10) {
-      showToast("❌ فشل توليد رمز فريد بعد 10 محاولات.");
+      showToast(tr('inviteUniqueFailed'));
       return;
     }
   } while (true);
@@ -51,10 +58,10 @@ async function generateInviteLink() {
   // ✅ نسخ إلى الحافظة
   try {
     await navigator.clipboard.writeText(fullLink);
-    showToast(`✅ تم توليد رابط دعوة مرة واحدة:\n${fullLink}\nتم نسخه تلقائياً.`);
+    showToast(tr('inviteCopied', { link: fullLink }));
   } catch (e) {
-    showToast(`✅ رابط الدعوة:\n${fullLink}\n(لم يتم النسخ تلقائياً، انسخه يدوياً)`);
-    prompt("انسخ رابط الدعوة:", fullLink);
+    showToast(tr('inviteCopyManual', { link: fullLink }));
+    prompt(tr('inviteCopyPrompt'), fullLink);
   }
 }
 
@@ -95,13 +102,13 @@ async function verifyInviteToken(token) {
       const docSnap = await transaction.get(docRef);
 
       if (!docSnap.exists()) {
-        throw new Error("رابط غير صالح أو منتهي");
+        throw new Error(tr('inviteInvalid'));
       }
 
       const data = docSnap.data();
 
       if (data.used) {
-        throw new Error("هذا الرابط تم استخدامه من قبل، اطلب رابطاً جديداً من صاحبك.");
+        throw new Error(tr('inviteUsed'));
       }
 
       transaction.update(docRef, {
@@ -111,7 +118,7 @@ async function verifyInviteToken(token) {
       });
     });
 
-    showToast("🎉 رابط الدعوة صالح! مرحباً بك في لعبة The Black File.");
+    showToast(tr('inviteWelcome'));
     return true;
   } catch (error) {
     showToast(error.message);

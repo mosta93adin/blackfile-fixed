@@ -121,7 +121,7 @@
     <!-- SETTINGS MODAL: houses everything moved out of the header bar -->
     <div id="modal-settings" class="modal-bg">
         <div class="modal settings-modal">
-            <button class="settings-modal-x" data-action="closeSettingsModal" aria-label="Close">✕</button>
+            <button class="settings-modal-x" id="settings-close-btn" data-action="closeSettingsModal" aria-label="Close">✕</button>
             <div class="settings-modal-head">
                 <div class="settings-modal-head-icon">⚙️</div>
                 <div>
@@ -235,7 +235,7 @@
             <p id="brief-victim" style="font-size:13px; color:var(--paper-dim); font-weight:bold;"></p>
             <button class="tts-btn" id="brief-tts-btn" style="display:none; margin-bottom:10px;" data-action="speakBrief">🔊 <span id="txt-tts-listen">Listen</span></button>
             <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--paper-dim); margin:10px 0; cursor:pointer;">
-                <input type="checkbox" id="brief-timed-toggle"> ⏱ Timed Challenge (10 min)
+                <input type="checkbox" id="brief-timed-toggle"> <span id="txt-timed-label">⏱ Timed Challenge (10 min)</span>
             </label>
             <button class="btn" data-action="startInvestigation" id="txt-start-inv">Proceed to Crime Scene →</button>
         </div>
@@ -392,8 +392,8 @@
         </div>
         <div style="display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap;">
             <button class="btn ghost" data-action="closeProfileModal" id="txt-pro-close">Cancel</button>
-            <button class="btn ghost" data-action="exportProgress" title="Export Progress"><span id="txt-pro-export-btn">⬇ Export</span></button>
-            <button class="btn ghost" data-action="triggerImportFile" title="Import Progress"><span id="txt-pro-import-btn">⬆ Import</span></button>
+            <button class="btn ghost" data-action="exportProgress" id="btn-export-progress" title="Export Progress"><span id="txt-pro-export-btn">⬇ Export</span></button>
+            <button class="btn ghost" data-action="triggerImportFile" id="btn-import-progress" title="Import Progress"><span id="txt-pro-import-btn">⬆ Import</span></button>
             <input type="file" id="import-file-input" accept="application/json" style="display:none;" data-action="importProgress">
             <button class="btn" data-action="saveProfile" id="txt-pro-save">Save Profile</button>
         </div>

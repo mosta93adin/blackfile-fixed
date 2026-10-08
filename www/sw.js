@@ -1,4 +1,4 @@
-const CACHE_NAME = 'black-file-cache-v9'; // bumped: fix module scripts failing when served from SW cache (opaque no-cors copies of cross-origin Firebase modules broke ES module imports: net::ERR_FAILED)
+const CACHE_NAME = 'black-file-cache-v10'; // bumped: fix module scripts failing when served from SW cache (opaque no-cors copies of cross-origin Firebase modules broke ES module imports: net::ERR_FAILED)
 const APP_SHELL = [
   './index.html',
   './styles.css',

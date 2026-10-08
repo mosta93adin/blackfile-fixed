@@ -633,10 +633,10 @@ import {
                     directory: 'Cache'
                 });
                 await Share.share({
-                    title: 'The Black File - Progress Export',
-                    text: 'My detective progress export',
+                    title: txx('exportShareTitle'),
+                    text: txx('exportShareText'),
                     url: fileUri.uri,
-                    dialogTitle: 'Save or share your progress'
+                    dialogTitle: txx('exportShareDialog')
                 });
                 playClickSound();
                 return;
@@ -653,7 +653,7 @@ import {
             URL.revokeObjectURL(url);
             playClickSound();
         } catch (e) {
-            alert((typeof txx === 'function' && txx('importInvalidFileText')) || 'Export failed.');
+            alert(txx('exportFailedText'));
         }
     }
 
@@ -2327,6 +2327,7 @@ import {
     // ---- small text dictionary for the new UI (falls back to English) ----
     const EXTRA_TRANGS = {
         en: {
+            timedChallengeLabel: "⏱ Timed Challenge (10 min)", raceInProgress: "Race in progress...", settingsLabel: "Settings", closeLabel: "Close", exportProgressTitle: "Export Progress", importProgressTitle: "Import Progress", exportFailedText: "Export failed. Please try again.", exportShareTitle: "The Black File - Progress Export", exportShareText: "My detective progress export", exportShareDialog: "Save or share your progress", inviteLibNotLoaded: "⚠️ The invite feature hasn't loaded yet.", inviteLoginRequired: "❌ You must sign in first to generate an invite link.", inviteUniqueFailed: "❌ Failed to generate a unique code after 10 attempts.", inviteCopied: "✅ One-time invite link generated:\n{link}\nCopied automatically.", inviteCopyManual: "✅ Invite link:\n{link}\n(Could not copy automatically — please copy it manually)", inviteCopyPrompt: "Copy the invite link:", inviteInvalid: "Invalid or expired link", inviteUsed: "This link has already been used. Ask your friend for a new one.", inviteWelcome: "🎉 The invite link is valid! Welcome to The Black File.",
             appTitle: "The Black File",
             listen: "Listen", energyExhausted: "You've used all your investigations for today. Come back tomorrow, detective!",
             statsTitle: "📊 Detailed Detective Statistics", statCasesSolved: "Cases Solved", statAvgHints: "Avg. Hints Used", statFastest: "Fastest Solve", statAccuracy: "Overall Accuracy",
@@ -2426,6 +2427,7 @@ import {
         ,
         inviteFriendBtn: "👤 Invite Friend"},
         ar: {
+            timedChallengeLabel: "⏱ تحدٍّ بالوقت (10 دقائق)", raceInProgress: "السباق جارٍ...", settingsLabel: "الإعدادات", closeLabel: "إغلاق", exportProgressTitle: "تصدير التقدم", importProgressTitle: "استيراد التقدم", exportFailedText: "فشل التصدير. حاول مرة أخرى.", exportShareTitle: "الملف الأسود - تصدير التقدم", exportShareText: "تصدير تقدمي كمحقق", exportShareDialog: "احفظ تقدمك أو شاركه", inviteLibNotLoaded: "⚠️ ميزة الدعوة لم تُحمَّل بعد.", inviteLoginRequired: "❌ يجب تسجيل الدخول أولاً لتوليد رابط دعوة.", inviteUniqueFailed: "❌ فشل توليد رمز فريد بعد 10 محاولات.", inviteCopied: "✅ تم توليد رابط دعوة لمرة واحدة:\n{link}\nتم نسخه تلقائياً.", inviteCopyManual: "✅ رابط الدعوة:\n{link}\n(لم يتم النسخ تلقائياً، انسخه يدوياً)", inviteCopyPrompt: "انسخ رابط الدعوة:", inviteInvalid: "رابط غير صالح أو منتهي", inviteUsed: "هذا الرابط استُخدم من قبل، اطلب رابطاً جديداً من صاحبك.", inviteWelcome: "🎉 رابط الدعوة صالح! مرحباً بك في الملف الأسود.",
             appTitle: "الملف الأسود",
             listen: "استمع", energyExhausted: "استعملتي كل محاولاتك ديال اليوم. ارجع غدا يا محقق!",
             statsTitle: "📊 إحصائيات المحقق المفصّلة", statCasesSolved: "القضايا المحلولة", statAvgHints: "متوسط التلميحات", statFastest: "أسرع حل", statAccuracy: "الدقة الإجمالية",
@@ -2525,6 +2527,7 @@ import {
         ,
         inviteFriendBtn: "👤 دعوة صديق"},
         ary: {
+            timedChallengeLabel: "⏱ تحدي بالوقت (10 دقايق)", raceInProgress: "السباق شاعل...", settingsLabel: "الإعدادات", closeLabel: "سد", exportProgressTitle: "تصدير التقدم", importProgressTitle: "استيراد التقدم", exportFailedText: "فشل التصدير. عاود جرب.", exportShareTitle: "الملف الأسود - تصدير التقدم", exportShareText: "تصدير التقدم ديالي فالتحقيق", exportShareDialog: "حفظ التقدم ديالك ولا شاركو", inviteLibNotLoaded: "⚠️ ميزة الدعوة مازال ما تحملاتش.", inviteLoginRequired: "❌ خاصك تسجل الدخول الأول باش تولد رابط الدعوة.", inviteUniqueFailed: "❌ ما قدرناش نولدو رمز فريد من بعد 10 محاولات.", inviteCopied: "✅ تولد رابط دعوة لمرة وحدة:\n{link}\nتنسخ بوحدو.", inviteCopyManual: "✅ رابط الدعوة:\n{link}\n(ما تنسخش بوحدو، نسخو بيديك)", inviteCopyPrompt: "انسخ رابط الدعوة:", inviteInvalid: "رابط ماشي صالح ولا سالات صلاحيتو", inviteUsed: "هاد الرابط تستعمل من قبل، طلب من صاحبك رابط جديد.", inviteWelcome: "🎉 رابط الدعوة صالح! مرحبا بيك فالملف الأسود.",
             appTitle: "الملف الأسود",
             listen: "استمع", energyExhausted: "استعملتي كل محاولاتك ديال اليوم. ارجع غدا يا محقق!",
             statsTitle: "📊 إحصائيات المحقق المفصّلة", statCasesSolved: "القضايا المحلولة", statAvgHints: "متوسط التلميحات", statFastest: "أسرع حل", statAccuracy: "الدقة الإجمالية",
@@ -2649,6 +2652,7 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
         loginGoogleFailedFallback: "ما قدرناش نسجلو الدخول عبر Google.",
         inviteFriendBtn: "👤 عيط لصاحب"},
         fr: {
+            timedChallengeLabel: "⏱ Défi chronométré (10 min)", raceInProgress: "Course en cours...", settingsLabel: "Paramètres", closeLabel: "Fermer", exportProgressTitle: "Exporter la progression", importProgressTitle: "Importer la progression", exportFailedText: "Échec de l'exportation. Veuillez réessayer.", exportShareTitle: "Le Dossier Noir - Export de la progression", exportShareText: "Export de ma progression de détective", exportShareDialog: "Enregistrez ou partagez votre progression", inviteLibNotLoaded: "⚠️ La fonction d'invitation n'est pas encore chargée.", inviteLoginRequired: "❌ Vous devez d'abord vous connecter pour générer un lien d'invitation.", inviteUniqueFailed: "❌ Impossible de générer un code unique après 10 tentatives.", inviteCopied: "✅ Lien d'invitation à usage unique généré :\n{link}\nCopié automatiquement.", inviteCopyManual: "✅ Lien d'invitation :\n{link}\n(Copie automatique impossible — copiez-le manuellement)", inviteCopyPrompt: "Copiez le lien d'invitation :", inviteInvalid: "Lien invalide ou expiré", inviteUsed: "Ce lien a déjà été utilisé. Demandez-en un nouveau à votre ami.", inviteWelcome: "🎉 Le lien d'invitation est valide ! Bienvenue dans Le Dossier Noir.",
             appTitle: "Le Dossier Noir",
             listen: "Écouter", energyExhausted: "Vous avez utilisé toutes vos enquêtes du jour. Revenez demain, détective !",
             statsTitle: "📊 Statistiques Détaillées du Détective", statCasesSolved: "Affaires Résolues", statAvgHints: "Indices Utilisés (moy.)", statFastest: "Résolution la Plus Rapide", statAccuracy: "Précision Globale",
@@ -2748,6 +2752,7 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
         ,
         inviteFriendBtn: "👤 Inviter un ami"},
         es: {
+            timedChallengeLabel: "⏱ Desafío cronometrado (10 min)", raceInProgress: "Carrera en curso...", settingsLabel: "Ajustes", closeLabel: "Cerrar", exportProgressTitle: "Exportar progreso", importProgressTitle: "Importar progreso", exportFailedText: "Error al exportar. Inténtalo de nuevo.", exportShareTitle: "El Expediente Negro - Exportación de progreso", exportShareText: "Exportación de mi progreso como detective", exportShareDialog: "Guarda o comparte tu progreso", inviteLibNotLoaded: "⚠️ La función de invitación aún no se ha cargado.", inviteLoginRequired: "❌ Debes iniciar sesión primero para generar un enlace de invitación.", inviteUniqueFailed: "❌ No se pudo generar un código único tras 10 intentos.", inviteCopied: "✅ Enlace de invitación de un solo uso generado:\n{link}\nCopiado automáticamente.", inviteCopyManual: "✅ Enlace de invitación:\n{link}\n(No se pudo copiar automáticamente; cópialo manualmente)", inviteCopyPrompt: "Copia el enlace de invitación:", inviteInvalid: "Enlace no válido o caducado", inviteUsed: "Este enlace ya se usó. Pide uno nuevo a tu amigo.", inviteWelcome: "🎉 ¡El enlace de invitación es válido! Bienvenido a El Expediente Negro.",
             appTitle: "El Archivo Negro",
             listen: "Escuchar", energyExhausted: "Has usado todas tus investigaciones de hoy. ¡Vuelve mañana, detective!",
             statsTitle: "📊 Estadísticas Detalladas del Detective", statCasesSolved: "Casos Resueltos", statAvgHints: "Pistas Usadas (prom.)", statFastest: "Resolución Más Rápida", statAccuracy: "Precisión General",
@@ -2829,8 +2834,8 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
             investigationDedCase17: "Cadena de pruebas y declaración establecida: el indicio relaciona a Nabil Sobrino con el caso mientras Nabil Sobrino niega haberlo usado o manipulado.",
             investigationObjCase18: "La declaración de Daniel Reportero contradice el indicio de investigación.",
             investigationDedCase18: "Cadena de pruebas y declaración establecida: el indicio relaciona a Daniel Reportero con el caso mientras Daniel Reportero niega haberlo usado o manipulado.",
-            investigationObjCase19: "La declaración de Ziad Rival contradice el indicio de investigación.",
-            investigationDedCase19: "Cadena de pruebas y declaración establecida: el indicio relaciona a Ziad Rival con el caso mientras Ziad Rival niega haberlo usado o manipulado.",
+            investigationObjCase19: "La declaración de Ziad el Rival contradice el indicio de investigación.",
+            investigationDedCase19: "Cadena de pruebas y declaración establecida: el indicio relaciona a Ziad el Rival con el caso mientras Ziad el Rival niega haberlo usado o manipulado.",
             notesSaved: "Notas guardadas ✅",
             roomInvalidCodeFormat: "Formato de código de sala no válido. Usa CASE-XXX (ej. CASE-99).",
             cloudProgressLoadFailed: "⚠️ Progreso en la nube no disponible — se usan los datos locales.",
@@ -2847,6 +2852,7 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
         ,
         inviteFriendBtn: "👤 Invitar a un amigo"},
         it: {
+            timedChallengeLabel: "⏱ Sfida a tempo (10 min)", raceInProgress: "Gara in corso...", settingsLabel: "Impostazioni", closeLabel: "Chiudi", exportProgressTitle: "Esporta progressi", importProgressTitle: "Importa progressi", exportFailedText: "Esportazione non riuscita. Riprova.", exportShareTitle: "Il Fascicolo Nero - Esportazione dei progressi", exportShareText: "Esportazione dei miei progressi da detective", exportShareDialog: "Salva o condividi i tuoi progressi", inviteLibNotLoaded: "⚠️ La funzione di invito non è ancora stata caricata.", inviteLoginRequired: "❌ Devi prima accedere per generare un link d'invito.", inviteUniqueFailed: "❌ Impossibile generare un codice univoco dopo 10 tentativi.", inviteCopied: "✅ Link d'invito monouso generato:\n{link}\nCopiato automaticamente.", inviteCopyManual: "✅ Link d'invito:\n{link}\n(Copia automatica non riuscita — copialo manualmente)", inviteCopyPrompt: "Copia il link d'invito:", inviteInvalid: "Link non valido o scaduto", inviteUsed: "Questo link è già stato usato. Chiedine uno nuovo al tuo amico.", inviteWelcome: "🎉 Il link d'invito è valido! Benvenuto in Il Fascicolo Nero.",
             appTitle: "Il File Nero",
             listen: "Ascolta", energyExhausted: "Hai usato tutte le tue indagini di oggi. Torna domani, detective!",
             statsTitle: "📊 Statistiche Dettagliate del Detective", statCasesSolved: "Casi Risolti", statAvgHints: "Indizi Usati (media)", statFastest: "Risoluzione Più Veloce", statAccuracy: "Precisione Complessiva",
@@ -2946,6 +2952,7 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
         ,
         inviteFriendBtn: "👤 Invita un amico"},
         de: {
+            timedChallengeLabel: "⏱ Zeitchallenge (10 Min.)", raceInProgress: "Rennen läuft...", settingsLabel: "Einstellungen", closeLabel: "Schließen", exportProgressTitle: "Fortschritt exportieren", importProgressTitle: "Fortschritt importieren", exportFailedText: "Export fehlgeschlagen. Bitte versuche es erneut.", exportShareTitle: "Die Schwarze Akte - Fortschrittsexport", exportShareText: "Export meines Detektiv-Fortschritts", exportShareDialog: "Speichere oder teile deinen Fortschritt", inviteLibNotLoaded: "⚠️ Die Einladungsfunktion ist noch nicht geladen.", inviteLoginRequired: "❌ Du musst dich zuerst anmelden, um einen Einladungslink zu erstellen.", inviteUniqueFailed: "❌ Nach 10 Versuchen konnte kein eindeutiger Code erzeugt werden.", inviteCopied: "✅ Einmaliger Einladungslink erstellt:\n{link}\nAutomatisch kopiert.", inviteCopyManual: "✅ Einladungslink:\n{link}\n(Automatisches Kopieren nicht möglich — bitte manuell kopieren)", inviteCopyPrompt: "Einladungslink kopieren:", inviteInvalid: "Ungültiger oder abgelaufener Link", inviteUsed: "Dieser Link wurde bereits verwendet. Bitte deinen Freund um einen neuen.", inviteWelcome: "🎉 Der Einladungslink ist gültig! Willkommen bei Die Schwarze Akte.",
             appTitle: "Die Schwarze Akte",
             listen: "Anhören", energyExhausted: "Du hast alle heutigen Ermittlungen aufgebraucht. Komm morgen wieder, Detektiv!",
             statsTitle: "📊 Detaillierte Detektiv-Statistiken", statCasesSolved: "Gelöste Fälle", statAvgHints: "Ø Genutzte Hinweise", statFastest: "Schnellste Lösung", statAccuracy: "Gesamtgenauigkeit",
@@ -3045,6 +3052,7 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
         ,
         inviteFriendBtn: "👤 Freund einladen"},
         pt: {
+            timedChallengeLabel: "⏱ Desafio cronometrado (10 min)", raceInProgress: "Corrida em curso...", settingsLabel: "Definições", closeLabel: "Fechar", exportProgressTitle: "Exportar progresso", importProgressTitle: "Importar progresso", exportFailedText: "Falha na exportação. Tente novamente.", exportShareTitle: "O Ficheiro Negro - Exportação de progresso", exportShareText: "Exportação do meu progresso de detetive", exportShareDialog: "Guarde ou partilhe o seu progresso", inviteLibNotLoaded: "⚠️ A funcionalidade de convite ainda não foi carregada.", inviteLoginRequired: "❌ Tem de iniciar sessão primeiro para gerar uma ligação de convite.", inviteUniqueFailed: "❌ Não foi possível gerar um código único após 10 tentativas.", inviteCopied: "✅ Ligação de convite de utilização única gerada:\n{link}\nCopiada automaticamente.", inviteCopyManual: "✅ Ligação de convite:\n{link}\n(Não foi possível copiar automaticamente — copie manualmente)", inviteCopyPrompt: "Copie a ligação de convite:", inviteInvalid: "Ligação inválida ou expirada", inviteUsed: "Esta ligação já foi utilizada. Peça uma nova ao seu amigo.", inviteWelcome: "🎉 A ligação de convite é válida! Bem-vindo a O Ficheiro Negro.",
             appTitle: "O Arquivo Negro",
             listen: "Ouvir", energyExhausted: "Já usaste todas as tuas investigações de hoje. Volta amanhã, detetive!",
             statsTitle: "📊 Estatísticas Detalhadas do Detetive", statCasesSolved: "Casos Resolvidos", statAvgHints: "Dicas Usadas (média)", statFastest: "Resolução Mais Rápida", statAccuracy: "Precisão Geral",
@@ -3126,8 +3134,8 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
             investigationDedCase17: "Cadeia de prova e declaração estabelecida: a pista liga Nabil Sobrinho ao caso enquanto Nabil Sobrinho nega tê-la usado ou manuseado.",
             investigationObjCase18: "A declaração de Daniel Repórter contradiz a pista da investigação.",
             investigationDedCase18: "Cadeia de prova e declaração estabelecida: a pista liga Daniel Repórter ao caso enquanto Daniel Repórter nega tê-la usado ou manuseado.",
-            investigationObjCase19: "A declaração de Ziad Rival contradiz a pista da investigação.",
-            investigationDedCase19: "Cadeia de prova e declaração estabelecida: a pista liga Ziad Rival ao caso enquanto Ziad Rival nega tê-la usado ou manuseado.",
+            investigationObjCase19: "A declaração de Ziad o Rival contradiz a pista da investigação.",
+            investigationDedCase19: "Cadeia de prova e declaração estabelecida: a pista liga Ziad o Rival ao caso enquanto Ziad o Rival nega tê-la usado ou manuseado.",
             notesSaved: "Notas guardadas ✅",
             roomInvalidCodeFormat: "Formato de código de sala inválido. Use CASE-XXX (ex. CASE-99).",
             cloudProgressLoadFailed: "⚠️ Progresso na nuvem indisponível — a usar os dados locais.",
@@ -3272,10 +3280,18 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
     function txx(key) {
         const dict = EXTRA_TRANGS[currentLang] || EXTRA_TRANGS.en;
         if (dict[key] !== undefined) return dict[key];
+        // Keys that live only in TRANSLATIONS (e.g. investigationHint*, investigationDedCase2)
+        // must still be resolved in the active language before falling back to English.
+        const mainDict = (typeof TRANSLATIONS !== 'undefined' && (TRANSLATIONS[currentLang] || TRANSLATIONS.en)) || {};
+        if (typeof mainDict[key] === 'string') return mainDict[key];
         if (EXTRA_TRANGS.en[key] !== undefined) return EXTRA_TRANGS.en[key];
+        if (typeof TRANSLATIONS !== 'undefined' && TRANSLATIONS.en && typeof TRANSLATIONS.en[key] === 'string') return TRANSLATIONS.en[key];
         // Fallback: return key name wrapped in brackets so missing translations are visible
         return '[' + key + ']';
     }
+
+    // Expose the translator so non-bundled modules (invite.js) can localise their messages.
+    window.__txx = txx;
 
     function todayStr() {
         const d = new Date();
@@ -3835,6 +3851,18 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
         const setText = (id, key) => { const el = document.getElementById(id); if (el) el.textContent = txx(key); };
         const setPlainText = (id, key) => { const el = document.getElementById(id); if (el) el.textContent = txx(key).replace(/^[^\w\s]+\s*/u, ''); };
         setPlainText('txt-stats-btn', 'statsBtnLabel');
+        // Static HTML strings that previously stayed in English in every language
+        setText('txt-timed-label', 'timedChallengeLabel');
+        const raceBarEl = document.getElementById('race-bar');
+        const raceBarTextEl = document.getElementById('race-bar-text');
+        if (raceBarTextEl && !(raceBarEl && raceBarEl.classList.contains('active'))) raceBarTextEl.textContent = '🏁 ' + txx('raceInProgress');
+        [['settings-fab', 'settingsLabel'], ['settings-close-btn', 'closeLabel'], ['btn-export-progress', 'exportProgressTitle'], ['btn-import-progress', 'importProgressTitle']].forEach(([id, key]) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.setAttribute('aria-label', txx(key));
+            el.setAttribute('title', txx(key));
+        });
+        if (document.title !== undefined) document.title = (TRANSLATIONS[currentLang] || TRANSLATIONS.en).appTitle;
         setPlainText('txt-story-btn', 'storyBtnLabel');
         setText('txt-showcase-label', 'showcaseLabel');
         setText('txt-invite-friend', 'inviteFriendBtn');
@@ -4486,7 +4514,7 @@ if (action === 'inviteFriend') {
   if (typeof generateInviteLink === 'function') {
     generateInviteLink();
   } else {
-    showToast("⚠️ مكتبة الدعوة غير محملة بعد.");
+    showToast(txx('inviteLibNotLoaded'));
   }
   return;
 }
