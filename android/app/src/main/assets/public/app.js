@@ -1018,7 +1018,27 @@ import {
         return localized || getCaseOneDeductionText(deductionId);
     }
 
+    function updateAccuseGate() {
+        const btn = document.getElementById('txt-accuse-btn');
+        if (!btn) return;
+        const note = document.getElementById('accuse-progress');
+        if (!investigationRuntime) {
+            btn.disabled = false; btn.style.opacity = '';
+            if (note) note.textContent = '';
+            return;
+        }
+        const p = investigationRuntime.getAccusationProgress();
+        btn.disabled = !p.complete;
+        btn.style.opacity = p.complete ? '' : '0.5';
+        if (note) {
+            note.textContent = p.complete ? '' : txx('accuseProgress')
+                .replace('{e}', p.evidenceFound).replace('{eTotal}', p.evidenceTotal)
+                .replace('{q}', p.questionsAsked).replace('{qTotal}', p.questionTotal);
+        }
+    }
+
     function renderInvestigationActions() {
+        updateAccuseGate();
         const actions = document.getElementById('investigation-actions');
         if (!actions) return;
         actions.replaceChildren();
@@ -1241,6 +1261,7 @@ import {
     }
 
     function openAccusationModal() {
+        if (investigationRuntime && !investigationRuntime.getAccusationProgress().complete) return;
         const data = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
         const c = data.cases[currentCaseIndex];
         const list = document.getElementById('accuse-suspects-list');
@@ -1279,19 +1300,6 @@ import {
         const isCorrect = outcome === 'CORRECT';
         const alreadySolved = userProfile.solvedCases.includes(currentCaseIndex);
 
-        // PREMATURE is not a verdict: the required investigation steps are still incomplete,
-        // so it must not be shown as a wrong accusation, reveal the solution, or count as a failed attempt.
-        if (outcome === 'PREMATURE') {
-            document.getElementById('res-icon').textContent = '🔎';
-            const prematureTitle = document.getElementById('res-title');
-            prematureTitle.textContent = data.investigationPrematureAccusation;
-            prematureTitle.style.color = 'var(--gold)';
-            document.getElementById('res-desc').textContent = data.investigationHintFinal;
-            saveInvestigationRuntimeState();
-            show('scr-result');
-            return;
-        }
-
         // Keep investigation cases on the same progression/statistics path as legacy cases.
         if (!alreadySolved) userProfile.attempts += 1;
 
@@ -1318,12 +1326,10 @@ import {
             }
             playSuccessSound();
         } else {
-            resIcon.textContent = outcome === 'PREMATURE' ? '🔎' : '❌';
+            resIcon.textContent = '❌';
             resTitle.textContent = data.resultWrongTitle;
             resTitle.style.color = 'var(--blood)';
-            const detail = outcome === 'PREMATURE'
-                ? txx('investigationPrematureAccusation')
-                : data.resultWrongDesc;
+            const detail = data.resultWrongDesc;
             resDesc.innerHTML = `${escapeHtml(detail)}<br><br><b>${escapeHtml(data.caseExplanationLabel)}</b><br>${escapeHtml(c.explain)}`;
             userProfile.streakCurrent = 0;
             playFailSound();
@@ -1366,7 +1372,7 @@ import {
         }
         if (investigationRuntime) {
             const suspectId = getInvestigationSuspectId(selectedSuspectIndex);
-            const result = investigationRuntime.applyAccusation(suspectId);
+            const result = investigationRuntime.applyFinalAccusation(suspectId);
             closeModal('modal-accuse');
             await finalizeInvestigationAccusation(result.result.outcome);
             return;
@@ -2327,6 +2333,7 @@ import {
     // ---- small text dictionary for the new UI (falls back to English) ----
     const EXTRA_TRANGS = {
         en: {
+            accuseProgress: "🔎 Evidence {e}/{eTotal} • Interrogation {q}/{qTotal} — complete both to accuse",
             timedChallengeLabel: "⏱ Timed Challenge (10 min)", raceInProgress: "Race in progress...", settingsLabel: "Settings", closeLabel: "Close", exportProgressTitle: "Export Progress", importProgressTitle: "Import Progress", exportFailedText: "Export failed. Please try again.", exportShareTitle: "The Black File - Progress Export", exportShareText: "My detective progress export", exportShareDialog: "Save or share your progress", inviteLibNotLoaded: "⚠️ The invite feature hasn't loaded yet.", inviteLoginRequired: "❌ You must sign in first to generate an invite link.", inviteUniqueFailed: "❌ Failed to generate a unique code after 10 attempts.", inviteCopied: "✅ One-time invite link generated:\n{link}\nCopied automatically.", inviteCopyManual: "✅ Invite link:\n{link}\n(Could not copy automatically — please copy it manually)", inviteCopyPrompt: "Copy the invite link:", inviteInvalid: "Invalid or expired link", inviteUsed: "This link has already been used. Ask your friend for a new one.", inviteWelcome: "🎉 The invite link is valid! Welcome to The Black File.",
             appTitle: "The Black File",
             listen: "Listen", energyExhausted: "You've used all your investigations for today. Come back tomorrow, detective!",
@@ -2427,6 +2434,7 @@ import {
         ,
         inviteFriendBtn: "👤 Invite Friend"},
         ar: {
+            accuseProgress: "🔎 الأدلة {e}/{eTotal} • الاستجواب {q}/{qTotal} — أكمل الاثنين لتوجيه الاتهام",
             timedChallengeLabel: "⏱ تحدٍّ بالوقت (10 دقائق)", raceInProgress: "السباق جارٍ...", settingsLabel: "الإعدادات", closeLabel: "إغلاق", exportProgressTitle: "تصدير التقدم", importProgressTitle: "استيراد التقدم", exportFailedText: "فشل التصدير. حاول مرة أخرى.", exportShareTitle: "الملف الأسود - تصدير التقدم", exportShareText: "تصدير تقدمي كمحقق", exportShareDialog: "احفظ تقدمك أو شاركه", inviteLibNotLoaded: "⚠️ ميزة الدعوة لم تُحمَّل بعد.", inviteLoginRequired: "❌ يجب تسجيل الدخول أولاً لتوليد رابط دعوة.", inviteUniqueFailed: "❌ فشل توليد رمز فريد بعد 10 محاولات.", inviteCopied: "✅ تم توليد رابط دعوة لمرة واحدة:\n{link}\nتم نسخه تلقائياً.", inviteCopyManual: "✅ رابط الدعوة:\n{link}\n(لم يتم النسخ تلقائياً، انسخه يدوياً)", inviteCopyPrompt: "انسخ رابط الدعوة:", inviteInvalid: "رابط غير صالح أو منتهي", inviteUsed: "هذا الرابط استُخدم من قبل، اطلب رابطاً جديداً من صاحبك.", inviteWelcome: "🎉 رابط الدعوة صالح! مرحباً بك في الملف الأسود.",
             appTitle: "الملف الأسود",
             listen: "استمع", energyExhausted: "استعملتي كل محاولاتك ديال اليوم. ارجع غدا يا محقق!",
@@ -2527,6 +2535,7 @@ import {
         ,
         inviteFriendBtn: "👤 دعوة صديق"},
         ary: {
+            accuseProgress: "🔎 الأدلة {e}/{eTotal} • الاستجواب {q}/{qTotal} — كمّل جوج باش تقدر تتهم",
             timedChallengeLabel: "⏱ تحدي بالوقت (10 دقايق)", raceInProgress: "السباق شاعل...", settingsLabel: "الإعدادات", closeLabel: "سد", exportProgressTitle: "تصدير التقدم", importProgressTitle: "استيراد التقدم", exportFailedText: "فشل التصدير. عاود جرب.", exportShareTitle: "الملف الأسود - تصدير التقدم", exportShareText: "تصدير التقدم ديالي فالتحقيق", exportShareDialog: "حفظ التقدم ديالك ولا شاركو", inviteLibNotLoaded: "⚠️ ميزة الدعوة مازال ما تحملاتش.", inviteLoginRequired: "❌ خاصك تسجل الدخول الأول باش تولد رابط الدعوة.", inviteUniqueFailed: "❌ ما قدرناش نولدو رمز فريد من بعد 10 محاولات.", inviteCopied: "✅ تولد رابط دعوة لمرة وحدة:\n{link}\nتنسخ بوحدو.", inviteCopyManual: "✅ رابط الدعوة:\n{link}\n(ما تنسخش بوحدو، نسخو بيديك)", inviteCopyPrompt: "انسخ رابط الدعوة:", inviteInvalid: "رابط ماشي صالح ولا سالات صلاحيتو", inviteUsed: "هاد الرابط تستعمل من قبل، طلب من صاحبك رابط جديد.", inviteWelcome: "🎉 رابط الدعوة صالح! مرحبا بيك فالملف الأسود.",
             appTitle: "الملف الأسود",
             listen: "استمع", energyExhausted: "استعملتي كل محاولاتك ديال اليوم. ارجع غدا يا محقق!",
@@ -2652,6 +2661,7 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
         loginGoogleFailedFallback: "ما قدرناش نسجلو الدخول عبر Google.",
         inviteFriendBtn: "👤 عيط لصاحب"},
         fr: {
+            accuseProgress: "🔎 Preuves {e}/{eTotal} • Interrogatoire {q}/{qTotal} — terminez les deux pour accuser",
             timedChallengeLabel: "⏱ Défi chronométré (10 min)", raceInProgress: "Course en cours...", settingsLabel: "Paramètres", closeLabel: "Fermer", exportProgressTitle: "Exporter la progression", importProgressTitle: "Importer la progression", exportFailedText: "Échec de l'exportation. Veuillez réessayer.", exportShareTitle: "Le Dossier Noir - Export de la progression", exportShareText: "Export de ma progression de détective", exportShareDialog: "Enregistrez ou partagez votre progression", inviteLibNotLoaded: "⚠️ La fonction d'invitation n'est pas encore chargée.", inviteLoginRequired: "❌ Vous devez d'abord vous connecter pour générer un lien d'invitation.", inviteUniqueFailed: "❌ Impossible de générer un code unique après 10 tentatives.", inviteCopied: "✅ Lien d'invitation à usage unique généré :\n{link}\nCopié automatiquement.", inviteCopyManual: "✅ Lien d'invitation :\n{link}\n(Copie automatique impossible — copiez-le manuellement)", inviteCopyPrompt: "Copiez le lien d'invitation :", inviteInvalid: "Lien invalide ou expiré", inviteUsed: "Ce lien a déjà été utilisé. Demandez-en un nouveau à votre ami.", inviteWelcome: "🎉 Le lien d'invitation est valide ! Bienvenue dans Le Dossier Noir.",
             appTitle: "Le Dossier Noir",
             listen: "Écouter", energyExhausted: "Vous avez utilisé toutes vos enquêtes du jour. Revenez demain, détective !",
@@ -2752,6 +2762,7 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
         ,
         inviteFriendBtn: "👤 Inviter un ami"},
         es: {
+            accuseProgress: "🔎 Pruebas {e}/{eTotal} • Interrogatorio {q}/{qTotal}: completa ambos para acusar",
             timedChallengeLabel: "⏱ Desafío cronometrado (10 min)", raceInProgress: "Carrera en curso...", settingsLabel: "Ajustes", closeLabel: "Cerrar", exportProgressTitle: "Exportar progreso", importProgressTitle: "Importar progreso", exportFailedText: "Error al exportar. Inténtalo de nuevo.", exportShareTitle: "El Expediente Negro - Exportación de progreso", exportShareText: "Exportación de mi progreso como detective", exportShareDialog: "Guarda o comparte tu progreso", inviteLibNotLoaded: "⚠️ La función de invitación aún no se ha cargado.", inviteLoginRequired: "❌ Debes iniciar sesión primero para generar un enlace de invitación.", inviteUniqueFailed: "❌ No se pudo generar un código único tras 10 intentos.", inviteCopied: "✅ Enlace de invitación de un solo uso generado:\n{link}\nCopiado automáticamente.", inviteCopyManual: "✅ Enlace de invitación:\n{link}\n(No se pudo copiar automáticamente; cópialo manualmente)", inviteCopyPrompt: "Copia el enlace de invitación:", inviteInvalid: "Enlace no válido o caducado", inviteUsed: "Este enlace ya se usó. Pide uno nuevo a tu amigo.", inviteWelcome: "🎉 ¡El enlace de invitación es válido! Bienvenido a El Expediente Negro.",
             appTitle: "El Archivo Negro",
             listen: "Escuchar", energyExhausted: "Has usado todas tus investigaciones de hoy. ¡Vuelve mañana, detective!",
@@ -2852,6 +2863,7 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
         ,
         inviteFriendBtn: "👤 Invitar a un amigo"},
         it: {
+            accuseProgress: "🔎 Prove {e}/{eTotal} • Interrogatorio {q}/{qTotal} — completa entrambi per accusare",
             timedChallengeLabel: "⏱ Sfida a tempo (10 min)", raceInProgress: "Gara in corso...", settingsLabel: "Impostazioni", closeLabel: "Chiudi", exportProgressTitle: "Esporta progressi", importProgressTitle: "Importa progressi", exportFailedText: "Esportazione non riuscita. Riprova.", exportShareTitle: "Il Fascicolo Nero - Esportazione dei progressi", exportShareText: "Esportazione dei miei progressi da detective", exportShareDialog: "Salva o condividi i tuoi progressi", inviteLibNotLoaded: "⚠️ La funzione di invito non è ancora stata caricata.", inviteLoginRequired: "❌ Devi prima accedere per generare un link d'invito.", inviteUniqueFailed: "❌ Impossibile generare un codice univoco dopo 10 tentativi.", inviteCopied: "✅ Link d'invito monouso generato:\n{link}\nCopiato automaticamente.", inviteCopyManual: "✅ Link d'invito:\n{link}\n(Copia automatica non riuscita — copialo manualmente)", inviteCopyPrompt: "Copia il link d'invito:", inviteInvalid: "Link non valido o scaduto", inviteUsed: "Questo link è già stato usato. Chiedine uno nuovo al tuo amico.", inviteWelcome: "🎉 Il link d'invito è valido! Benvenuto in Il Fascicolo Nero.",
             appTitle: "Il File Nero",
             listen: "Ascolta", energyExhausted: "Hai usato tutte le tue indagini di oggi. Torna domani, detective!",
@@ -2952,6 +2964,7 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
         ,
         inviteFriendBtn: "👤 Invita un amico"},
         de: {
+            accuseProgress: "🔎 Beweise {e}/{eTotal} • Verhör {q}/{qTotal} — schließe beides ab, um anzuklagen",
             timedChallengeLabel: "⏱ Zeitchallenge (10 Min.)", raceInProgress: "Rennen läuft...", settingsLabel: "Einstellungen", closeLabel: "Schließen", exportProgressTitle: "Fortschritt exportieren", importProgressTitle: "Fortschritt importieren", exportFailedText: "Export fehlgeschlagen. Bitte versuche es erneut.", exportShareTitle: "Die Schwarze Akte - Fortschrittsexport", exportShareText: "Export meines Detektiv-Fortschritts", exportShareDialog: "Speichere oder teile deinen Fortschritt", inviteLibNotLoaded: "⚠️ Die Einladungsfunktion ist noch nicht geladen.", inviteLoginRequired: "❌ Du musst dich zuerst anmelden, um einen Einladungslink zu erstellen.", inviteUniqueFailed: "❌ Nach 10 Versuchen konnte kein eindeutiger Code erzeugt werden.", inviteCopied: "✅ Einmaliger Einladungslink erstellt:\n{link}\nAutomatisch kopiert.", inviteCopyManual: "✅ Einladungslink:\n{link}\n(Automatisches Kopieren nicht möglich — bitte manuell kopieren)", inviteCopyPrompt: "Einladungslink kopieren:", inviteInvalid: "Ungültiger oder abgelaufener Link", inviteUsed: "Dieser Link wurde bereits verwendet. Bitte deinen Freund um einen neuen.", inviteWelcome: "🎉 Der Einladungslink ist gültig! Willkommen bei Die Schwarze Akte.",
             appTitle: "Die Schwarze Akte",
             listen: "Anhören", energyExhausted: "Du hast alle heutigen Ermittlungen aufgebraucht. Komm morgen wieder, Detektiv!",
@@ -3052,6 +3065,7 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
         ,
         inviteFriendBtn: "👤 Freund einladen"},
         pt: {
+            accuseProgress: "🔎 Provas {e}/{eTotal} • Interrogatório {q}/{qTotal} — conclua ambos para acusar",
             timedChallengeLabel: "⏱ Desafio cronometrado (10 min)", raceInProgress: "Corrida em curso...", settingsLabel: "Definições", closeLabel: "Fechar", exportProgressTitle: "Exportar progresso", importProgressTitle: "Importar progresso", exportFailedText: "Falha na exportação. Tente novamente.", exportShareTitle: "O Ficheiro Negro - Exportação de progresso", exportShareText: "Exportação do meu progresso de detetive", exportShareDialog: "Guarde ou partilhe o seu progresso", inviteLibNotLoaded: "⚠️ A funcionalidade de convite ainda não foi carregada.", inviteLoginRequired: "❌ Tem de iniciar sessão primeiro para gerar uma ligação de convite.", inviteUniqueFailed: "❌ Não foi possível gerar um código único após 10 tentativas.", inviteCopied: "✅ Ligação de convite de utilização única gerada:\n{link}\nCopiada automaticamente.", inviteCopyManual: "✅ Ligação de convite:\n{link}\n(Não foi possível copiar automaticamente — copie manualmente)", inviteCopyPrompt: "Copie a ligação de convite:", inviteInvalid: "Ligação inválida ou expirada", inviteUsed: "Esta ligação já foi utilizada. Peça uma nova ao seu amigo.", inviteWelcome: "🎉 A ligação de convite é válida! Bem-vindo a O Ficheiro Negro.",
             appTitle: "O Arquivo Negro",
             listen: "Ouvir", energyExhausted: "Já usaste todas as tuas investigações de hoje. Volta amanhã, detetive!",

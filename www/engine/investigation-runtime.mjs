@@ -191,6 +191,28 @@ export function createInvestigationRuntime(caseId, serializedState = null) {
       const result = askInterrogationQuestion(model, state, questionId);
       return { ...result, state: replace(result.state) };
     },
+    // The player may accuse once every piece of evidence is found and every question is asked.
+    getAccusationProgress() {
+      const evidenceTotal = (model.evidence || []).length;
+      const questionTotal = (model.questions || []).length;
+      const evidenceFound = (model.evidence || []).filter(item => state.discoveredEvidenceIds?.has(item.id)).length;
+      const questionsAsked = (model.questions || []).filter(item => state.askedQuestionIds?.has(item.id)).length;
+      return {
+        evidenceFound, evidenceTotal, questionsAsked, questionTotal,
+        complete: evidenceFound >= evidenceTotal && questionsAsked >= questionTotal
+      };
+    },
+    applyFinalAccusation(suspectId) {
+      // Validates the suspect ID (throws for unknown suspects), then decides purely on the suspect.
+      evaluateAccusationState(model, getHypothesisEvaluationState(model, state), suspectId);
+      const outcome = suspectId === model.accusationGate.candidateSuspectId ? 'CORRECT' : 'INCORRECT';
+      const nextState = {
+        ...state,
+        accusationAttempts: [...(state.accusationAttempts || []), { suspectId, outcome }]
+      };
+      replace(nextState);
+      return { result: { outcome, canAccuse: true, missingRequirements: [], satisfiedRequirements: [] }, state: snapshot() };
+    },
     evaluateAccusation(suspectId) {
       return evaluateAccusationState(model, getHypothesisEvaluationState(model, state), suspectId);
     },
