@@ -697,7 +697,7 @@ const TRANSLATIONS = {
                                 a: "Asked for total quiet."
                             },
                             {
-                                q: "Khaled Maintenance, the evidence now links you to the the lock-trick tools. Do you still deny involvement?",
+                                q: "Khaled Maintenance, the evidence now links you to the lock-trick tools. Do you still deny involvement?",
                                 a: "No. I deny involvement and maintain that I did not use that evidence to commit the crime."
                             }
                         ]
@@ -780,7 +780,7 @@ const TRANSLATIONS = {
                                 a: "In my private studio."
                             },
                             {
-                                q: "Fouad the Painter, the evidence now links you to the the painting materials and wall print. Do you still deny involvement?",
+                                q: "Fouad the Painter, the evidence now links you to the painting materials and wall print. Do you still deny involvement?",
                                 a: "No. I deny involvement and maintain that I did not use that evidence to commit the crime."
                             }
                         ]
@@ -939,7 +939,7 @@ const TRANSLATIONS = {
                                 a: "Home with my family."
                             },
                             {
-                                q: "Hani Lead Assistant, the evidence now links you to the the laboratory keycard. Do you still deny involvement?",
+                                q: "Hani Lead Assistant, the evidence now links you to the laboratory keycard. Do you still deny involvement?",
                                 a: "No. I deny involvement and maintain that I did not use that evidence to commit the crime."
                             }
                         ]
@@ -1041,7 +1041,7 @@ const TRANSLATIONS = {
                                 a: "Never saw him in my life."
                             },
                             {
-                                q: "Salim Mysterious, the evidence now links you to the the forged ticket and invisible ink. Do you still deny involvement?",
+                                q: "Salim Mysterious, the evidence now links you to the forged ticket and invisible ink. Do you still deny involvement?",
                                 a: "No. I deny involvement and maintain that I did not use that evidence to commit the crime."
                             }
                         ]
@@ -1181,7 +1181,7 @@ const TRANSLATIONS = {
                                 a: "At bank branch."
                             },
                             {
-                                q: "Ziad Accountant, the evidence now links you to the the vault keycard and keypad. Do you still deny involvement?",
+                                q: "Ziad Accountant, the evidence now links you to the vault keycard and keypad. Do you still deny involvement?",
                                 a: "No. I deny involvement and maintain that I did not use that evidence to commit the crime."
                             }
                         ]
@@ -1264,7 +1264,7 @@ const TRANSLATIONS = {
                                 a: "In my bed."
                             },
                             {
-                                q: "Hamza Youth, the evidence now links you to the the watch and coastal footprints. Do you still deny involvement?",
+                                q: "Hamza Youth, the evidence now links you to the watch and coastal footprints. Do you still deny involvement?",
                                 a: "No. I deny involvement and maintain that I did not use that evidence to commit the crime."
                             }
                         ]
@@ -1404,7 +1404,7 @@ const TRANSLATIONS = {
                                 a: "I know nothing."
                             },
                             {
-                                q: "Maher Decorator, the evidence now links you to the the alarm-bypass tools. Do you still deny involvement?",
+                                q: "Maher Decorator, the evidence now links you to the alarm-bypass tools. Do you still deny involvement?",
                                 a: "No. I deny involvement and maintain that I did not use that evidence to commit the crime."
                             }
                         ]
@@ -1563,7 +1563,7 @@ const TRANSLATIONS = {
                                 a: "In room alone."
                             },
                             {
-                                q: "Bassem Understudy, the evidence now links you to the the backstage shoe print and script. Do you still deny involvement?",
+                                q: "Bassem Understudy, the evidence now links you to the backstage shoe print and script. Do you still deny involvement?",
                                 a: "No. I deny involvement and maintain that I did not use that evidence to commit the crime."
                             }
                         ]
@@ -1631,7 +1631,7 @@ const TRANSLATIONS = {
                                 a: "Control crew."
                             },
                             {
-                                q: "Sameh Train Driver, the evidence now links you to the the brake-stop radio record. Do you still deny involvement?",
+                                q: "Sameh Train Driver, the evidence now links you to the brake-stop radio record. Do you still deny involvement?",
                                 a: "No. I deny involvement and maintain that I did not use that evidence to commit the crime."
                             }
                         ]
@@ -1790,7 +1790,7 @@ const TRANSLATIONS = {
                                 a: "False accusation."
                             },
                             {
-                                q: "Maher Smuggler, the evidence now links you to the the excavation traces. Do you still deny involvement?",
+                                q: "Maher Smuggler, the evidence now links you to the excavation traces. Do you still deny involvement?",
                                 a: "No. I deny involvement and maintain that I did not use that evidence to commit the crime."
                             }
                         ]
@@ -1892,7 +1892,7 @@ const TRANSLATIONS = {
                                 a: "Emergency kit item."
                             },
                             {
-                                q: "Samer Co-Pilot, the evidence now links you to the the flight-plan and fuel records. Do you still deny involvement?",
+                                q: "Samer Co-Pilot, the evidence now links you to the flight-plan and fuel records. Do you still deny involvement?",
                                 a: "No. I deny involvement and maintain that I did not use that evidence to commit the crime."
                             }
                         ]
@@ -1994,7 +1994,7 @@ const TRANSLATIONS = {
                                 a: "No, unaware."
                             },
                             {
-                                q: "Dr. Ziad, the evidence now links you to the the medical dropper and glove. Do you still deny involvement?",
+                                q: "Dr. Ziad, the evidence now links you to the medical dropper and glove. Do you still deny involvement?",
                                 a: "No. I deny involvement and maintain that I did not use that evidence to commit the crime."
                             }
                         ]
@@ -2115,7 +2115,7 @@ const TRANSLATIONS = {
                                 a: "Stolen, I don't know by whom."
                             },
                             {
-                                q: "Rami Curator, the evidence now links you to the the curator trace and sales record. Do you still deny involvement?",
+                                q: "Rami Curator, the evidence now links you to the curator trace and sales record. Do you still deny involvement?",
                                 a: "No. I deny involvement and maintain that I did not use that evidence to commit the crime."
                             }
                         ]
@@ -2236,7 +2236,7 @@ const TRANSLATIONS = {
                                 a: "In town market."
                             },
                             {
-                                q: "Nabil Nephew, the evidence now links you to the the spare key and footprint. Do you still deny involvement?",
+                                q: "Nabil Nephew, the evidence now links you to the spare key and footprint. Do you still deny involvement?",
                                 a: "No. I deny involvement and maintain that I did not use that evidence to commit the crime."
                             }
                         ]
@@ -2395,7 +2395,7 @@ const TRANSLATIONS = {
                                 a: "I seek truth."
                             },
                             {
-                                q: "Daniel Reporter, the evidence now links you to the the briefcase-swap trace. Do you still deny involvement?",
+                                q: "Daniel Reporter, the evidence now links you to the briefcase-swap trace. Do you still deny involvement?",
                                 a: "No. I deny involvement and maintain that I did not use that evidence to commit the crime."
                             }
                         ]
@@ -2478,7 +2478,7 @@ const TRANSLATIONS = {
                                 a: "In finance tower."
                             },
                             {
-                                q: "Ziad Rival, the evidence now links you to the the payment and contract record. Do you still deny involvement?",
+                                q: "Ziad Rival, the evidence now links you to the payment and contract record. Do you still deny involvement?",
                                 a: "No. I deny involvement and maintain that I did not use that evidence to commit the crime."
                             }
                         ]
@@ -2690,7 +2690,7 @@ const TRANSLATIONS = {
         resultWrongTitle: "اتهام خاطئ!",
         resultWrongDesc: "اتهمتي شخص بريء. المجرم الحقيقي هرب.",
         investigationPrematureAccusation: "خاصك أدلة أكثر قبل ما توجه الاتهام.",
-        investigationOpenFailed: "تعذر فتح التحقيق. تمت إعادة بيانات التحقيق المحفوظة بأمان.",
+        investigationOpenFailed: "ما قدرناش نحلّو التحقيق. تم إرجاع بيانات التحقيق المحفوظة لحالتها الأصلية بأمان.",
         investigationHintDiscovery: "شوف الأدلة اللي مازال ما اكتاشفتهاش، يمكن واحد منها يكون مهم.",
         investigationHintDiscoveryFallback: "راجع لائحة الأدلة وقلب على المعلومات اللي مازال ما استعملتيهاش.",
         investigationHintAnalysis: "حلل الأدلة اللي اكتاشفت قبل ما تدير شي استنتاج.",
@@ -3105,8 +3105,8 @@ const TRANSLATIONS = {
                         desc: "مقال شارد كتبه الضحية كيهاجم فيه كاتب مبتدئ."
                     },
                     {
-                        name: "دليل ديال التحقيق Fingerprint Match",
-                        desc: "مقارنة جنائية: Forensic comparison links the partial fingerprint on the napkin to Samer's recorded fingerprint."
+                        name: "دليل ديال التحقيق: تطابق البصمة",
+                        desc: "المقارنة الجنائية كتربط البصمة الجزئية اللي فالمنديل بالبصمة المسجلة ديال سامر."
                     }
                 ],
                 suspects: [
@@ -3147,7 +3147,7 @@ const TRANSLATIONS = {
                                 a: "قدام المراسيم ديال الحفل."
                             },
                             {
-                                q: "سامر الكاتب المنافس، الأدلة دابا كترابط وجودك بـfingerprint on the napkin. واش مازال كتنكر التورط ديالك؟",
+                                q: "سامر الكاتب المنافس، الأدلة دابا كتربطك ببصمة الصبع اللي فالمنديل. واش مازال كتنكر التورط ديالك؟",
                                 a: "لا. كننكر التورط ديالي وكنأكد بلي ما استعملتش هاد الدليل باش نرتكب الجريمة."
                             }
                         ]
@@ -3210,7 +3210,7 @@ const TRANSLATIONS = {
                         desc: "مخرب بقطعة حديدية باش يتعطل سيستيم قفل الباب التوماتيكي."
                     },
                     {
-                        name: "مسدس بداية (Starter)",
+                        name: "مسدس بداية",
                         desc: "ملاح من سرجم الطبقة اللفوقية."
                     },
                     {
@@ -3226,8 +3226,8 @@ const TRANSLATIONS = {
                         desc: "كتشير لمحاولات ابتزاز من الشريك التجاري ديالو."
                     },
                     {
-                        name: "دليل ديال التحقيق Maintenance Tool Match",
-                        desc: "مقارنة جنائية: Fibers from the fishing line and metal shim match tools issued to Khaled's maintenance kit."
+                        name: "دليل ديال التحقيق: تطابق ديال أدوات الصيانة",
+                        desc: "الألياف ديال خيط الصيد والشريحة المعدنية كيتطابقو مع الأدوات اللي فعدة الصيانة ديال خالد."
                     }
                 ],
                 suspects: [
@@ -3287,7 +3287,7 @@ const TRANSLATIONS = {
                                 a: "طلب مني السكوت التام."
                             },
                             {
-                                q: "خالد مول الصيانة، الأدلة دابا كترابط وجودك بـthe lock-trick tools. واش مازال كتنكر التورط ديالك؟",
+                                q: "خالد مول الصيانة، الأدلة دابا كتربطك بأدوات خدعة القفل. واش مازال كتنكر التورط ديالك؟",
                                 a: "لا. كننكر التورط ديالي وكنأكد بلي ما استعملتش هاد الدليل باش نرتكب الجريمة."
                             }
                         ]
@@ -3347,8 +3347,8 @@ const TRANSLATIONS = {
                         desc: "مطفية بالضبط لمدة 10 دقائق."
                     },
                     {
-                        name: "دليل ديال التحقيق Painter's Trace Match",
-                        desc: "مقارنة جنائية: Paint residue on the brush matches Fouad's custom oil-paint mixture, and the wall print matches his fingerprint."
+                        name: "دليل ديال التحقيق: تطابق آثار الرسام",
+                        desc: "بقايا الصباغة اللي فالفرشاة كتطابق خلطة الصباغة الزيتية الخاصة بفؤاد، والبصمة اللي فالحيط كتطابق بصمة صبعو."
                     }
                 ],
                 suspects: [
@@ -3370,7 +3370,7 @@ const TRANSLATIONS = {
                                 a: "في الاستوديو الخاص ديالي."
                             },
                             {
-                                q: "فؤاد الرسام، الأدلة دابا كترابط وجودك بـthe painting materials and wall print. واش مازال كتنكر التورط ديالك؟",
+                                q: "فؤاد الرسام، الأدلة دابا كتربطك بأدوات الرسم وبصمة الحيط. واش مازال كتنكر التورط ديالك؟",
                                 a: "لا. كننكر التورط ديالي وكنأكد بلي ما استعملتش هاد الدليل باش نرتكب الجريمة."
                             }
                         ]
@@ -3464,12 +3464,12 @@ const TRANSLATIONS = {
                         desc: "كيكشف على سرقة أبحاث كيميائية حساسة."
                     },
                     {
-                        name: "سجل مفتاح الدخول (Keycard)",
+                        name: "سجل مفتاح الدخول",
                         desc: "تسجيل دخول وحيد ببطاقة صحيحة."
                     },
                     {
-                        name: "دليل ديال التحقيق Keycard Identity Record",
-                        desc: "مقارنة جنائية: The access log identifies Hani's laboratory keycard as the only valid card used for the entry."
+                        name: "دليل ديال التحقيق: سجل هوية كارط الدخول",
+                        desc: "سجل الدخول كيبين بلي كارط المختبر ديال هاني هي الكارط الصالحة الوحيدة اللي تستعملات للدخول."
                     }
                 ],
                 suspects: [
@@ -3529,7 +3529,7 @@ const TRANSLATIONS = {
                                 a: "في داري مع عائلتي."
                             },
                             {
-                                q: "هاني المساعد الرئيسي، الأدلة دابا كترابط وجودك بـthe laboratory keycard. واش مازال كتنكر التورط ديالك؟",
+                                q: "هاني المساعد الرئيسي، الأدلة دابا كتربطك بكارط دخول المختبر. واش مازال كتنكر التورط ديالك؟",
                                 a: "لا. كننكر التورط ديالي وكنأكد بلي ما استعملتش هاد الدليل باش نرتكب الجريمة."
                             }
                         ]
@@ -3569,7 +3569,7 @@ const TRANSLATIONS = {
                 victim: "الضحية: كمال الدين (62 عام).",
                 evidence: [
                     {
-                        name: "كاتم صوت معدني (Suppressor)",
+                        name: "كاتم صوت معدني",
                         desc: "تلاح فوق السكة الحديدية وقت عبور النفق."
                     },
                     {
@@ -3589,8 +3589,8 @@ const TRANSLATIONS = {
                         desc: "كيبين حركة مشبوهة بين العربات."
                     },
                     {
-                        name: "دليل ديال التحقيق Invisible Ink Match",
-                        desc: "مقارنة جنائية: The invisible-ink traces match the security ink used on Salim's forged ticket."
+                        name: "دليل ديال التحقيق: تطابق الحبر الخفي",
+                        desc: "آثار الحبر الخفي كتطابق حبر الأمان اللي تستعمل فالتذكرة المزورة ديال سالم."
                     }
                 ],
                 suspects: [
@@ -3631,7 +3631,7 @@ const TRANSLATIONS = {
                                 a: "عمرني شفتو في حياتي."
                             },
                             {
-                                q: "سليم الغامض، الأدلة دابا كترابط وجودك بـthe forged ticket and invisible ink. واش مازال كتنكر التورط ديالك؟",
+                                q: "سليم الغامض، الأدلة دابا كتربطك بالتذكرة المزورة والحبر الخفي. واش مازال كتنكر التورط ديالك؟",
                                 a: "لا. كننكر التورط ديالي وكنأكد بلي ما استعملتش هاد الدليل باش نرتكب الجريمة."
                             }
                         ]
@@ -3657,7 +3657,7 @@ const TRANSLATIONS = {
                     },
                     {
                         name: "جهاد الحارس",
-                        role: "حارس خاص (Escort)",
+                        role: "حارس خاص",
                         alibi: "كان حارس باب السلع اللوراني.",
                         qs: [
                             {
@@ -3702,7 +3702,7 @@ const TRANSLATIONS = {
                         desc: "فوق زر إدخال الخزنة."
                     },
                     {
-                        name: "بطاقة رقمية (Keycard)",
+                        name: "بطاقة رقمية",
                         desc: "البطاقة الاحتياطية ناقصة من الدرج."
                     },
                     {
@@ -3710,8 +3710,8 @@ const TRANSLATIONS = {
                         desc: "كاتعني محاسب الشركة."
                     },
                     {
-                        name: "دليل ديال التحقيق Vault Access Match",
-                        desc: "مقارنة جنائية: The backup keycard log records Ziad's access, and the keypad print matches his fingerprint."
+                        name: "دليل ديال التحقيق: تطابق الدخول للخزنة",
+                        desc: "سجل الكارط الاحتياطية كيسجل دخول زياد، والبصمة اللي فلوحة الأرقام كتطابق بصمة صبعو."
                     }
                 ],
                 suspects: [
@@ -3771,7 +3771,7 @@ const TRANSLATIONS = {
                                 a: "في الوكالة البنكية."
                             },
                             {
-                                q: "زياد المحاسب، الأدلة دابا كترابط وجودك بـthe vault keycard and keypad. واش مازال كتنكر التورط ديالك؟",
+                                q: "زياد المحاسب، الأدلة دابا كتربطك بكارط الخزنة ولوحة الأرقام. واش مازال كتنكر التورط ديالك؟",
                                 a: "لا. كننكر التورط ديالي وكنأكد بلي ما استعملتش هاد الدليل باش نرتكب الجريمة."
                             }
                         ]
@@ -3831,8 +3831,8 @@ const TRANSLATIONS = {
                         desc: "الأدوات الحادة ناقصة منه."
                     },
                     {
-                        name: "دليل ديال التحقيق Watch and Footprint Match",
-                        desc: "مقارنة جنائية: The wristwatch serial matches Hamza's registered watch, and the footprints follow his known route toward the coastal road."
+                        name: "دليل ديال التحقيق: تطابق الساعة وآثار الرجلين",
+                        desc: "الرقم التسلسلي ديال الساعة كيطابق الساعة المسجلة ديال حمزة، وآثار الرجلين كتتبع الطريق المعروف ديالو نحو الطريق الساحلي."
                     }
                 ],
                 suspects: [
@@ -3854,7 +3854,7 @@ const TRANSLATIONS = {
                                 a: "في ناموستيتي."
                             },
                             {
-                                q: "حمزة الشاب، الأدلة دابا كترابط وجودك بـthe watch and coastal footprints. واش مازال كتنكر التورط ديالك؟",
+                                q: "حمزة الشاب، الأدلة دابا كتربطك بالساعة وآثار الرجلين فالساحل. واش مازال كتنكر التورط ديالك؟",
                                 a: "لا. كننكر التورط ديالي وكنأكد بلي ما استعملتش هاد الدليل باش نرتكب الجريمة."
                             }
                         ]
@@ -3940,7 +3940,7 @@ const TRANSLATIONS = {
                         desc: "فيه غبار القصر القديم."
                     },
                     {
-                        name: "تصميم القصر (Blueprint)",
+                        name: "تصميم القصر",
                         desc: "تلاقى في تلفون الديكوراتور."
                     },
                     {
@@ -3952,8 +3952,8 @@ const TRANSLATIONS = {
                         desc: "كيجل زيارة ليلية لمصمم الديكور."
                     },
                     {
-                        name: "دليل ديال التحقيق Decorator Access Trace",
-                        desc: "مقارنة جنائية: The bypass tool serial and glove print match Maher's registered workshop kit."
+                        name: "دليل ديال التحقيق: أثر دخول المصمم",
+                        desc: "الرقم التسلسلي ديال أداة التجاوز وبصمة القفاز كيطابقو عدة الورشة المسجلة ديال ماهر."
                     }
                 ],
                 suspects: [
@@ -3994,7 +3994,7 @@ const TRANSLATIONS = {
                                 a: "ما عارف والو."
                             },
                             {
-                                q: "ماهر الديكوراتور، الأدلة دابا كترابط وجودك بـthe alarm-bypass tools. واش مازال كتنكر التورط ديالك؟",
+                                q: "ماهر الديكوراتور، الأدلة دابا كتربطك بأدوات تعطيل الإنذار. واش مازال كتنكر التورط ديالك؟",
                                 a: "لا. كننكر التورط ديالي وكنأكد بلي ما استعملتش هاد الدليل باش نرتكب الجريمة."
                             }
                         ]
@@ -4049,7 +4049,7 @@ const TRANSLATIONS = {
                 tag: "قضية قتل",
                 difficulty: "hard",
                 title: "مقتل الممثل الشهير",
-                brief: "ممثل معروف تلاقى مقتول في كواليس المسرح (Green Room) مور العرض المسرحي الأخير.",
+                brief: "ممثل معروف تلاقى مقتول في كواليس المسرح مور العرض المسرحي الأخير.",
                 victim: "الضحية: رأفت رامي (45 عام).",
                 evidence: [
                     {
@@ -4073,8 +4073,8 @@ const TRANSLATIONS = {
                         desc: "ملاح في سطل الزبالة."
                     },
                     {
-                        name: "دليل ديال التحقيق Backstage Shoe and Script Match",
-                        desc: "مقارنة جنائية: The wooden shoe print matches Bassem's stage shoes, and the script notes carry his handwriting."
+                        name: "دليل ديال التحقيق: تطابق صباط الكواليس والسيناريو",
+                        desc: "أثر الصباط الخشبي كيطابق صباط المسرح ديال باسم، والملاحظات اللي فالسيناريو فيها الخط ديالو."
                     }
                 ],
                 suspects: [
@@ -4153,7 +4153,7 @@ const TRANSLATIONS = {
                                 a: "في الغرفة بوحدي."
                             },
                             {
-                                q: "باسهم الممثل الاحتياطي، الأدلة دابا كترابط وجودك بـthe backstage shoe print and script. واش مازال كتنكر التورط ديالك؟",
+                                q: "باسهم الممثل الاحتياطي، الأدلة دابا كتربطك بأثر صباط الكواليس والسيناريو. واش مازال كتنكر التورط ديالك؟",
                                 a: "لا. كننكر التورط ديالي وكنأكد بلي ما استعملتش هاد الدليل باش نرتكب الجريمة."
                             }
                         ]
@@ -4178,7 +4178,7 @@ const TRANSLATIONS = {
                         desc: "مخبي حدا السكة الحديدية."
                     },
                     {
-                        name: "جهاز لاسلكي (Walkie-Talkie)",
+                        name: "جهاز لاسلكي",
                         desc: "كيخدم بتردد راديو أمن شركة القطارات."
                     },
                     {
@@ -4194,8 +4194,8 @@ const TRANSLATIONS = {
                         desc: "كيبين توقف اضطراري متعمد للقطار لمدة دقيقة."
                     },
                     {
-                        name: "دليل ديال التحقيق Maintenance Link",
-                        desc: "مقارنة جنائية: The work-glove fibers and hydraulic-jack inventory match Essam's maintenance kit."
+                        name: "دليل ديال التحقيق: رابط الصيانة",
+                        desc: "ألياف قفاز الخدمة وجرد الرافعة الهيدروليكية كيطابقو عدة الصيانة ديال عصام."
                     },
                     {
                         name: "تسجيل لاسلكي ديال التنسيق",
@@ -4221,7 +4221,7 @@ const TRANSLATIONS = {
                                 a: "طاقم المراقبة."
                             },
                             {
-                                q: "سامح سائق القطار، الأدلة دابا كترابط وجودك بـthe brake-stop radio record. واش مازال كتنكر التورط ديالك؟",
+                                q: "سامح سائق القطار، الأدلة دابا كتربطك بتسجيل اللاسلكي ديال توقف الفرامل. واش مازال كتنكر التورط ديالك؟",
                                 a: "لا. كننكر التورط ديالي وكنأكد بلي ما استعملتش هاد الدليل باش نرتكب الجريمة."
                             }
                         ]
@@ -4299,7 +4299,7 @@ const TRANSLATIONS = {
                 victim: "الضحية: الدكتور فاضل (58 عام).",
                 evidence: [
                     {
-                        name: "فاس أثري (Pickaxe)",
+                        name: "فاس أثري",
                         desc: "مغرق بدم الضحية والبصمات."
                     },
                     {
@@ -4307,7 +4307,7 @@ const TRANSLATIONS = {
                         desc: "طاح من القاتل فاش كان هارب."
                     },
                     {
-                        name: "مصباح يدوي (Flashlight)",
+                        name: "مصباح يدوي",
                         desc: "فيه ماركة ديال حانوت سكاكي محلي."
                     },
                     {
@@ -4319,8 +4319,8 @@ const TRANSLATIONS = {
                         desc: "كيوضح نزاع على تقسيم الآثار المكتشفة."
                     },
                     {
-                        name: "دليل ديال التحقيق Smuggler Trace Match",
-                        desc: "مقارنة جنائية: The flashlight serial and footprint pattern match Maher's equipment and boots."
+                        name: "دليل ديال التحقيق: تطابق آثار المهرب",
+                        desc: "الرقم التسلسلي ديال المصباح ونمط آثار الرجلين كيطابقو المعدات والصباط ديال ماهر."
                     }
                 ],
                 suspects: [
@@ -4380,7 +4380,7 @@ const TRANSLATIONS = {
                                 a: "اتهام باطل وكاذب."
                             },
                             {
-                                q: "ماهر المهرب، الأدلة دابا كترابط وجودك بـthe excavation traces. واش مازال كتنكر التورط ديالك؟",
+                                q: "ماهر المهرب، الأدلة دابا كتربطك بآثار الحفر. واش مازال كتنكر التورط ديالك؟",
                                 a: "لا. كننكر التورط ديالي وكنأكد بلي ما استعملتش هاد الدليل باش نرتكب الجريمة."
                             }
                         ]
@@ -4421,7 +4421,7 @@ const TRANSLATIONS = {
                 evidence: [
                     {
                         name: "صندوق الطائرة الأسود مهشم",
-                        desc: "كيبين تلاعب متعمد بنظام الطيار الآلي (Autopilot)."
+                        desc: "كيبين تلاعب متعمد بنظام الطيار الآلي."
                     },
                     {
                         name: "وقود ملوث",
@@ -4440,8 +4440,8 @@ const TRANSLATIONS = {
                         desc: "كتدير مسار الطائرة اتجاه الجبال بالعاني."
                     },
                     {
-                        name: "دليل ديال التحقيق Co-Pilot Access Record",
-                        desc: "مقارنة جنائية: The flight-plan terminal log shows Samer's authenticated sign-off was used to alter the route, and the fuel access record carries his badge."
+                        name: "دليل ديال التحقيق: سجل دخول مساعد الطيار",
+                        desc: "سجل محطة خطة الطيران كيبين بلي التوقيع الموثق ديال سامر تستعمل باش يتبدل المسار، وسجل الوصول للوقود فيه الشارة ديالو."
                     }
                 ],
                 suspects: [
@@ -4482,7 +4482,7 @@ const TRANSLATIONS = {
                                 a: "أداة في طقم الطوارئ."
                             },
                             {
-                                q: "سامر مساعد الطيار، الأدلة دابا كترابط وجودك بـthe flight-plan and fuel records. واش مازال كتنكر التورط ديالك؟",
+                                q: "سامر مساعد الطيار، الأدلة دابا كتربطك بسجلات خطة الطيران والوقود. واش مازال كتنكر التورط ديالك؟",
                                 a: "لا. كننكر التورط ديالي وكنأكد بلي ما استعملتش هاد الدليل باش نرتكب الجريمة."
                             }
                         ]
@@ -4561,8 +4561,8 @@ const TRANSLATIONS = {
                         desc: "كيبين شخص لابس كبوط طبي (طبيب)."
                     },
                     {
-                        name: "دليل ديال التحقيق Doctor Inventory Match",
-                        desc: "مقارنة جنائية: The medical dropper carries Ziad's clinic inventory mark, and the glove print matches his medical gloves."
+                        name: "دليل ديال التحقيق: تطابق جرد الطبيب",
+                        desc: "القطارة الطبية فيها علامة جرد العيادة ديال زياد، وبصمة القفاز كتطابق القفازات الطبية ديالو."
                     }
                 ],
                 suspects: [
@@ -4584,7 +4584,7 @@ const TRANSLATIONS = {
                                 a: "لا، ما عندي علم."
                             },
                             {
-                                q: "الدكتور زياد، الأدلة دابا كترابط وجودك بـthe medical dropper and glove. واش مازال كتنكر التورط ديالك؟",
+                                q: "الدكتور زياد، الأدلة دابا كتربطك بالقطارة الطبية والقفاز. واش مازال كتنكر التورط ديالك؟",
                                 a: "لا. كننكر التورط ديالي وكنأكد بلي ما استعملتش هاد الدليل باش نرتكب الجريمة."
                             }
                         ]
@@ -4674,7 +4674,7 @@ const TRANSLATIONS = {
                         desc: "كيبين بلي المحافظ تسجل دخولو متأخر بالليل."
                     },
                     {
-                        name: "صاك قماش (Canvas)",
+                        name: "صاك قماش",
                         desc: "مخلوق ومخلف ورا كراسي الجلوس."
                     },
                     {
@@ -4682,8 +4682,8 @@ const TRANSLATIONS = {
                         desc: "كاتباع قطع شبيهة لتاجر تحف."
                     },
                     {
-                        name: "دليل ديال التحقيق Curator Trace Match",
-                        desc: "مقارنة جنائية: The blue ink mark matches Rami's inventory pen, and the sales receipt was found in his locked office file."
+                        name: "دليل ديال التحقيق: تطابق آثار أمين المتحف",
+                        desc: "علامة الحبر الأزرق كتطابق قلم الجرد ديال رامي، وورقة البيع تلقات فالملف ديال المكتب ديالو المقفول."
                     }
                 ],
                 suspects: [
@@ -4705,7 +4705,7 @@ const TRANSLATIONS = {
                                 a: "تسرقو، وما عارفش شكون دارها."
                             },
                             {
-                                q: "رامي المحافظ، الأدلة دابا كترابط وجودك بـthe curator trace and sales record. واش مازال كتنكر التورط ديالك؟",
+                                q: "رامي المحافظ، الأدلة دابا كتربطك بأثر أمين المتحف وسجل البيع. واش مازال كتنكر التورط ديالك؟",
                                 a: "لا. كننكر التورط ديالي وكنأكد بلي ما استعملتش هاد الدليل باش نرتكب الجريمة."
                             }
                         ]
@@ -4803,8 +4803,8 @@ const TRANSLATIONS = {
                         desc: "من ولد الخو كيطلب فيها الفلوس بقوة."
                     },
                     {
-                        name: "دليل ديال التحقيق Nephew Entry Trace",
-                        desc: "مقارنة جنائية: The spare-key hiding spot was known to Nabil, and the muddy footprint matches his work boot."
+                        name: "دليل ديال التحقيق: أثر دخول ولد الخ",
+                        desc: "بلاصة إخفاء المفتاح الاحتياطي كان كيعرفها نبيل، وأثر الرجل المطين كيطابق صباط الخدمة ديالو."
                     }
                 ],
                 suspects: [
@@ -4826,7 +4826,7 @@ const TRANSLATIONS = {
                                 a: "في سوق المدينة."
                             },
                             {
-                                q: "نبيل ولد الخو، الأدلة دابا كترابط وجودك بـthe spare key and footprint. واش مازال كتنكر التورط ديالك؟",
+                                q: "نبيل ولد الخو، الأدلة دابا كتربطك بالمفتاح الاحتياطي وأثر الرجل. واش مازال كتنكر التورط ديالك؟",
                                 a: "لا. كننكر التورط ديالي وكنأكد بلي ما استعملتش هاد الدليل باش نرتكب الجريمة."
                             }
                         ]
@@ -4924,8 +4924,8 @@ const TRANSLATIONS = {
                         desc: "كيجل دخول صحفي غامض."
                     },
                     {
-                        name: "دليل ديال التحقيق Reporter Credential Trace",
-                        desc: "مقارنة جنائية: The forged invitation and briefcase swap are linked to Daniel's registered event credentials, and the handkerchief monogram matches his initials."
+                        name: "دليل ديال التحقيق: أثر الاعتماد ديال المراسل",
+                        desc: "الدعوة المزورة وتبديل الحقيبة مرتابطين بوثائق الاعتماد المسجلة ديال دانيال للحدث، والحروف المطرزة فالمنديل كتطابق الحروف الأولى ديال سميتو."
                     }
                 ],
                 suspects: [
@@ -4985,7 +4985,7 @@ const TRANSLATIONS = {
                                 a: "أنا أبحث عن الحقيقة."
                             },
                             {
-                                q: "دانيال الصحفي، الأدلة دابا كترابط وجودك بـthe briefcase-swap trace. واش مازال كتنكر التورط ديالك؟",
+                                q: "دانيال الصحفي، الأدلة دابا كتربطك بأثر تبديل الحقيبة. واش مازال كتنكر التورط ديالك؟",
                                 a: "لا. كننكر التورط ديالي وكنأكد بلي ما استعملتش هاد الدليل باش نرتكب الجريمة."
                             }
                         ]
@@ -5029,7 +5029,7 @@ const TRANSLATIONS = {
                         desc: "مطلق من سرجم عمارة مقابلة."
                     },
                     {
-                        name: "قوس احترافي (Crossbow)",
+                        name: "قوس احترافي",
                         desc: "مركب على پيصي (حامل ثلاثي) في عمارة مقابلة."
                     },
                     {
@@ -5041,12 +5041,12 @@ const TRANSLATIONS = {
                         desc: "كيبين خسارة كبرى للمنافس الرئيسي."
                     },
                     {
-                        name: "منظار عالي الجهد (Scope)",
+                        name: "منظار عالي الجهد",
                         desc: "مستعمل للتصويب الدقيق عن بعد."
                     },
                     {
-                        name: "دليل ديال التحقيق Payment and Contract Record",
-                        desc: "مقارنة جنائية: The recovered payment record links Ziad to the contract executed by Jehad, matching Jehad's statement about his payer."
+                        name: "دليل ديال التحقيق: سجل الأداء والعقد",
+                        desc: "سجل الأداء اللي تسترجع كيربط زياد بالعقد اللي نفذو جهاد، وهادشي كيطابق تصريح جهاد على اللي خلصو."
                     }
                 ],
                 suspects: [
@@ -5068,7 +5068,7 @@ const TRANSLATIONS = {
                                 a: "في برج المال."
                             },
                             {
-                                q: "زياد المنافس، الأدلة دابا كترابط وجودك بـthe payment and contract record. واش مازال كتنكر التورط ديالك؟",
+                                q: "زياد المنافس، الأدلة دابا كتربطك بسجل الأداء والعقد. واش مازال كتنكر التورط ديالك؟",
                                 a: "لا. كننكر التورط ديالي وكنأكد بلي ما استعملتش هاد الدليل باش نرتكب الجريمة."
                             }
                         ]
@@ -5280,7 +5280,7 @@ const TRANSLATIONS = {
         resultWrongTitle: "Accusation erronée !",
         resultWrongDesc: "Vous avez accusé une personne innocente. Le vrai coupable s'est échappé.",
         investigationPrematureAccusation: "Vous avez besoin de plus de preuves avant de porter une accusation.",
-        investigationOpenFailed: "ما قدرناش نحلّو التحقيق. تعاودات بيانات التحقيق المحفوظة بأمان.",
+        investigationOpenFailed: "Impossible d’ouvrir l’enquête. Les données d’enquête sauvegardées ont été réinitialisées en toute sécurité.",
         investigationHintDiscovery: "Examinez les preuves restantes. L’une d’elles peut encore être importante.",
         investigationHintDiscoveryFallback: "Revoyez la liste des preuves et cherchez les informations encore inutilisées.",
         investigationHintAnalysis: "Analysez les preuves déjà découvertes avant de tirer une conclusion.",
@@ -5695,8 +5695,8 @@ const TRANSLATIONS = {
                         desc: "Une critique acerbe écrite par la victime attaquant un écrivain amateur."
                     },
                     {
-                        name: "Indice d’enquête Fingerprint Match",
-                        desc: "Comparaison médico-légale : la comparaison relie the partial fingerprint on the napkin to Samer's recorded fingerprint."
+                        name: "Indice d’enquête : Concordance d’empreinte digitale",
+                        desc: "La comparaison criminalistique relie l’empreinte digitale partielle sur la serviette à celle de Samer enregistrée dans le fichier."
                     }
                 ],
                 suspects: [
@@ -5737,7 +5737,7 @@ const TRANSLATIONS = {
                                 a: "Devant la scène de la cérémonie."
                             },
                             {
-                                q: "Samer l'Écrivain Rival, les éléments relient maintenant votre présence à fingerprint on the napkin. Niez-vous toujours toute implication ?",
+                                q: "Samer l'Écrivain Rival, les éléments vous relient maintenant à l’empreinte digitale sur la serviette. Niez-vous toujours toute implication ?",
                                 a: "Non. Je nie toute implication et maintiens que je n’ai pas utilisé cet élément pour commettre le crime."
                             }
                         ]
@@ -5816,8 +5816,8 @@ const TRANSLATIONS = {
                         desc: "Fait référence à des tentatives de chantage de la part de son associé."
                     },
                     {
-                        name: "Indice d’enquête Maintenance Tool Match",
-                        desc: "Comparaison médico-légale : Les fibres de the fishing line and metal shim match tools issued to Khaled's maintenance kit."
+                        name: "Indice d’enquête : Concordance des outils de maintenance",
+                        desc: "Les fibres du fil de pêche et de la cale métallique correspondent aux outils de la trousse de maintenance de Khaled."
                     }
                 ],
                 suspects: [
@@ -5877,7 +5877,7 @@ const TRANSLATIONS = {
                                 a: "Il a demandé un silence total."
                             },
                             {
-                                q: "Khaled le Maintenancier, les éléments relient maintenant votre présence à the lock-trick tools. Niez-vous toujours toute implication ?",
+                                q: "Khaled le Maintenancier, les éléments vous relient maintenant aux outils du truc de la serrure. Niez-vous toujours toute implication ?",
                                 a: "Non. Je nie toute implication et maintiens que je n’ai pas utilisé cet élément pour commettre le crime."
                             }
                         ]
@@ -5937,8 +5937,8 @@ const TRANSLATIONS = {
                         desc: "Désactivé pendant exactement 10 minutes."
                     },
                     {
-                        name: "Indice d’enquête Painter's Trace Match",
-                        desc: "Comparaison médico-légale : Les résidus de peinture sur the brush matches Fouad's custom oil-paint mixture, and the wall print matches his fingerprint."
+                        name: "Indice d’enquête : Concordance des traces du peintre",
+                        desc: "Les résidus de peinture sur le pinceau correspondent au mélange de peinture à l’huile personnalisé de Fouad, et l’empreinte sur le mur correspond à la sienne."
                     }
                 ],
                 suspects: [
@@ -5960,7 +5960,7 @@ const TRANSLATIONS = {
                                 a: "Dans mon studio privé."
                             },
                             {
-                                q: "Fouad le Peintre, les éléments relient maintenant votre présence à the painting materials and wall print. Niez-vous toujours toute implication ?",
+                                q: "Fouad le Peintre, les éléments vous relient maintenant au matériel de peinture et à l’empreinte sur le mur. Niez-vous toujours toute implication ?",
                                 a: "Non. Je nie toute implication et maintiens que je n’ai pas utilisé cet élément pour commettre le crime."
                             }
                         ]
@@ -6058,8 +6058,8 @@ const TRANSLATIONS = {
                         desc: "Entrée unique utilisant un accès par carte valide."
                     },
                     {
-                        name: "Indice d’enquête Keycard Identity Record",
-                        desc: "Comparaison médico-légale : Le registre d’accès identifie Hani's laboratory keycard as the only valid card used for the entry."
+                        name: "Indice d’enquête : Registre d’identité de la carte d’accès",
+                        desc: "Le registre d’accès identifie la carte d’accès du laboratoire de Hani comme la seule carte valide utilisée pour l’entrée."
                     }
                 ],
                 suspects: [
@@ -6119,7 +6119,7 @@ const TRANSLATIONS = {
                                 a: "À la maison avec ma famille."
                             },
                             {
-                                q: "Hani l'Assistant Principal, les éléments relient maintenant votre présence à the laboratory keycard. Niez-vous toujours toute implication ?",
+                                q: "Hani l'Assistant Principal, les éléments vous relient maintenant à la carte d’accès du laboratoire. Niez-vous toujours toute implication ?",
                                 a: "Non. Je nie toute implication et maintiens que je n’ai pas utilisé cet élément pour commettre le crime."
                             }
                         ]
@@ -6179,8 +6179,8 @@ const TRANSLATIONS = {
                         desc: "Montre un mouvement suspect entre les wagons."
                     },
                     {
-                        name: "Indice d’enquête Invisible Ink Match",
-                        desc: "Comparaison médico-légale : Les traces d’encre invisible correspondent the security ink used on Salim's forged ticket."
+                        name: "Indice d’enquête : Concordance de l’encre invisible",
+                        desc: "Les traces d’encre invisible correspondent à l’encre de sécurité utilisée sur le billet falsifié de Salim."
                     }
                 ],
                 suspects: [
@@ -6221,7 +6221,7 @@ const TRANSLATIONS = {
                                 a: "Je ne l'ai jamais vue de ma vie."
                             },
                             {
-                                q: "Salim le Mystérieux, les éléments relient maintenant votre présence à the forged ticket and invisible ink. Niez-vous toujours toute implication ?",
+                                q: "Salim le Mystérieux, les éléments vous relient maintenant au billet falsifié et à l’encre invisible. Niez-vous toujours toute implication ?",
                                 a: "Non. Je nie toute implication et maintiens que je n’ai pas utilisé cet élément pour commettre le crime."
                             }
                         ]
@@ -6300,8 +6300,8 @@ const TRANSLATIONS = {
                         desc: "Appartient au comptable de l'entreprise."
                     },
                     {
-                        name: "Indice d’enquête Vault Access Match",
-                        desc: "Comparaison médico-légale : Le registre de la carte de secours enregistre Ziad's access, and the keypad print matches his fingerprint."
+                        name: "Indice d’enquête : Concordance d’accès au coffre-fort",
+                        desc: "Le registre de la carte de secours enregistre l’accès de Ziad, et l’empreinte sur le clavier correspond à la sienne."
                     }
                 ],
                 suspects: [
@@ -6361,7 +6361,7 @@ const TRANSLATIONS = {
                                 a: "À l'agence bancaire."
                             },
                             {
-                                q: "Ziad le Comptable, les éléments relient maintenant votre présence à the vault keycard and keypad. Niez-vous toujours toute implication ?",
+                                q: "Ziad le Comptable, les éléments vous relient maintenant à la carte du coffre-fort et au clavier. Niez-vous toujours toute implication ?",
                                 a: "Non. Je nie toute implication et maintiens que je n’ai pas utilisé cet élément pour commettre le crime."
                             }
                         ]
@@ -6421,8 +6421,8 @@ const TRANSLATIONS = {
                         desc: "Outils tranchants manquants."
                     },
                     {
-                        name: "Indice d’enquête Watch and Footprint Match",
-                        desc: "Comparaison médico-légale : Le numéro de série de la montre correspond Hamza's registered watch, and the footprints follow his known route toward the coastal road."
+                        name: "Indice d’enquête : Concordance de la montre et des empreintes de pas",
+                        desc: "Le numéro de série de la montre correspond à la montre enregistrée de Hamza, et les empreintes de pas suivent son itinéraire habituel vers la route côtière."
                     }
                 ],
                 suspects: [
@@ -6444,7 +6444,7 @@ const TRANSLATIONS = {
                                 a: "Dans mon lit."
                             },
                             {
-                                q: "Hamza le Jeune, les éléments relient maintenant votre présence à the watch and coastal footprints. Niez-vous toujours toute implication ?",
+                                q: "Hamza le Jeune, les éléments vous relient maintenant à la montre et aux empreintes de pas sur la côte. Niez-vous toujours toute implication ?",
                                 a: "Non. Je nie toute implication et maintiens que je n’ai pas utilisé cet élément pour commettre le crime."
                             }
                         ]
@@ -6542,8 +6542,8 @@ const TRANSLATIONS = {
                         desc: "Enregistre la visite nocturne de la décoratrice intérieure."
                     },
                     {
-                        name: "Indice d’enquête Decorator Access Trace",
-                        desc: "Comparaison médico-légale : Le numéro de série de l’outil et l’empreinte du gant correspondent Maher's registered workshop kit."
+                        name: "Indice d’enquête : Trace d’accès du décorateur",
+                        desc: "Le numéro de série de l’outil de contournement et l’empreinte du gant correspondent au kit d’atelier enregistré de Maher."
                     }
                 ],
                 suspects: [
@@ -6584,7 +6584,7 @@ const TRANSLATIONS = {
                                 a: "Je ne sais rien."
                             },
                             {
-                                q: "Maher le Décorateur, les éléments relient maintenant votre présence à the alarm-bypass tools. Niez-vous toujours toute implication ?",
+                                q: "Maher le Décorateur, les éléments vous relient maintenant aux outils de contournement de l’alarme. Niez-vous toujours toute implication ?",
                                 a: "Non. Je nie toute implication et maintiens que je n’ai pas utilisé cet élément pour commettre le crime."
                             }
                         ]
@@ -6663,8 +6663,8 @@ const TRANSLATIONS = {
                         desc: "Jeté dans la poubelle."
                     },
                     {
-                        name: "Indice d’enquête Backstage Shoe and Script Match",
-                        desc: "Comparaison médico-légale : L’empreinte de chaussure en bois correspond Bassem's stage shoes, and the script notes carry his handwriting."
+                        name: "Indice d’enquête : Concordance de la chaussure des coulisses et du scénario",
+                        desc: "L’empreinte de chaussure en bois correspond aux chaussures de scène de Bassem, et les notes du scénario portent son écriture."
                     }
                 ],
                 suspects: [
@@ -6743,7 +6743,7 @@ const TRANSLATIONS = {
                                 a: "Dans la pièce seul."
                             },
                             {
-                                q: "Bassem la Doublure, les éléments relient maintenant votre présence à the backstage shoe print and script. Niez-vous toujours toute implication ?",
+                                q: "Bassem la Doublure, les éléments vous relient maintenant à l’empreinte de chaussure des coulisses et au scénario. Niez-vous toujours toute implication ?",
                                 a: "Non. Je nie toute implication et maintiens que je n’ai pas utilisé cet élément pour commettre le crime."
                             }
                         ]
@@ -6784,8 +6784,8 @@ const TRANSLATIONS = {
                         desc: "Montre un arrêt intentionnel du frein du train d'1 minute."
                     },
                     {
-                        name: "Indice d’enquête Maintenance Link",
-                        desc: "Comparaison médico-légale : Les fibres du gant de travail et l’inventaire du cric hydraulique correspondent Essam's maintenance kit."
+                        name: "Indice d’enquête : Lien avec la maintenance",
+                        desc: "Les fibres du gant de travail et l’inventaire du cric hydraulique correspondent à la trousse de maintenance d’Essam."
                     },
                     {
                         name: "Enregistrement radio de coordination",
@@ -6811,7 +6811,7 @@ const TRANSLATIONS = {
                                 a: "L'équipe de contrôle."
                             },
                             {
-                                q: "Sameh le Conducteur de Train, les éléments relient maintenant votre présence à the brake-stop radio record. Niez-vous toujours toute implication ?",
+                                q: "Sameh le Conducteur de Train, les éléments vous relient maintenant à l’enregistrement radio de l’arrêt des freins. Niez-vous toujours toute implication ?",
                                 a: "Non. Je nie toute implication et maintiens que je n’ai pas utilisé cet élément pour commettre le crime."
                             }
                         ]
@@ -6909,8 +6909,8 @@ const TRANSLATIONS = {
                         desc: "Détaille un différend sur le partage des trouvailles."
                     },
                     {
-                        name: "Indice d’enquête Smuggler Trace Match",
-                        desc: "Comparaison médico-légale : Le numéro de série de la lampe et les empreintes correspondent Maher's equipment and boots."
+                        name: "Indice d’enquête : Concordance des traces du contrebandier",
+                        desc: "Le numéro de série de la lampe de poche et le motif des empreintes de pas correspondent à l’équipement et aux bottes de Maher."
                     }
                 ],
                 suspects: [
@@ -6970,7 +6970,7 @@ const TRANSLATIONS = {
                                 a: "Fausse accusation."
                             },
                             {
-                                q: "Maher le Contrebandier, les éléments relient maintenant votre présence à the excavation traces. Niez-vous toujours toute implication ?",
+                                q: "Maher le Contrebandier, les éléments vous relient maintenant aux traces de fouilles. Niez-vous toujours toute implication ?",
                                 a: "Non. Je nie toute implication et maintiens que je n’ai pas utilisé cet élément pour commettre le crime."
                             }
                         ]
@@ -7030,8 +7030,8 @@ const TRANSLATIONS = {
                         desc: "Détourne intentionnellement le chemin vers les montagnes."
                     },
                     {
-                        name: "Indice d’enquête Co-Pilot Access Record",
-                        desc: "Comparaison médico-légale : Le journal du terminal de plan de vol montre Samer's authenticated sign-off was used to alter the route, and the fuel access record carries his badge."
+                        name: "Indice d’enquête : Registre d’accès du copilote",
+                        desc: "Le journal du terminal du plan de vol montre que la validation authentifiée de Samer a servi à modifier l’itinéraire, et le registre d’accès au carburant porte son badge."
                     }
                 ],
                 suspects: [
@@ -7072,7 +7072,7 @@ const TRANSLATIONS = {
                                 a: "Article de kit d'urgence."
                             },
                             {
-                                q: "Samer le Copilote, les éléments relient maintenant votre présence à the flight-plan and fuel records. Niez-vous toujours toute implication ?",
+                                q: "Samer le Copilote, les éléments vous relient maintenant aux relevés du plan de vol et du carburant. Niez-vous toujours toute implication ?",
                                 a: "Non. Je nie toute implication et maintiens que je n’ai pas utilisé cet élément pour commettre le crime."
                             }
                         ]
@@ -7151,8 +7151,8 @@ const TRANSLATIONS = {
                         desc: "Montrent une personne portant un manteau de médecin."
                     },
                     {
-                        name: "Indice d’enquête Doctor Inventory Match",
-                        desc: "Comparaison médico-légale : Le compte-gouttes médical porte Ziad's clinic inventory mark, and the glove print matches his medical gloves."
+                        name: "Indice d’enquête : Concordance de l’inventaire du médecin",
+                        desc: "Le compte-gouttes médical porte la marque d’inventaire de la clinique de Ziad, et l’empreinte du gant correspond à ses gants médicaux."
                     }
                 ],
                 suspects: [
@@ -7174,7 +7174,7 @@ const TRANSLATIONS = {
                                 a: "Non, ignorant."
                             },
                             {
-                                q: "Dr Ziad, les éléments relient maintenant votre présence à the medical dropper and glove. Niez-vous toujours toute implication ?",
+                                q: "Dr Ziad, les éléments vous relient maintenant au compte-gouttes médical et au gant. Niez-vous toujours toute implication ?",
                                 a: "Non. Je nie toute implication et maintiens que je n’ai pas utilisé cet élément pour commettre le crime."
                             }
                         ]
@@ -7272,8 +7272,8 @@ const TRANSLATIONS = {
                         desc: "Montre la vente d'articles similaires à un revendeur."
                     },
                     {
-                        name: "Indice d’enquête Curator Trace Match",
-                        desc: "Comparaison médico-légale : La marque d’encre bleue correspond Rami's inventory pen, and the sales receipt was found in his locked office file."
+                        name: "Indice d’enquête : Concordance des traces du conservateur",
+                        desc: "La marque d’encre bleue correspond au stylo d’inventaire de Rami, et le reçu de vente a été retrouvé dans son dossier de bureau verrouillé."
                     }
                 ],
                 suspects: [
@@ -7295,7 +7295,7 @@ const TRANSLATIONS = {
                                 a: "Volées, je ne sais pas par qui."
                             },
                             {
-                                q: "Rami le Conservateur, les éléments relient maintenant votre présence à the curator trace and sales record. Niez-vous toujours toute implication ?",
+                                q: "Rami le Conservateur, les éléments vous relient maintenant à la trace du conservateur et au registre de vente. Niez-vous toujours toute implication ?",
                                 a: "Non. Je nie toute implication et maintiens que je n’ai pas utilisé cet élément pour commettre le crime."
                             }
                         ]
@@ -7393,8 +7393,8 @@ const TRANSLATIONS = {
                         desc: "Du neveu exigeant de l'argent."
                     },
                     {
-                        name: "Indice d’enquête Nephew Entry Trace",
-                        desc: "Comparaison médico-légale : L’emplacement de la clé de secours était connu to Nabil, and the muddy footprint matches his work boot."
+                        name: "Indice d’enquête : Trace d’entrée du neveu",
+                        desc: "Nabil connaissait la cachette de la clé de secours, et l’empreinte de pas boueuse correspond à sa botte de travail."
                     }
                 ],
                 suspects: [
@@ -7416,7 +7416,7 @@ const TRANSLATIONS = {
                                 a: "Au marché de la ville."
                             },
                             {
-                                q: "Nabil le Neveu, les éléments relient maintenant votre présence à the spare key and footprint. Niez-vous toujours toute implication ?",
+                                q: "Nabil le Neveu, les éléments vous relient maintenant à la clé de secours et à l’empreinte de pas. Niez-vous toujours toute implication ?",
                                 a: "Non. Je nie toute implication et maintiens que je n’ai pas utilisé cet élément pour commettre le crime."
                             }
                         ]
@@ -7514,8 +7514,8 @@ const TRANSLATIONS = {
                         desc: "Enregistre l'entrée d'un reporter mystérieux."
                     },
                     {
-                        name: "Indice d’enquête Reporter Credential Trace",
-                        desc: "Comparaison médico-légale : The forged invitation and briefcase swap are linked to Daniel's registered event credentials, and the handkerchief monogram matches his initials."
+                        name: "Indice d’enquête : Trace des accréditations du reporter",
+                        desc: "L’invitation falsifiée et l’échange de mallette sont liés aux accréditations enregistrées de Daniel pour l’événement, et le monogramme du mouchoir correspond à ses initiales."
                     }
                 ],
                 suspects: [
@@ -7575,7 +7575,7 @@ const TRANSLATIONS = {
                                 a: "Je cherche la vérité."
                             },
                             {
-                                q: "Daniel le Reporter, les éléments relient maintenant votre présence à the briefcase-swap trace. Niez-vous toujours toute implication ?",
+                                q: "Daniel le Reporter, les éléments vous relient maintenant à la trace de l’échange de mallette. Niez-vous toujours toute implication ?",
                                 a: "Non. Je nie toute implication et maintiens que je n’ai pas utilisé cet élément pour commettre le crime."
                             }
                         ]
@@ -7635,8 +7635,8 @@ const TRANSLATIONS = {
                         desc: "Utilisée pour le ciblage de précision à longue portée."
                     },
                     {
-                        name: "Indice d’enquête Payment and Contract Record",
-                        desc: "Comparaison médico-légale : Le relevé de paiement récupéré relie Ziad to the contract executed by Jehad, matching Jehad's statement about his payer."
+                        name: "Indice d’enquête : Registre du paiement et du contrat",
+                        desc: "Le relevé de paiement récupéré relie Ziad au contrat exécuté par Jehad, ce qui correspond à la déclaration de Jehad au sujet de son commanditaire."
                     }
                 ],
                 suspects: [
@@ -7658,7 +7658,7 @@ const TRANSLATIONS = {
                                 a: "Dans la tour de la finance."
                             },
                             {
-                                q: "Ziad le Rival, les éléments relient maintenant votre présence à the payment and contract record. Niez-vous toujours toute implication ?",
+                                q: "Ziad le Rival, les éléments vous relient maintenant au relevé de paiement et au contrat. Niez-vous toujours toute implication ?",
                                 a: "Non. Je nie toute implication et maintiens que je n’ai pas utilisé cet élément pour commettre le crime."
                             }
                         ]
@@ -7870,7 +7870,7 @@ const TRANSLATIONS = {
         resultWrongTitle: "¡Acusación equivocada!",
         resultWrongDesc: "Acusaste a una persona inocente. El verdadero culpable escapó.",
         investigationPrematureAccusation: "Necesitas más pruebas antes de formular una acusación.",
-        investigationOpenFailed: "Impossible d’ouvrir l’enquête. Les données d’enquête sauvegardées ont été réinitialisées en toute sécurité.",
+        investigationOpenFailed: "No se pudo abrir la investigación. Los datos de investigación guardados se restablecieron de forma segura.",
         investigationHintDiscovery: "Revisa las pruebas restantes. Puede que alguna aún sea importante.",
         investigationHintDiscoveryFallback: "Revisa la lista de pruebas y busca información que todavía no hayas utilizado.",
         investigationHintAnalysis: "Analiza las pruebas que ya descubriste antes de sacar una conclusión.",
@@ -8285,8 +8285,8 @@ const TRANSLATIONS = {
                         desc: "Una aguda reseña escrita por la víctima atacando a un escritor amateur."
                     },
                     {
-                        name: "Indicio de investigación Fingerprint Match",
-                        desc: "Comparación forense: la comparación vincula the partial fingerprint on the napkin to Samer's recorded fingerprint."
+                        name: "Indicio de investigación: Coincidencia de huella dactilar",
+                        desc: "La comparación forense vincula la huella dactilar parcial de la servilleta con la huella registrada de Samer."
                     }
                 ],
                 suspects: [
@@ -8327,7 +8327,7 @@ const TRANSLATIONS = {
                                 a: "Frente al escenario de la ceremonia."
                             },
                             {
-                                q: "Samer el Escritor Rival, las pruebas relacionan ahora su presencia con fingerprint on the napkin. ¿Sigue negando su implicación?",
+                                q: "Samer el Escritor Rival, las pruebas ahora lo vinculan con la huella dactilar de la servilleta. ¿Sigue negando su implicación?",
                                 a: "No. Niego mi implicación y mantengo que no utilicé esa prueba para cometer el crimen."
                             }
                         ]
@@ -8406,8 +8406,8 @@ const TRANSLATIONS = {
                         desc: "Se refiere a intentos de chantaje de su socio comercial."
                     },
                     {
-                        name: "Indicio de investigación Maintenance Tool Match",
-                        desc: "Comparación forense: Las fibras de the fishing line and metal shim match tools issued to Khaled's maintenance kit."
+                        name: "Indicio de investigación: Coincidencia de herramientas de mantenimiento",
+                        desc: "Las fibras del sedal y de la lámina metálica coinciden con las herramientas del kit de mantenimiento de Khaled."
                     }
                 ],
                 suspects: [
@@ -8467,7 +8467,7 @@ const TRANSLATIONS = {
                                 a: "Pidió total silencio."
                             },
                             {
-                                q: "Khaled Mantenimiento, las pruebas relacionan ahora su presencia con the lock-trick tools. ¿Sigue negando su implicación?",
+                                q: "Khaled Mantenimiento, las pruebas ahora lo vinculan con las herramientas del truco de la cerradura. ¿Sigue negando su implicación?",
                                 a: "No. Niego mi implicación y mantengo que no utilicé esa prueba para cometer el crimen."
                             }
                         ]
@@ -8527,8 +8527,8 @@ const TRANSLATIONS = {
                         desc: "Desactivado exactamente durante 10 minutos."
                     },
                     {
-                        name: "Indicio de investigación Painter's Trace Match",
-                        desc: "Comparación forense: Los residuos de pintura del the brush matches Fouad's custom oil-paint mixture, and the wall print matches his fingerprint."
+                        name: "Indicio de investigación: Coincidencia de rastros del pintor",
+                        desc: "Los restos de pintura del pincel coinciden con la mezcla de óleo personalizada de Fouad, y la huella de la pared coincide con la suya."
                     }
                 ],
                 suspects: [
@@ -8550,7 +8550,7 @@ const TRANSLATIONS = {
                                 a: "En mi estudio privado."
                             },
                             {
-                                q: "Fouad el Pintor, las pruebas relacionan ahora su presencia con the painting materials and wall print. ¿Sigue negando su implicación?",
+                                q: "Fouad el Pintor, las pruebas ahora lo vinculan con los materiales de pintura y la huella de la pared. ¿Sigue negando su implicación?",
                                 a: "No. Niego mi implicación y mantengo que no utilicé esa prueba para cometer el crimen."
                             }
                         ]
@@ -8648,8 +8648,8 @@ const TRANSLATIONS = {
                         desc: "Entrada única utilizando acceso de tarjeta de acceso válida."
                     },
                     {
-                        name: "Indicio de investigación Keycard Identity Record",
-                        desc: "Comparación forense: El registro de acceso identifica Hani's laboratory keycard as the only valid card used for the entry."
+                        name: "Indicio de investigación: Registro de identidad de la tarjeta de acceso",
+                        desc: "El registro de acceso identifica la tarjeta del laboratorio de Hani como la única tarjeta válida utilizada para entrar."
                     }
                 ],
                 suspects: [
@@ -8709,7 +8709,7 @@ const TRANSLATIONS = {
                                 a: "En casa con mi familia."
                             },
                             {
-                                q: "Hani Asistente Principal, las pruebas relacionan ahora su presencia con the laboratory keycard. ¿Sigue negando su implicación?",
+                                q: "Hani Asistente Principal, las pruebas ahora lo vinculan con la tarjeta de acceso del laboratorio. ¿Sigue negando su implicación?",
                                 a: "No. Niego mi implicación y mantengo que no utilicé esa prueba para cometer el crimen."
                             }
                         ]
@@ -8769,8 +8769,8 @@ const TRANSLATIONS = {
                         desc: "Muestra movimiento sospechoso entre los vagones."
                     },
                     {
-                        name: "Indicio de investigación Invisible Ink Match",
-                        desc: "Comparación forense: Las trazas de tinta invisible coinciden the security ink used on Salim's forged ticket."
+                        name: "Indicio de investigación: Coincidencia de tinta invisible",
+                        desc: "Las trazas de tinta invisible coinciden con la tinta de seguridad usada en el billete falsificado de Salim."
                     }
                 ],
                 suspects: [
@@ -8811,7 +8811,7 @@ const TRANSLATIONS = {
                                 a: "Nunca lo vi en mi vida."
                             },
                             {
-                                q: "Salim Misterioso, las pruebas relacionan ahora su presencia con the forged ticket and invisible ink. ¿Sigue negando su implicación?",
+                                q: "Salim Misterioso, las pruebas ahora lo vinculan con el billete falsificado y la tinta invisible. ¿Sigue negando su implicación?",
                                 a: "No. Niego mi implicación y mantengo que no utilicé esa prueba para cometer el crimen."
                             }
                         ]
@@ -8890,8 +8890,8 @@ const TRANSLATIONS = {
                         desc: "Pertenece al contador de la empresa."
                     },
                     {
-                        name: "Indicio de investigación Vault Access Match",
-                        desc: "Comparación forense: El registro de la tarjeta de respaldo registra Ziad's access, and the keypad print matches his fingerprint."
+                        name: "Indicio de investigación: Coincidencia de acceso a la cámara acorazada",
+                        desc: "El registro de la tarjeta de respaldo registra el acceso de Ziad, y la huella del teclado coincide con la suya."
                     }
                 ],
                 suspects: [
@@ -8951,7 +8951,7 @@ const TRANSLATIONS = {
                                 a: "En la sucursal bancaria."
                             },
                             {
-                                q: "Ziad Contador, las pruebas relacionan ahora su presencia con the vault keycard and keypad. ¿Sigue negando su implicación?",
+                                q: "Ziad Contador, las pruebas ahora lo vinculan con la tarjeta de la cámara acorazada y el teclado. ¿Sigue negando su implicación?",
                                 a: "No. Niego mi implicación y mantengo que no utilicé esa prueba para cometer el crimen."
                             }
                         ]
@@ -9011,8 +9011,8 @@ const TRANSLATIONS = {
                         desc: "Herramientas afiladas faltantes."
                     },
                     {
-                        name: "Indicio de investigación Watch and Footprint Match",
-                        desc: "Comparación forense: El número de serie del reloj coincide Hamza's registered watch, and the footprints follow his known route toward the coastal road."
+                        name: "Indicio de investigación: Coincidencia del reloj y las huellas",
+                        desc: "El número de serie del reloj coincide con el reloj registrado de Hamza, y las huellas siguen su ruta habitual hacia la carretera costera."
                     }
                 ],
                 suspects: [
@@ -9034,7 +9034,7 @@ const TRANSLATIONS = {
                                 a: "En mi cama."
                             },
                             {
-                                q: "Hamza Joven, las pruebas relacionan ahora su presencia con the watch and coastal footprints. ¿Sigue negando su implicación?",
+                                q: "Hamza Joven, las pruebas ahora lo vinculan con el reloj y las huellas de la costa. ¿Sigue negando su implicación?",
                                 a: "No. Niego mi implicación y mantengo que no utilicé esa prueba para cometer el crimen."
                             }
                         ]
@@ -9132,8 +9132,8 @@ const TRANSLATIONS = {
                         desc: "Registra la visita nocturna del diseñador de interiores."
                     },
                     {
-                        name: "Indicio de investigación Decorator Access Trace",
-                        desc: "Comparación forense: El número de serie de la herramienta y la huella del guante coinciden Maher's registered workshop kit."
+                        name: "Indicio de investigación: Rastro de acceso del decorador",
+                        desc: "El número de serie de la herramienta de elusión y la huella del guante coinciden con el kit de taller registrado de Maher."
                     }
                 ],
                 suspects: [
@@ -9174,7 +9174,7 @@ const TRANSLATIONS = {
                                 a: "No sé nada."
                             },
                             {
-                                q: "Maher Decorador, las pruebas relacionan ahora su presencia con the alarm-bypass tools. ¿Sigue negando su implicación?",
+                                q: "Maher Decorador, las pruebas ahora lo vinculan con las herramientas para burlar la alarma. ¿Sigue negando su implicación?",
                                 a: "No. Niego mi implicación y mantengo que no utilicé esa prueba para cometer el crimen."
                             }
                         ]
@@ -9253,8 +9253,8 @@ const TRANSLATIONS = {
                         desc: "Desechado en el cubo de basura."
                     },
                     {
-                        name: "Indicio de investigación Backstage Shoe and Script Match",
-                        desc: "Comparación forense: La huella del zapato coincide Bassem's stage shoes, and the script notes carry his handwriting."
+                        name: "Indicio de investigación: Coincidencia del zapato de bastidores y del guion",
+                        desc: "La huella del zapato de madera coincide con los zapatos de escenario de Bassem, y las notas del guion tienen su letra."
                     }
                 ],
                 suspects: [
@@ -9333,7 +9333,7 @@ const TRANSLATIONS = {
                                 a: "En la habitación solo."
                             },
                             {
-                                q: "Bassem Suplente, las pruebas relacionan ahora su presencia con the backstage shoe print and script. ¿Sigue negando su implicación?",
+                                q: "Bassem Suplente, las pruebas ahora lo vinculan con la huella del zapato de bastidores y el guion. ¿Sigue negando su implicación?",
                                 a: "No. Niego mi implicación y mantengo que no utilicé esa prueba para cometer el crimen."
                             }
                         ]
@@ -9374,8 +9374,8 @@ const TRANSLATIONS = {
                         desc: "Muestra una parada intencional de freno de tren de 1 minuto."
                     },
                     {
-                        name: "Indicio de investigación Maintenance Link",
-                        desc: "Comparación forense: Las fibras del guante y el inventario del gato hidráulico coinciden Essam's maintenance kit."
+                        name: "Indicio de investigación: Vínculo con el mantenimiento",
+                        desc: "Las fibras del guante de trabajo y el inventario del gato hidráulico coinciden con el kit de mantenimiento de Essam."
                     },
                     {
                         name: "Registro de radio de coordinación",
@@ -9401,7 +9401,7 @@ const TRANSLATIONS = {
                                 a: "Tripulación de control."
                             },
                             {
-                                q: "Sameh Conductor de Tren, las pruebas relacionan ahora su presencia con the brake-stop radio record. ¿Sigue negando su implicación?",
+                                q: "Sameh Conductor de Tren, las pruebas ahora lo vinculan con el registro de radio de la frenada. ¿Sigue negando su implicación?",
                                 a: "No. Niego mi implicación y mantengo que no utilicé esa prueba para cometer el crimen."
                             }
                         ]
@@ -9499,8 +9499,8 @@ const TRANSLATIONS = {
                         desc: "Detalla la disputa sobre la división de hallazgos."
                     },
                     {
-                        name: "Indicio de investigación Smuggler Trace Match",
-                        desc: "Comparación forense: El número de serie de la linterna y las huellas coinciden Maher's equipment and boots."
+                        name: "Indicio de investigación: Coincidencia de rastros del contrabandista",
+                        desc: "El número de serie de la linterna y el patrón de las huellas coinciden con el equipo y las botas de Maher."
                     }
                 ],
                 suspects: [
@@ -9560,7 +9560,7 @@ const TRANSLATIONS = {
                                 a: "Falsa acusación."
                             },
                             {
-                                q: "Maher Contrabandista, las pruebas relacionan ahora su presencia con the excavation traces. ¿Sigue negando su implicación?",
+                                q: "Maher Contrabandista, las pruebas ahora lo vinculan con los rastros de la excavación. ¿Sigue negando su implicación?",
                                 a: "No. Niego mi implicación y mantengo que no utilicé esa prueba para cometer el crimen."
                             }
                         ]
@@ -9620,8 +9620,8 @@ const TRANSLATIONS = {
                         desc: "Desvía la trayectoria hacia las montañas intencionalmente."
                     },
                     {
-                        name: "Indicio de investigación Co-Pilot Access Record",
-                        desc: "Comparación forense: El registro del terminal del plan de vuelo muestra Samer's authenticated sign-off was used to alter the route, and the fuel access record carries his badge."
+                        name: "Indicio de investigación: Registro de acceso del copiloto",
+                        desc: "El registro del terminal del plan de vuelo muestra que la firma autenticada de Samer se usó para alterar la ruta, y el registro de acceso al combustible lleva su credencial."
                     }
                 ],
                 suspects: [
@@ -9662,7 +9662,7 @@ const TRANSLATIONS = {
                                 a: "Artículo del kit de emergencia."
                             },
                             {
-                                q: "Samer Copiloto, las pruebas relacionan ahora su presencia con the flight-plan and fuel records. ¿Sigue negando su implicación?",
+                                q: "Samer Copiloto, las pruebas ahora lo vinculan con los registros del plan de vuelo y del combustible. ¿Sigue negando su implicación?",
                                 a: "No. Niego mi implicación y mantengo que no utilicé esa prueba para cometer el crimen."
                             }
                         ]
@@ -9741,8 +9741,8 @@ const TRANSLATIONS = {
                         desc: "Muestra a una persona usando una bata de médico."
                     },
                     {
-                        name: "Indicio de investigación Doctor Inventory Match",
-                        desc: "Comparación forense: El cuentagotas médico lleva Ziad's clinic inventory mark, and the glove print matches his medical gloves."
+                        name: "Indicio de investigación: Coincidencia del inventario del médico",
+                        desc: "El cuentagotas médico lleva la marca de inventario de la clínica de Ziad, y la huella del guante coincide con sus guantes médicos."
                     }
                 ],
                 suspects: [
@@ -9764,7 +9764,7 @@ const TRANSLATIONS = {
                                 a: "No, desconocido."
                             },
                             {
-                                q: "Dr. Ziad, las pruebas relacionan ahora su presencia con the medical dropper and glove. ¿Sigue negando su implicación?",
+                                q: "Dr. Ziad, las pruebas ahora lo vinculan con el cuentagotas médico y el guante. ¿Sigue negando su implicación?",
                                 a: "No. Niego mi implicación y mantengo que no utilicé esa prueba para cometer el crimen."
                             }
                         ]
@@ -9862,8 +9862,8 @@ const TRANSLATIONS = {
                         desc: "Muestra la venta de artículos similares al distribuidor."
                     },
                     {
-                        name: "Indicio de investigación Curator Trace Match",
-                        desc: "Comparación forense: La marca de tinta azul coincide Rami's inventory pen, and the sales receipt was found in his locked office file."
+                        name: "Indicio de investigación: Coincidencia de rastros del curador",
+                        desc: "La marca de tinta azul coincide con el bolígrafo de inventario de Rami, y el recibo de venta apareció en su archivo de oficina cerrado con llave."
                     }
                 ],
                 suspects: [
@@ -9885,7 +9885,7 @@ const TRANSLATIONS = {
                                 a: "Robadas, no sé por quién."
                             },
                             {
-                                q: "Rami Curador, las pruebas relacionan ahora su presencia con the curator trace and sales record. ¿Sigue negando su implicación?",
+                                q: "Rami Curador, las pruebas ahora lo vinculan con el rastro del curador y el registro de venta. ¿Sigue negando su implicación?",
                                 a: "No. Niego mi implicación y mantengo que no utilicé esa prueba para cometer el crimen."
                             }
                         ]
@@ -9983,8 +9983,8 @@ const TRANSLATIONS = {
                         desc: "Del sobrino exigiendo dinero."
                     },
                     {
-                        name: "Indicio de investigación Nephew Entry Trace",
-                        desc: "Comparación forense: El escondite de la llave de repuesto era conocido to Nabil, and the muddy footprint matches his work boot."
+                        name: "Indicio de investigación: Rastro de entrada del sobrino",
+                        desc: "Nabil conocía el escondite de la llave de repuesto, y la huella de barro coincide con su bota de trabajo."
                     }
                 ],
                 suspects: [
@@ -10006,7 +10006,7 @@ const TRANSLATIONS = {
                                 a: "En el mercado de la ciudad."
                             },
                             {
-                                q: "Nabil Sobrino, las pruebas relacionan ahora su presencia con the spare key and footprint. ¿Sigue negando su implicación?",
+                                q: "Nabil Sobrino, las pruebas ahora lo vinculan con la llave de repuesto y la huella. ¿Sigue negando su implicación?",
                                 a: "No. Niego mi implicación y mantengo que no utilicé esa prueba para cometer el crimen."
                             }
                         ]
@@ -10104,8 +10104,8 @@ const TRANSLATIONS = {
                         desc: "Registra la entrada de un reportero misterioso."
                     },
                     {
-                        name: "Indicio de investigación Reporter Credential Trace",
-                        desc: "Comparación forense: The forged invitation and briefcase swap are linked to Daniel's registered event credentials, and the handkerchief monogram matches his initials."
+                        name: "Indicio de investigación: Rastro de credenciales del reportero",
+                        desc: "La invitación falsificada y el cambio de maletín están vinculados a las credenciales registradas de Daniel para el evento, y el monograma del pañuelo coincide con sus iniciales."
                     }
                 ],
                 suspects: [
@@ -10165,7 +10165,7 @@ const TRANSLATIONS = {
                                 a: "Busco la verdad."
                             },
                             {
-                                q: "Daniel Reportero, las pruebas relacionan ahora su presencia con the briefcase-swap trace. ¿Sigue negando su implicación?",
+                                q: "Daniel Reportero, las pruebas ahora lo vinculan con el rastro del cambio de maletín. ¿Sigue negando su implicación?",
                                 a: "No. Niego mi implicación y mantengo que no utilicé esa prueba para cometer el crimen."
                             }
                         ]
@@ -10225,8 +10225,8 @@ const TRANSLATIONS = {
                         desc: "Utilizado para la orientación de precisión de largo alcance."
                     },
                     {
-                        name: "Indicio de investigación Payment and Contract Record",
-                        desc: "Comparación forense: El registro de pago recuperado relaciona Ziad to the contract executed by Jehad, matching Jehad's statement about his payer."
+                        name: "Indicio de investigación: Registro del pago y del contrato",
+                        desc: "El registro de pago recuperado vincula a Ziad con el contrato ejecutado por Jehad, lo que coincide con la declaración de Jehad sobre quién le pagó."
                     }
                 ],
                 suspects: [
@@ -10248,7 +10248,7 @@ const TRANSLATIONS = {
                                 a: "En la torre financiera."
                             },
                             {
-                                q: "Ziad Rival, las pruebas relacionan ahora su presencia con the payment and contract record. ¿Sigue negando su implicación?",
+                                q: "Ziad Rival, las pruebas ahora lo vinculan con el registro de pago y el contrato. ¿Sigue negando su implicación?",
                                 a: "No. Niego mi implicación y mantengo que no utilicé esa prueba para cometer el crimen."
                             }
                         ]
@@ -10460,7 +10460,7 @@ const TRANSLATIONS = {
         resultWrongTitle: "Accusa sbagliata!",
         resultWrongDesc: "Hai accusato una persona innocente. Il vero colpevole è scappato.",
         investigationPrematureAccusation: "Servono più prove prima di formulare un'accusa.",
-        investigationOpenFailed: "No se pudo abrir la investigación. Los datos de investigación guardados se restablecieron de forma segura.",
+        investigationOpenFailed: "Impossibile aprire l’indagine. I dati dell’indagine salvati sono stati reimpostati in modo sicuro.",
         investigationHintDiscovery: "Esamina le prove rimanenti. Una di esse potrebbe essere importante.",
         investigationHintDiscoveryFallback: "Controlla l’elenco delle prove e cerca informazioni che non hai ancora usato.",
         investigationHintAnalysis: "Analizza le prove già scoperte prima di trarre una conclusione.",
@@ -10875,8 +10875,8 @@ const TRANSLATIONS = {
                         desc: "Una recensione tagliente scritta dalla vittima che attacca uno scrittore dilettante."
                     },
                     {
-                        name: "Indizio investigativo Fingerprint Match",
-                        desc: "Confronto forense: Forensic comparison links the partial fingerprint on the napkin to Samer's recorded fingerprint."
+                        name: "Indizio investigativo: Corrispondenza dell’impronta digitale",
+                        desc: "Il confronto forense collega l’impronta digitale parziale sul tovagliolo a quella registrata di Samer."
                     }
                 ],
                 suspects: [
@@ -10917,7 +10917,7 @@ const TRANSLATIONS = {
                                 a: "Davanti al palco della cerimonia."
                             },
                             {
-                                q: "Samer lo Scrittore Rivale, gli elementi collegano ora la sua presenza a fingerprint on the napkin. Nega ancora il coinvolgimento?",
+                                q: "Samer lo Scrittore Rivale, le prove ora la collegano all’impronta digitale sul tovagliolo. Nega ancora il coinvolgimento?",
                                 a: "No. Nego il mio coinvolgimento e sostengo di non aver usato quella prova per commettere il crimine."
                             }
                         ]
@@ -10996,8 +10996,8 @@ const TRANSLATIONS = {
                         desc: "Fa riferimento a tentativi di estorsione da parte del suo socio in affari."
                     },
                     {
-                        name: "Indizio investigativo Maintenance Tool Match",
-                        desc: "Confronto forense: Fibers from the fishing line and metal shim match tools issued to Khaled's maintenance kit."
+                        name: "Indizio investigativo: Corrispondenza degli attrezzi di manutenzione",
+                        desc: "Le fibre del filo da pesca e della lamina metallica corrispondono agli attrezzi del kit di manutenzione di Khaled."
                     }
                 ],
                 suspects: [
@@ -11057,7 +11057,7 @@ const TRANSLATIONS = {
                                 a: "Ha chiesto totale silenzio."
                             },
                             {
-                                q: "Khaled Manutenzione, gli elementi collegano ora la sua presenza a the lock-trick tools. Nega ancora il coinvolgimento?",
+                                q: "Khaled Manutenzione, le prove ora la collegano agli attrezzi del trucco della serratura. Nega ancora il coinvolgimento?",
                                 a: "No. Nego il mio coinvolgimento e sostengo di non aver usato quella prova per commettere il crimine."
                             }
                         ]
@@ -11117,8 +11117,8 @@ const TRANSLATIONS = {
                         desc: "Disabilitato esattamente per 10 minuti."
                     },
                     {
-                        name: "Indizio investigativo Painter's Trace Match",
-                        desc: "Confronto forense: Paint residue on the brush matches Fouad's custom oil-paint mixture, and the wall print matches his fingerprint."
+                        name: "Indizio investigativo: Corrispondenza delle tracce del pittore",
+                        desc: "I residui di vernice sul pennello corrispondono alla miscela di colori a olio personalizzata di Fouad, e l’impronta sul muro corrisponde alla sua."
                     }
                 ],
                 suspects: [
@@ -11140,7 +11140,7 @@ const TRANSLATIONS = {
                                 a: "Nel mio studio privato."
                             },
                             {
-                                q: "Fouad il Pittore, gli elementi collegano ora la sua presenza a the painting materials and wall print. Nega ancora il coinvolgimento?",
+                                q: "Fouad il Pittore, le prove ora la collegano ai materiali da pittura e all’impronta sul muro. Nega ancora il coinvolgimento?",
                                 a: "No. Nego il mio coinvolgimento e sostengo di non aver usato quella prova per commettere il crimine."
                             }
                         ]
@@ -11238,8 +11238,8 @@ const TRANSLATIONS = {
                         desc: "Singolo ingresso tramite accesso valido con tessera magnetica."
                     },
                     {
-                        name: "Indizio investigativo Keycard Identity Record",
-                        desc: "Confronto forense: The access log identifies Hani's laboratory keycard as the only valid card used for the entry."
+                        name: "Indizio investigativo: Registro dell’identità della tessera d’accesso",
+                        desc: "Il registro degli accessi identifica la tessera del laboratorio di Hani come l’unica tessera valida usata per l’ingresso."
                     }
                 ],
                 suspects: [
@@ -11299,7 +11299,7 @@ const TRANSLATIONS = {
                                 a: "A casa con la mia famiglia."
                             },
                             {
-                                q: "Hani Assistente Capo, gli elementi collegano ora la sua presenza a the laboratory keycard. Nega ancora il coinvolgimento?",
+                                q: "Hani Assistente Capo, le prove ora la collegano alla tessera d’accesso del laboratorio. Nega ancora il coinvolgimento?",
                                 a: "No. Nego il mio coinvolgimento e sostengo di non aver usato quella prova per commettere il crimine."
                             }
                         ]
@@ -11359,8 +11359,8 @@ const TRANSLATIONS = {
                         desc: "Mostra movimenti sospetti tra le carrozze."
                     },
                     {
-                        name: "Indizio investigativo Invisible Ink Match",
-                        desc: "Confronto forense: The invisible-ink traces match the security ink used on Salim's forged ticket."
+                        name: "Indizio investigativo: Corrispondenza dell’inchiostro invisibile",
+                        desc: "Le tracce di inchiostro invisibile corrispondono all’inchiostro di sicurezza usato sul biglietto falsificato di Salim."
                     }
                 ],
                 suspects: [
@@ -11401,7 +11401,7 @@ const TRANSLATIONS = {
                                 a: "Mai vista in vita mia."
                             },
                             {
-                                q: "Salim Misterioso, gli elementi collegano ora la sua presenza a the forged ticket and invisible ink. Nega ancora il coinvolgimento?",
+                                q: "Salim Misterioso, le prove ora la collegano al biglietto falsificato e all’inchiostro invisibile. Nega ancora il coinvolgimento?",
                                 a: "No. Nego il mio coinvolgimento e sostengo di non aver usato quella prova per commettere il crimine."
                             }
                         ]
@@ -11480,8 +11480,8 @@ const TRANSLATIONS = {
                         desc: "Appartiene al contabile dell'azienda."
                     },
                     {
-                        name: "Indizio investigativo Vault Access Match",
-                        desc: "Confronto forense: The backup keycard log records Ziad's access, and the keypad print matches his fingerprint."
+                        name: "Indizio investigativo: Corrispondenza dell’accesso al caveau",
+                        desc: "Il registro della tessera di riserva registra l’accesso di Ziad, e l’impronta sul tastierino corrisponde alla sua."
                     }
                 ],
                 suspects: [
@@ -11541,7 +11541,7 @@ const TRANSLATIONS = {
                                 a: "Alla filiale della banca."
                             },
                             {
-                                q: "Ziad Contabile, gli elementi collegano ora la sua presenza a the vault keycard and keypad. Nega ancora il coinvolgimento?",
+                                q: "Ziad Contabile, le prove ora la collegano alla tessera del caveau e al tastierino. Nega ancora il coinvolgimento?",
                                 a: "No. Nego il mio coinvolgimento e sostengo di non aver usato quella prova per commettere il crimine."
                             }
                         ]
@@ -11601,8 +11601,8 @@ const TRANSLATIONS = {
                         desc: "Strumenti affilati mancanti."
                     },
                     {
-                        name: "Indizio investigativo Watch and Footprint Match",
-                        desc: "Confronto forense: The wristwatch serial matches Hamza's registered watch, and the footprints follow his known route toward the coastal road."
+                        name: "Indizio investigativo: Corrispondenza dell’orologio e delle orme",
+                        desc: "Il numero di serie dell’orologio corrisponde all’orologio registrato di Hamza, e le orme seguono il suo percorso abituale verso la strada costiera."
                     }
                 ],
                 suspects: [
@@ -11624,7 +11624,7 @@ const TRANSLATIONS = {
                                 a: "Nel mio letto."
                             },
                             {
-                                q: "Hamza Giovane, gli elementi collegano ora la sua presenza a the watch and coastal footprints. Nega ancora il coinvolgimento?",
+                                q: "Hamza Giovane, le prove ora la collegano all’orologio e alle orme sulla costa. Nega ancora il coinvolgimento?",
                                 a: "No. Nego il mio coinvolgimento e sostengo di non aver usato quella prova per commettere il crimine."
                             }
                         ]
@@ -11722,8 +11722,8 @@ const TRANSLATIONS = {
                         desc: "Registra la visita notturna dell'interior designer."
                     },
                     {
-                        name: "Indizio investigativo Decorator Access Trace",
-                        desc: "Confronto forense: The bypass tool serial and glove print match Maher's registered workshop kit."
+                        name: "Indizio investigativo: Traccia d’accesso del decoratore",
+                        desc: "Il numero di serie dell’attrezzo di bypass e l’impronta del guanto corrispondono al kit da officina registrato di Maher."
                     }
                 ],
                 suspects: [
@@ -11764,7 +11764,7 @@ const TRANSLATIONS = {
                                 a: "Non so nulla."
                             },
                             {
-                                q: "Maher Decoratore, gli elementi collegano ora la sua presenza a the alarm-bypass tools. Nega ancora il coinvolgimento?",
+                                q: "Maher Decoratore, le prove ora la collegano agli attrezzi per aggirare l’allarme. Nega ancora il coinvolgimento?",
                                 a: "No. Nego il mio coinvolgimento e sostengo di non aver usato quella prova per commettere il crimine."
                             }
                         ]
@@ -11843,8 +11843,8 @@ const TRANSLATIONS = {
                         desc: "Getta nel cestino dei rifiuti."
                     },
                     {
-                        name: "Indizio investigativo Backstage Shoe and Script Match",
-                        desc: "Confronto forense: The wooden shoe print matches Bassem's stage shoes, and the script notes carry his handwriting."
+                        name: "Indizio investigativo: Corrispondenza della scarpa dietro le quinte e del copione",
+                        desc: "L’impronta della scarpa di legno corrisponde alle scarpe di scena di Bassem, e gli appunti sul copione hanno la sua calligrafia."
                     }
                 ],
                 suspects: [
@@ -11923,7 +11923,7 @@ const TRANSLATIONS = {
                                 a: "Nella stanza da solo."
                             },
                             {
-                                q: "Bassem Sostituto, gli elementi collegano ora la sua presenza a the backstage shoe print and script. Nega ancora il coinvolgimento?",
+                                q: "Bassem Sostituto, le prove ora la collegano all’impronta della scarpa dietro le quinte e al copione. Nega ancora il coinvolgimento?",
                                 a: "No. Nego il mio coinvolgimento e sostengo di non aver usato quella prova per commettere il crimine."
                             }
                         ]
@@ -11964,8 +11964,8 @@ const TRANSLATIONS = {
                         desc: "Mostra un'interruzione intenzionale di 1 minuto del freno del treno."
                     },
                     {
-                        name: "Indizio investigativo Maintenance Link",
-                        desc: "Confronto forense: The work-glove fibers and hydraulic-jack inventory match Essam's maintenance kit."
+                        name: "Indizio investigativo: Legame con la manutenzione",
+                        desc: "Le fibre del guanto da lavoro e l’inventario del cric idraulico corrispondono al kit di manutenzione di Essam."
                     },
                     {
                         name: "Registrazione radio di coordinamento",
@@ -11991,7 +11991,7 @@ const TRANSLATIONS = {
                                 a: "Il team di controllo."
                             },
                             {
-                                q: "Sameh Macchinista, gli elementi collegano ora la sua presenza a the brake-stop radio record. Nega ancora il coinvolgimento?",
+                                q: "Sameh Macchinista, le prove ora la collegano alla registrazione radio dell’arresto dei freni. Nega ancora il coinvolgimento?",
                                 a: "No. Nego il mio coinvolgimento e sostengo di non aver usato quella prova per commettere il crimine."
                             }
                         ]
@@ -12089,8 +12089,8 @@ const TRANSLATIONS = {
                         desc: "Dettagli della disputa sulla divisione dei ritrovamenti."
                     },
                     {
-                        name: "Indizio investigativo Smuggler Trace Match",
-                        desc: "Confronto forense: The flashlight serial and footprint pattern match Maher's equipment and boots."
+                        name: "Indizio investigativo: Corrispondenza delle tracce del contrabbandiere",
+                        desc: "Il numero di serie della torcia e il disegno delle orme corrispondono all’attrezzatura e agli stivali di Maher."
                     }
                 ],
                 suspects: [
@@ -12150,7 +12150,7 @@ const TRANSLATIONS = {
                                 a: "Falsa accusa."
                             },
                             {
-                                q: "Maher Contrabbandiere, gli elementi collegano ora la sua presenza a the excavation traces. Nega ancora il coinvolgimento?",
+                                q: "Maher Contrabbandiere, le prove ora la collegano alle tracce dello scavo. Nega ancora il coinvolgimento?",
                                 a: "No. Nego il mio coinvolgimento e sostengo di non aver usato quella prova per commettere il crimine."
                             }
                         ]
@@ -12210,8 +12210,8 @@ const TRANSLATIONS = {
                         desc: "Devia intenzionalmente il percorso verso le montagne."
                     },
                     {
-                        name: "Indizio investigativo Co-Pilot Access Record",
-                        desc: "Confronto forense: The flight-plan terminal log shows Samer's authenticated sign-off was used to alter the route, and the fuel access record carries his badge."
+                        name: "Indizio investigativo: Registro d’accesso del copilota",
+                        desc: "Il registro del terminale del piano di volo mostra che l’approvazione autenticata di Samer è stata usata per modificare la rotta, e il registro di accesso al carburante riporta il suo badge."
                     }
                 ],
                 suspects: [
@@ -12252,7 +12252,7 @@ const TRANSLATIONS = {
                                 a: "Articolo del kit di emergenza."
                             },
                             {
-                                q: "Samer Co-Pilota, gli elementi collegano ora la sua presenza a the flight-plan and fuel records. Nega ancora il coinvolgimento?",
+                                q: "Samer Co-Pilota, le prove ora la collegano ai registri del piano di volo e del carburante. Nega ancora il coinvolgimento?",
                                 a: "No. Nego il mio coinvolgimento e sostengo di non aver usato quella prova per commettere il crimine."
                             }
                         ]
@@ -12331,8 +12331,8 @@ const TRANSLATIONS = {
                         desc: "Mostra un individuo che indossa un camice da medico."
                     },
                     {
-                        name: "Indizio investigativo Doctor Inventory Match",
-                        desc: "Confronto forense: The medical dropper carries Ziad's clinic inventory mark, and the glove print matches his medical gloves."
+                        name: "Indizio investigativo: Corrispondenza dell’inventario del medico",
+                        desc: "Il contagocce medico reca il contrassegno d’inventario della clinica di Ziad, e l’impronta del guanto corrisponde ai suoi guanti medici."
                     }
                 ],
                 suspects: [
@@ -12354,7 +12354,7 @@ const TRANSLATIONS = {
                                 a: "No, non lo sapevo."
                             },
                             {
-                                q: "Dr. Ziad, gli elementi collegano ora la sua presenza a the medical dropper and glove. Nega ancora il coinvolgimento?",
+                                q: "Dr. Ziad, le prove ora la collegano al contagocce medico e al guanto. Nega ancora il coinvolgimento?",
                                 a: "No. Nego il mio coinvolgimento e sostengo di non aver usato quella prova per commettere il crimine."
                             }
                         ]
@@ -12452,8 +12452,8 @@ const TRANSLATIONS = {
                         desc: "Mostra la vendita di oggetti simili a un commerciante."
                     },
                     {
-                        name: "Indizio investigativo Curator Trace Match",
-                        desc: "Confronto forense: The blue ink mark matches Rami's inventory pen, and the sales receipt was found in his locked office file."
+                        name: "Indizio investigativo: Corrispondenza delle tracce del curatore",
+                        desc: "Il segno d’inchiostro blu corrisponde alla penna per l’inventario di Rami, e la ricevuta di vendita è stata trovata nel fascicolo chiuso a chiave del suo ufficio."
                     }
                 ],
                 suspects: [
@@ -12475,7 +12475,7 @@ const TRANSLATIONS = {
                                 a: "Rubate, non so da chi."
                             },
                             {
-                                q: "Rami Curatore, gli elementi collegano ora la sua presenza a the curator trace and sales record. Nega ancora il coinvolgimento?",
+                                q: "Rami Curatore, le prove ora la collegano alla traccia del curatore e al registro di vendita. Nega ancora il coinvolgimento?",
                                 a: "No. Nego il mio coinvolgimento e sostengo di non aver usato quella prova per commettere il crimine."
                             }
                         ]
@@ -12573,8 +12573,8 @@ const TRANSLATIONS = {
                         desc: "Dal nipote che chiede soldi."
                     },
                     {
-                        name: "Indizio investigativo Nephew Entry Trace",
-                        desc: "Confronto forense: The spare-key hiding spot was known to Nabil, and the muddy footprint matches his work boot."
+                        name: "Indizio investigativo: Traccia d’ingresso del nipote",
+                        desc: "Nabil conosceva il nascondiglio della chiave di scorta, e l’impronta fangosa corrisponde al suo stivale da lavoro."
                     }
                 ],
                 suspects: [
@@ -12596,7 +12596,7 @@ const TRANSLATIONS = {
                                 a: "Al mercato in città."
                             },
                             {
-                                q: "Nabil Nipote, gli elementi collegano ora la sua presenza a the spare key and footprint. Nega ancora il coinvolgimento?",
+                                q: "Nabil Nipote, le prove ora la collegano alla chiave di scorta e all’impronta. Nega ancora il coinvolgimento?",
                                 a: "No. Nego il mio coinvolgimento e sostengo di non aver usato quella prova per commettere il crimine."
                             }
                         ]
@@ -12694,8 +12694,8 @@ const TRANSLATIONS = {
                         desc: "Registra l'ingresso di un giornalista misterioso."
                     },
                     {
-                        name: "Indizio investigativo Reporter Credential Trace",
-                        desc: "Confronto forense: The forged invitation and briefcase swap are linked to Daniel's registered event credentials, and the handkerchief monogram matches his initials."
+                        name: "Indizio investigativo: Traccia delle credenziali del reporter",
+                        desc: "L’invito falsificato e lo scambio della valigetta sono collegati alle credenziali registrate di Daniel per l’evento, e il monogramma del fazzoletto corrisponde alle sue iniziali."
                     }
                 ],
                 suspects: [
@@ -12755,7 +12755,7 @@ const TRANSLATIONS = {
                                 a: "Cerco la verità."
                             },
                             {
-                                q: "Daniel Giornalista, gli elementi collegano ora la sua presenza a the briefcase-swap trace. Nega ancora il coinvolgimento?",
+                                q: "Daniel Giornalista, le prove ora la collegano alla traccia dello scambio della valigetta. Nega ancora il coinvolgimento?",
                                 a: "No. Nego il mio coinvolgimento e sostengo di non aver usato quella prova per commettere il crimine."
                             }
                         ]
@@ -12815,8 +12815,8 @@ const TRANSLATIONS = {
                         desc: "Utilizzata per il targeting di precisione a lungo raggio."
                     },
                     {
-                        name: "Indizio investigativo Payment and Contract Record",
-                        desc: "Confronto forense: The recovered payment record links Ziad to the contract executed by Jehad, matching Jehad's statement about his payer."
+                        name: "Indizio investigativo: Registro del pagamento e del contratto",
+                        desc: "La registrazione del pagamento recuperata collega Ziad al contratto eseguito da Jehad, in linea con la dichiarazione di Jehad sul suo mandante."
                     }
                 ],
                 suspects: [
@@ -12838,7 +12838,7 @@ const TRANSLATIONS = {
                                 a: "Nella torre finanziaria."
                             },
                             {
-                                q: "Ziad Rivale, gli elementi collegano ora la sua presenza a the payment and contract record. Nega ancora il coinvolgimento?",
+                                q: "Ziad Rivale, le prove ora la collegano al registro del pagamento e al contratto. Nega ancora il coinvolgimento?",
                                 a: "No. Nego il mio coinvolgimento e sostengo di non aver usato quella prova per commettere il crimine."
                             }
                         ]
@@ -13050,7 +13050,7 @@ const TRANSLATIONS = {
         resultWrongTitle: "Acusação errada!",
         resultWrongDesc: "Você acusou uma pessoa inocente. O verdadeiro culpado escapou.",
         investigationPrematureAccusation: "Precisa de mais provas antes de fazer uma acusação.",
-        investigationOpenFailed: "Impossibile aprire l’indagine. I dati dell’indagine salvati sono stati reimpostati in modo sicuro.",
+        investigationOpenFailed: "Não foi possível abrir a investigação. Os dados da investigação guardados foram repostos em segurança.",
         investigationHintDiscovery: "Veja as provas restantes. Uma delas pode ainda ser importante.",
         investigationHintDiscoveryFallback: "Reveja a lista de provas e procure informações que ainda não utilizou.",
         investigationHintAnalysis: "Analise as provas que já descobriu antes de tirar uma conclusão.",
@@ -13465,8 +13465,8 @@ const TRANSLATIONS = {
                         desc: "Uma crítica severa escrita pela vítima atacando um escritor amador."
                     },
                     {
-                        name: "Pista de investigação Fingerprint Match",
-                        desc: "Comparação forense: Forensic comparison links the partial fingerprint on the napkin to Samer's recorded fingerprint."
+                        name: "Pista de investigação: Correspondência de impressão digital",
+                        desc: "A comparação forense liga a impressão digital parcial no guardanapo à impressão digital registada de Samer."
                     }
                 ],
                 suspects: [
@@ -13507,7 +13507,7 @@ const TRANSLATIONS = {
                                 a: "Em frente ao palco da cerimônia."
                             },
                             {
-                                q: "Samer o Escritor Rival, as provas agora ligam a sua presença a fingerprint on the napkin. Continua a negar o envolvimento?",
+                                q: "Samer o Escritor Rival, as provas agora ligam-no à impressão digital no guardanapo. Continua a negar o envolvimento?",
                                 a: "Não. Nego o meu envolvimento e mantenho que não usei essa prova para cometer o crime."
                             }
                         ]
@@ -13586,8 +13586,8 @@ const TRANSLATIONS = {
                         desc: "Refere-se a tentativas de chantagem de seu parceiro de negócios."
                     },
                     {
-                        name: "Pista de investigação Maintenance Tool Match",
-                        desc: "Comparação forense: Fibers from the fishing line and metal shim match tools issued to Khaled's maintenance kit."
+                        name: "Pista de investigação: Correspondência de ferramentas de manutenção",
+                        desc: "As fibras da linha de pesca e da lâmina metálica correspondem às ferramentas do kit de manutenção de Khaled."
                     }
                 ],
                 suspects: [
@@ -13647,7 +13647,7 @@ const TRANSLATIONS = {
                                 a: "Pediu silêncio total."
                             },
                             {
-                                q: "Khaled Manutenção, as provas agora ligam a sua presença a the lock-trick tools. Continua a negar o envolvimento?",
+                                q: "Khaled Manutenção, as provas agora ligam-no às ferramentas do truque da fechadura. Continua a negar o envolvimento?",
                                 a: "Não. Nego o meu envolvimento e mantenho que não usei essa prova para cometer o crime."
                             }
                         ]
@@ -13707,8 +13707,8 @@ const TRANSLATIONS = {
                         desc: "Desativado exatamente por 10 minutos."
                     },
                     {
-                        name: "Pista de investigação Painter's Trace Match",
-                        desc: "Comparação forense: Paint residue on the brush matches Fouad's custom oil-paint mixture, and the wall print matches his fingerprint."
+                        name: "Pista de investigação: Correspondência de vestígios do pintor",
+                        desc: "Os resíduos de tinta no pincel correspondem à mistura de tinta a óleo personalizada de Fouad, e a impressão na parede corresponde à sua."
                     }
                 ],
                 suspects: [
@@ -13730,7 +13730,7 @@ const TRANSLATIONS = {
                                 a: "No meu estúdio privado."
                             },
                             {
-                                q: "Fouad o Pintor, as provas agora ligam a sua presença a the painting materials and wall print. Continua a negar o envolvimento?",
+                                q: "Fouad o Pintor, as provas agora ligam-no aos materiais de pintura e à marca na parede. Continua a negar o envolvimento?",
                                 a: "Não. Nego o meu envolvimento e mantenho que não usei essa prova para cometer o crime."
                             }
                         ]
@@ -13828,8 +13828,8 @@ const TRANSLATIONS = {
                         desc: "Entrada única usando acesso de cartão válido."
                     },
                     {
-                        name: "Pista de investigação Keycard Identity Record",
-                        desc: "Comparação forense: The access log identifies Hani's laboratory keycard as the only valid card used for the entry."
+                        name: "Pista de investigação: Registo de identidade do cartão de acesso",
+                        desc: "O registo de acessos identifica o cartão do laboratório de Hani como o único cartão válido usado para a entrada."
                     }
                 ],
                 suspects: [
@@ -13889,7 +13889,7 @@ const TRANSLATIONS = {
                                 a: "Em casa com minha família."
                             },
                             {
-                                q: "Hani Assistente Principal, as provas agora ligam a sua presença a the laboratory keycard. Continua a negar o envolvimento?",
+                                q: "Hani Assistente Principal, as provas agora ligam-no ao cartão de acesso do laboratório. Continua a negar o envolvimento?",
                                 a: "Não. Nego o meu envolvimento e mantenho que não usei essa prova para cometer o crime."
                             }
                         ]
@@ -13949,8 +13949,8 @@ const TRANSLATIONS = {
                         desc: "Mostra movimento suspeito entre os carros."
                     },
                     {
-                        name: "Pista de investigação Invisible Ink Match",
-                        desc: "Comparação forense: The invisible-ink traces match the security ink used on Salim's forged ticket."
+                        name: "Pista de investigação: Correspondência de tinta invisível",
+                        desc: "Os vestígios de tinta invisível correspondem à tinta de segurança usada no bilhete falsificado de Salim."
                     }
                 ],
                 suspects: [
@@ -13991,7 +13991,7 @@ const TRANSLATIONS = {
                                 a: "Nunca o vi na minha vida."
                             },
                             {
-                                q: "Salim Misterioso, as provas agora ligam a sua presença a the forged ticket and invisible ink. Continua a negar o envolvimento?",
+                                q: "Salim Misterioso, as provas agora ligam-no ao bilhete falsificado e à tinta invisível. Continua a negar o envolvimento?",
                                 a: "Não. Nego o meu envolvimento e mantenho que não usei essa prova para cometer o crime."
                             }
                         ]
@@ -14070,8 +14070,8 @@ const TRANSLATIONS = {
                         desc: "Pertence ao contador da empresa."
                     },
                     {
-                        name: "Pista de investigação Vault Access Match",
-                        desc: "Comparação forense: The backup keycard log records Ziad's access, and the keypad print matches his fingerprint."
+                        name: "Pista de investigação: Correspondência de acesso ao cofre",
+                        desc: "O registo do cartão de reserva regista o acesso de Ziad, e a impressão no teclado corresponde à sua."
                     }
                 ],
                 suspects: [
@@ -14131,7 +14131,7 @@ const TRANSLATIONS = {
                                 a: "Na agência bancária."
                             },
                             {
-                                q: "Ziad Contador, as provas agora ligam a sua presença a the vault keycard and keypad. Continua a negar o envolvimento?",
+                                q: "Ziad Contador, as provas agora ligam-no ao cartão do cofre e ao teclado. Continua a negar o envolvimento?",
                                 a: "Não. Nego o meu envolvimento e mantenho que não usei essa prova para cometer o crime."
                             }
                         ]
@@ -14191,8 +14191,8 @@ const TRANSLATIONS = {
                         desc: "Ferramentas afiadas faltando."
                     },
                     {
-                        name: "Pista de investigação Watch and Footprint Match",
-                        desc: "Comparação forense: The wristwatch serial matches Hamza's registered watch, and the footprints follow his known route toward the coastal road."
+                        name: "Pista de investigação: Correspondência do relógio e das pegadas",
+                        desc: "O número de série do relógio corresponde ao relógio registado de Hamza, e as pegadas seguem o seu trajeto habitual em direção à estrada costeira."
                     }
                 ],
                 suspects: [
@@ -14214,7 +14214,7 @@ const TRANSLATIONS = {
                                 a: "Na minha cama."
                             },
                             {
-                                q: "Hamza Jovem, as provas agora ligam a sua presença a the watch and coastal footprints. Continua a negar o envolvimento?",
+                                q: "Hamza Jovem, as provas agora ligam-no ao relógio e às pegadas na costa. Continua a negar o envolvimento?",
                                 a: "Não. Nego o meu envolvimento e mantenho que não usei essa prova para cometer o crime."
                             }
                         ]
@@ -14312,8 +14312,8 @@ const TRANSLATIONS = {
                         desc: "Registra a visita noturna do designer de interiores."
                     },
                     {
-                        name: "Pista de investigação Decorator Access Trace",
-                        desc: "Comparação forense: The bypass tool serial and glove print match Maher's registered workshop kit."
+                        name: "Pista de investigação: Vestígio de acesso do decorador",
+                        desc: "O número de série da ferramenta de contorno e a marca da luva correspondem ao kit de oficina registado de Maher."
                     }
                 ],
                 suspects: [
@@ -14354,7 +14354,7 @@ const TRANSLATIONS = {
                                 a: "Eu não sei de nada."
                             },
                             {
-                                q: "Maher Decorador, as provas agora ligam a sua presença a the alarm-bypass tools. Continua a negar o envolvimento?",
+                                q: "Maher Decorador, as provas agora ligam-no às ferramentas de contorno do alarme. Continua a negar o envolvimento?",
                                 a: "Não. Nego o meu envolvimento e mantenho que não usei essa prova para cometer o crime."
                             }
                         ]
@@ -14433,8 +14433,8 @@ const TRANSLATIONS = {
                         desc: "Descartado na lixeira."
                     },
                     {
-                        name: "Pista de investigação Backstage Shoe and Script Match",
-                        desc: "Comparação forense: The wooden shoe print matches Bassem's stage shoes, and the script notes carry his handwriting."
+                        name: "Pista de investigação: Correspondência do sapato dos bastidores e do guião",
+                        desc: "A marca do sapato de madeira corresponde aos sapatos de palco de Bassem, e as notas do guião têm a sua caligrafia."
                     }
                 ],
                 suspects: [
@@ -14513,7 +14513,7 @@ const TRANSLATIONS = {
                                 a: "No quarto sozinho."
                             },
                             {
-                                q: "Bassem Substituto, as provas agora ligam a sua presença a the backstage shoe print and script. Continua a negar o envolvimento?",
+                                q: "Bassem Substituto, as provas agora ligam-no à marca do sapato dos bastidores e ao guião. Continua a negar o envolvimento?",
                                 a: "Não. Nego o meu envolvimento e mantenho que não usei essa prova para cometer o crime."
                             }
                         ]
@@ -14554,8 +14554,8 @@ const TRANSLATIONS = {
                         desc: "Mostra parada intencional de freio de trem de 1 minuto."
                     },
                     {
-                        name: "Pista de investigação Maintenance Link",
-                        desc: "Comparação forense: The work-glove fibers and hydraulic-jack inventory match Essam's maintenance kit."
+                        name: "Pista de investigação: Ligação à manutenção",
+                        desc: "As fibras da luva de trabalho e o inventário do macaco hidráulico correspondem ao kit de manutenção de Essam."
                     },
                     {
                         name: "Registo de rádio de coordenação",
@@ -14581,7 +14581,7 @@ const TRANSLATIONS = {
                                 a: "Equipe de controle."
                             },
                             {
-                                q: "Sameh Maquinista, as provas agora ligam a sua presença a the brake-stop radio record. Continua a negar o envolvimento?",
+                                q: "Sameh Maquinista, as provas agora ligam-no ao registo de rádio da paragem dos travões. Continua a negar o envolvimento?",
                                 a: "Não. Nego o meu envolvimento e mantenho que não usei essa prova para cometer o crime."
                             }
                         ]
@@ -14679,8 +14679,8 @@ const TRANSLATIONS = {
                         desc: "Detalha disputa sobre a divisão de achados."
                     },
                     {
-                        name: "Pista de investigação Smuggler Trace Match",
-                        desc: "Comparação forense: The flashlight serial and footprint pattern match Maher's equipment and boots."
+                        name: "Pista de investigação: Correspondência de vestígios do contrabandista",
+                        desc: "O número de série da lanterna e o padrão das pegadas correspondem ao equipamento e às botas de Maher."
                     }
                 ],
                 suspects: [
@@ -14740,7 +14740,7 @@ const TRANSLATIONS = {
                                 a: "Falsa acusação."
                             },
                             {
-                                q: "Maher Contrabandista, as provas agora ligam a sua presença a the excavation traces. Continua a negar o envolvimento?",
+                                q: "Maher Contrabandista, as provas agora ligam-no aos vestígios da escavação. Continua a negar o envolvimento?",
                                 a: "Não. Nego o meu envolvimento e mantenho que não usei essa prova para cometer o crime."
                             }
                         ]
@@ -14800,8 +14800,8 @@ const TRANSLATIONS = {
                         desc: "Desvia o caminho em direção às montanhas intencionalmente."
                     },
                     {
-                        name: "Pista de investigação Co-Pilot Access Record",
-                        desc: "Comparação forense: The flight-plan terminal log shows Samer's authenticated sign-off was used to alter the route, and the fuel access record carries his badge."
+                        name: "Pista de investigação: Registo de acesso do copiloto",
+                        desc: "O registo do terminal do plano de voo mostra que a aprovação autenticada de Samer foi usada para alterar a rota, e o registo de acesso ao combustível tem o seu crachá."
                     }
                 ],
                 suspects: [
@@ -14842,7 +14842,7 @@ const TRANSLATIONS = {
                                 a: "Item de kit de emergência."
                             },
                             {
-                                q: "Samer Copiloto, as provas agora ligam a sua presença a the flight-plan and fuel records. Continua a negar o envolvimento?",
+                                q: "Samer Copiloto, as provas agora ligam-no aos registos do plano de voo e do combustível. Continua a negar o envolvimento?",
                                 a: "Não. Nego o meu envolvimento e mantenho que não usei essa prova para cometer o crime."
                             }
                         ]
@@ -14921,8 +14921,8 @@ const TRANSLATIONS = {
                         desc: "Mostra indivíduo usando jaleco de médico."
                     },
                     {
-                        name: "Pista de investigação Doctor Inventory Match",
-                        desc: "Comparação forense: The medical dropper carries Ziad's clinic inventory mark, and the glove print matches his medical gloves."
+                        name: "Pista de investigação: Correspondência do inventário do médico",
+                        desc: "O conta-gotas médico tem a marca de inventário da clínica de Ziad, e a marca da luva corresponde às suas luvas médicas."
                     }
                 ],
                 suspects: [
@@ -14944,7 +14944,7 @@ const TRANSLATIONS = {
                                 a: "Não, desconheço."
                             },
                             {
-                                q: "Dr. Ziad, as provas agora ligam a sua presença a the medical dropper and glove. Continua a negar o envolvimento?",
+                                q: "Dr. Ziad, as provas agora ligam-no ao conta-gotas médico e à luva. Continua a negar o envolvimento?",
                                 a: "Não. Nego o meu envolvimento e mantenho que não usei essa prova para cometer o crime."
                             }
                         ]
@@ -15042,8 +15042,8 @@ const TRANSLATIONS = {
                         desc: "Mostra venda de itens semelhantes a negociante."
                     },
                     {
-                        name: "Pista de investigação Curator Trace Match",
-                        desc: "Comparação forense: The blue ink mark matches Rami's inventory pen, and the sales receipt was found in his locked office file."
+                        name: "Pista de investigação: Correspondência de vestígios do curador",
+                        desc: "A marca de tinta azul corresponde à caneta de inventário de Rami, e o recibo de venda foi encontrado no arquivo trancado do seu escritório."
                     }
                 ],
                 suspects: [
@@ -15065,7 +15065,7 @@ const TRANSLATIONS = {
                                 a: "Roubadas, não sei por quem."
                             },
                             {
-                                q: "Rami Curador, as provas agora ligam a sua presença a the curator trace and sales record. Continua a negar o envolvimento?",
+                                q: "Rami Curador, as provas agora ligam-no ao vestígio do curador e ao registo de venda. Continua a negar o envolvimento?",
                                 a: "Não. Nego o meu envolvimento e mantenho que não usei essa prova para cometer o crime."
                             }
                         ]
@@ -15163,8 +15163,8 @@ const TRANSLATIONS = {
                         desc: "Do sobrinho exigindo dinheiro."
                     },
                     {
-                        name: "Pista de investigação Nephew Entry Trace",
-                        desc: "Comparação forense: The spare-key hiding spot was known to Nabil, and the muddy footprint matches his work boot."
+                        name: "Pista de investigação: Vestígio de entrada do sobrinho",
+                        desc: "Nabil conhecia o esconderijo da chave suplente, e a pegada de lama corresponde à sua bota de trabalho."
                     }
                 ],
                 suspects: [
@@ -15186,7 +15186,7 @@ const TRANSLATIONS = {
                                 a: "No mercado da cidade."
                             },
                             {
-                                q: "Nabil Sobrinho, as provas agora ligam a sua presença a the spare key and footprint. Continua a negar o envolvimento?",
+                                q: "Nabil Sobrinho, as provas agora ligam-no à chave suplente e à pegada. Continua a negar o envolvimento?",
                                 a: "Não. Nego o meu envolvimento e mantenho que não usei essa prova para cometer o crime."
                             }
                         ]
@@ -15284,8 +15284,8 @@ const TRANSLATIONS = {
                         desc: "Registra a entrada de repórter misterioso."
                     },
                     {
-                        name: "Pista de investigação Reporter Credential Trace",
-                        desc: "Comparação forense: The forged invitation and briefcase swap are linked to Daniel's registered event credentials, and the handkerchief monogram matches his initials."
+                        name: "Pista de investigação: Vestígio das credenciais do repórter",
+                        desc: "O convite falsificado e a troca de pasta estão ligados às credenciais registadas de Daniel para o evento, e o monograma do lenço corresponde às suas iniciais."
                     }
                 ],
                 suspects: [
@@ -15345,7 +15345,7 @@ const TRANSLATIONS = {
                                 a: "Busco a verdade."
                             },
                             {
-                                q: "Daniel Repórter, as provas agora ligam a sua presença a the briefcase-swap trace. Continua a negar o envolvimento?",
+                                q: "Daniel Repórter, as provas agora ligam-no ao vestígio da troca de pasta. Continua a negar o envolvimento?",
                                 a: "Não. Nego o meu envolvimento e mantenho que não usei essa prova para cometer o crime."
                             }
                         ]
@@ -15405,8 +15405,8 @@ const TRANSLATIONS = {
                         desc: "Usado para mira de precisão de longo alcance."
                     },
                     {
-                        name: "Pista de investigação Payment and Contract Record",
-                        desc: "Comparação forense: The recovered payment record links Ziad to the contract executed by Jehad, matching Jehad's statement about his payer."
+                        name: "Pista de investigação: Registo do pagamento e do contrato",
+                        desc: "O registo de pagamento recuperado liga Ziad ao contrato executado por Jehad, o que coincide com a declaração de Jehad sobre quem lhe pagou."
                     }
                 ],
                 suspects: [
@@ -15428,7 +15428,7 @@ const TRANSLATIONS = {
                                 a: "Na torre financeira."
                             },
                             {
-                                q: "Ziad Rival, as provas agora ligam a sua presença a the payment and contract record. Continua a negar o envolvimento?",
+                                q: "Ziad Rival, as provas agora ligam-no ao registo de pagamento e ao contrato. Continua a negar o envolvimento?",
                                 a: "Não. Nego o meu envolvimento e mantenho que não usei essa prova para cometer o crime."
                             }
                         ]
@@ -16055,8 +16055,8 @@ const TRANSLATIONS = {
                         desc: "Eine scharfe Kritik des Opfers, die einen Amateurautor angreift."
                     },
                     {
-                        name: "Ermittlungsspur Fingerprint Match",
-                        desc: "Forensischer Abgleich: Forensic comparison links the partial fingerprint on the napkin to Samer's recorded fingerprint."
+                        name: "Ermittlungsspur: Fingerabdruck-Übereinstimmung",
+                        desc: "Der forensische Abgleich ordnet den Teilfingerabdruck auf der Serviette Samers gespeichertem Fingerabdruck zu."
                     }
                 ],
                 suspects: [
@@ -16097,7 +16097,7 @@ const TRANSLATIONS = {
                                 a: "Vor der Bühne der Zeremonie."
                             },
                             {
-                                q: "Samer der rivalisierende Autor, die Beweise verbinden Sie nun mit fingerprint on the napkin. Leugnen Sie Ihre Beteiligung weiterhin?",
+                                q: "Samer der rivalisierende Autor, die Beweise verbinden Sie nun mit dem Fingerabdruck auf der Serviette. Leugnen Sie Ihre Beteiligung weiterhin?",
                                 a: "Nein. Ich bestreite meine Beteiligung und habe diese Spur nicht benutzt, um das Verbrechen zu begehen."
                             }
                         ]
@@ -16176,8 +16176,8 @@ const TRANSLATIONS = {
                         desc: "Bezieht sich auf Erpressungsversuche seines Geschäftspartners."
                     },
                     {
-                        name: "Ermittlungsspur Maintenance Tool Match",
-                        desc: "Forensischer Abgleich: Fibers from the fishing line and metal shim match tools issued to Khaled's maintenance kit."
+                        name: "Ermittlungsspur: Übereinstimmung der Wartungswerkzeuge",
+                        desc: "Die Fasern der Angelschnur und des Metallplättchens passen zu den Werkzeugen aus Khaleds Wartungsset."
                     }
                 ],
                 suspects: [
@@ -16237,7 +16237,7 @@ const TRANSLATIONS = {
                                 a: "Er bat um absolute Ruhe."
                             },
                             {
-                                q: "Khaled der Wartungstechniker, die Beweise verbinden Sie nun mit the lock-trick tools. Leugnen Sie Ihre Beteiligung weiterhin?",
+                                q: "Khaled der Wartungstechniker, die Beweise verbinden Sie nun mit den Werkzeugen des Schlosstricks. Leugnen Sie Ihre Beteiligung weiterhin?",
                                 a: "Nein. Ich bestreite meine Beteiligung und habe diese Spur nicht benutzt, um das Verbrechen zu begehen."
                             }
                         ]
@@ -16297,8 +16297,8 @@ const TRANSLATIONS = {
                         desc: "Genau 10 Minuten lang deaktiviert."
                     },
                     {
-                        name: "Ermittlungsspur Painter's Trace Match",
-                        desc: "Forensischer Abgleich: Paint residue on the brush matches Fouad's custom oil-paint mixture, and the wall print matches his fingerprint."
+                        name: "Ermittlungsspur: Übereinstimmung der Spuren des Malers",
+                        desc: "Die Farbreste am Pinsel stimmen mit Fouads individueller Ölfarbmischung überein, und der Abdruck an der Wand passt zu seinem Fingerabdruck."
                     }
                 ],
                 suspects: [
@@ -16320,7 +16320,7 @@ const TRANSLATIONS = {
                                 a: "In meinem privaten Studio."
                             },
                             {
-                                q: "Fouad der Maler, die Beweise verbinden Sie nun mit the painting materials and wall print. Leugnen Sie Ihre Beteiligung weiterhin?",
+                                q: "Fouad der Maler, die Beweise verbinden Sie nun mit den Malutensilien und dem Abdruck an der Wand. Leugnen Sie Ihre Beteiligung weiterhin?",
                                 a: "Nein. Ich bestreite meine Beteiligung und habe diese Spur nicht benutzt, um das Verbrechen zu begehen."
                             }
                         ]
@@ -16418,8 +16418,8 @@ const TRANSLATIONS = {
                         desc: "Einziger Zutritt mit gültiger Schlüsselkarte."
                     },
                     {
-                        name: "Ermittlungsspur Keycard Identity Record",
-                        desc: "Forensischer Abgleich: The access log identifies Hani's laboratory keycard as the only valid card used for the entry."
+                        name: "Ermittlungsspur: Identitätsprotokoll der Zugangskarte",
+                        desc: "Das Zugangsprotokoll weist Hanis Laborkarte als die einzige gültige Karte aus, die für den Zutritt verwendet wurde."
                     }
                 ],
                 suspects: [
@@ -16479,7 +16479,7 @@ const TRANSLATIONS = {
                                 a: "Zu Hause bei meiner Familie."
                             },
                             {
-                                q: "Hani der leitende Assistent, die Beweise verbinden Sie nun mit the laboratory keycard. Leugnen Sie Ihre Beteiligung weiterhin?",
+                                q: "Hani der leitende Assistent, die Beweise verbinden Sie nun mit der Laborzugangskarte. Leugnen Sie Ihre Beteiligung weiterhin?",
                                 a: "Nein. Ich bestreite meine Beteiligung und habe diese Spur nicht benutzt, um das Verbrechen zu begehen."
                             }
                         ]
@@ -16539,8 +16539,8 @@ const TRANSLATIONS = {
                         desc: "Zeigt verdächtige Bewegungen zwischen den Wagen."
                     },
                     {
-                        name: "Ermittlungsspur Invisible Ink Match",
-                        desc: "Forensischer Abgleich: The invisible-ink traces match the security ink used on Salim's forged ticket."
+                        name: "Ermittlungsspur: Übereinstimmung der unsichtbaren Tinte",
+                        desc: "Die Spuren unsichtbarer Tinte stimmen mit der Sicherheitstinte auf Salims gefälschtem Ticket überein."
                     }
                 ],
                 suspects: [
@@ -16581,7 +16581,7 @@ const TRANSLATIONS = {
                                 a: "Habe ihn noch nie in meinem Leben gesehen."
                             },
                             {
-                                q: "Salim der Geheime, die Beweise verbinden Sie nun mit the forged ticket and invisible ink. Leugnen Sie Ihre Beteiligung weiterhin?",
+                                q: "Salim der Geheime, die Beweise verbinden Sie nun mit dem gefälschten Ticket und der unsichtbaren Tinte. Leugnen Sie Ihre Beteiligung weiterhin?",
                                 a: "Nein. Ich bestreite meine Beteiligung und habe diese Spur nicht benutzt, um das Verbrechen zu begehen."
                             }
                         ]
@@ -16660,8 +16660,8 @@ const TRANSLATIONS = {
                         desc: "Gehört dem Firmenbuchhalter."
                     },
                     {
-                        name: "Ermittlungsspur Vault Access Match",
-                        desc: "Forensischer Abgleich: The backup keycard log records Ziad's access, and the keypad print matches his fingerprint."
+                        name: "Ermittlungsspur: Übereinstimmung beim Tresorzugang",
+                        desc: "Das Protokoll der Ersatzkarte verzeichnet Ziads Zutritt, und der Abdruck auf dem Tastenfeld passt zu seinem Fingerabdruck."
                     }
                 ],
                 suspects: [
@@ -16721,7 +16721,7 @@ const TRANSLATIONS = {
                                 a: "In einer Bankfiliale."
                             },
                             {
-                                q: "Ziad der Buchhalter, die Beweise verbinden Sie nun mit the vault keycard and keypad. Leugnen Sie Ihre Beteiligung weiterhin?",
+                                q: "Ziad der Buchhalter, die Beweise verbinden Sie nun mit der Tresorkarte und dem Tastenfeld. Leugnen Sie Ihre Beteiligung weiterhin?",
                                 a: "Nein. Ich bestreite meine Beteiligung und habe diese Spur nicht benutzt, um das Verbrechen zu begehen."
                             }
                         ]
@@ -16781,8 +16781,8 @@ const TRANSLATIONS = {
                         desc: "Scharfe Werkzeuge fehlen."
                     },
                     {
-                        name: "Ermittlungsspur Watch and Footprint Match",
-                        desc: "Forensischer Abgleich: The wristwatch serial matches Hamza's registered watch, and the footprints follow his known route toward the coastal road."
+                        name: "Ermittlungsspur: Übereinstimmung von Uhr und Fußabdrücken",
+                        desc: "Die Seriennummer der Armbanduhr passt zu Hamzas registrierter Uhr, und die Fußabdrücke folgen seiner bekannten Route zur Küstenstraße."
                     }
                 ],
                 suspects: [
@@ -16804,7 +16804,7 @@ const TRANSLATIONS = {
                                 a: "In meinem Bett."
                             },
                             {
-                                q: "Hamza der Jugendliche, die Beweise verbinden Sie nun mit the watch and coastal footprints. Leugnen Sie Ihre Beteiligung weiterhin?",
+                                q: "Hamza der Jugendliche, die Beweise verbinden Sie nun mit der Uhr und den Fußabdrücken an der Küste. Leugnen Sie Ihre Beteiligung weiterhin?",
                                 a: "Nein. Ich bestreite meine Beteiligung und habe diese Spur nicht benutzt, um das Verbrechen zu begehen."
                             }
                         ]
@@ -16902,8 +16902,8 @@ const TRANSLATIONS = {
                         desc: "Protokolliert den nächtlichen Besuch des Innenarchitekten."
                     },
                     {
-                        name: "Ermittlungsspur Decorator Access Trace",
-                        desc: "Forensischer Abgleich: The bypass tool serial and glove print match Maher's registered workshop kit."
+                        name: "Ermittlungsspur: Zugangsspur des Dekorateurs",
+                        desc: "Seriennummer des Umgehungswerkzeugs und Handschuhabdruck passen zu Mahers registriertem Werkstattset."
                     }
                 ],
                 suspects: [
@@ -16944,7 +16944,7 @@ const TRANSLATIONS = {
                                 a: "Ich weiß nichts."
                             },
                             {
-                                q: "Maher der Dekorateur, die Beweise verbinden Sie nun mit the alarm-bypass tools. Leugnen Sie Ihre Beteiligung weiterhin?",
+                                q: "Maher der Dekorateur, die Beweise verbinden Sie nun mit den Werkzeugen zur Alarmumgehung. Leugnen Sie Ihre Beteiligung weiterhin?",
                                 a: "Nein. Ich bestreite meine Beteiligung und habe diese Spur nicht benutzt, um das Verbrechen zu begehen."
                             }
                         ]
@@ -17023,8 +17023,8 @@ const TRANSLATIONS = {
                         desc: "In einem Mülleimer entsorgt."
                     },
                     {
-                        name: "Ermittlungsspur Backstage Shoe and Script Match",
-                        desc: "Forensischer Abgleich: The wooden shoe print matches Bassem's stage shoes, and the script notes carry his handwriting."
+                        name: "Ermittlungsspur: Übereinstimmung von Backstage-Schuh und Skript",
+                        desc: "Der Holzschuhabdruck passt zu Bassems Bühnenschuhen, und die Skriptnotizen tragen seine Handschrift."
                     }
                 ],
                 suspects: [
@@ -17103,7 +17103,7 @@ const TRANSLATIONS = {
                                 a: "Alleine im Zimmer."
                             },
                             {
-                                q: "Bassem der Zweitbesetzungsschauspieler, die Beweise verbinden Sie nun mit the backstage shoe print and script. Leugnen Sie Ihre Beteiligung weiterhin?",
+                                q: "Bassem der Zweitbesetzungsschauspieler, die Beweise verbinden Sie nun mit dem Schuhabdruck aus den Kulissen und dem Skript. Leugnen Sie Ihre Beteiligung weiterhin?",
                                 a: "Nein. Ich bestreite meine Beteiligung und habe diese Spur nicht benutzt, um das Verbrechen zu begehen."
                             }
                         ]
@@ -17144,8 +17144,8 @@ const TRANSLATIONS = {
                         desc: "Zeigt einen absichtlichen 1-minütigen Zugbremsenhalt."
                     },
                     {
-                        name: "Ermittlungsspur Maintenance Link",
-                        desc: "Forensischer Abgleich: The work-glove fibers and hydraulic-jack inventory match Essam's maintenance kit."
+                        name: "Ermittlungsspur: Wartungsverbindung",
+                        desc: "Die Fasern des Arbeitshandschuhs und das Inventar des hydraulischen Wagenhebers passen zu Essams Wartungsset."
                     },
                     {
                         name: "Funkaufzeichnung der Koordination",
@@ -17171,7 +17171,7 @@ const TRANSLATIONS = {
                                 a: "Die Leitungs-Crew."
                             },
                             {
-                                q: "Sameh der Zugführer, die Beweise verbinden Sie nun mit the brake-stop radio record. Leugnen Sie Ihre Beteiligung weiterhin?",
+                                q: "Sameh der Zugführer, die Beweise verbinden Sie nun mit der Funkaufzeichnung zum Bremsstopp. Leugnen Sie Ihre Beteiligung weiterhin?",
                                 a: "Nein. Ich bestreite meine Beteiligung und habe diese Spur nicht benutzt, um das Verbrechen zu begehen."
                             }
                         ]
@@ -17269,8 +17269,8 @@ const TRANSLATIONS = {
                         desc: "Beschreibt den Streit über die Aufteilung der Funde."
                     },
                     {
-                        name: "Ermittlungsspur Smuggler Trace Match",
-                        desc: "Forensischer Abgleich: The flashlight serial and footprint pattern match Maher's equipment and boots."
+                        name: "Ermittlungsspur: Übereinstimmung der Schmugglerspuren",
+                        desc: "Die Seriennummer der Taschenlampe und das Fußabdruckmuster passen zu Mahers Ausrüstung und Stiefeln."
                     }
                 ],
                 suspects: [
@@ -17330,7 +17330,7 @@ const TRANSLATIONS = {
                                 a: "Falsche Beschuldigung."
                             },
                             {
-                                q: "Maher der Schmuggler, die Beweise verbinden Sie nun mit the excavation traces. Leugnen Sie Ihre Beteiligung weiterhin?",
+                                q: "Maher der Schmuggler, die Beweise verbinden Sie nun mit den Spuren der Ausgrabung. Leugnen Sie Ihre Beteiligung weiterhin?",
                                 a: "Nein. Ich bestreite meine Beteiligung und habe diese Spur nicht benutzt, um das Verbrechen zu begehen."
                             }
                         ]
@@ -17390,8 +17390,8 @@ const TRANSLATIONS = {
                         desc: "Lenkt den Pfad absichtlich in Richtung der Berge."
                     },
                     {
-                        name: "Ermittlungsspur Co-Pilot Access Record",
-                        desc: "Forensischer Abgleich: The flight-plan terminal log shows Samer's authenticated sign-off was used to alter the route, and the fuel access record carries his badge."
+                        name: "Ermittlungsspur: Zugriffsprotokoll des Co-Piloten",
+                        desc: "Das Terminalprotokoll des Flugplans zeigt, dass Samers authentifizierte Freigabe zur Routenänderung genutzt wurde, und das Kraftstoff-Zugriffsprotokoll trägt seinen Ausweis."
                     }
                 ],
                 suspects: [
@@ -17432,7 +17432,7 @@ const TRANSLATIONS = {
                                 a: "Gegenstand der Notfallausrüstung."
                             },
                             {
-                                q: "Samer der Co-Pilot, die Beweise verbinden Sie nun mit the flight-plan and fuel records. Leugnen Sie Ihre Beteiligung weiterhin?",
+                                q: "Samer der Co-Pilot, die Beweise verbinden Sie nun mit den Flugplan- und Kraftstoffprotokollen. Leugnen Sie Ihre Beteiligung weiterhin?",
                                 a: "Nein. Ich bestreite meine Beteiligung und habe diese Spur nicht benutzt, um das Verbrechen zu begehen."
                             }
                         ]
@@ -17511,8 +17511,8 @@ const TRANSLATIONS = {
                         desc: "Zeigt eine Person in einem Arztkittel."
                     },
                     {
-                        name: "Ermittlungsspur Doctor Inventory Match",
-                        desc: "Forensischer Abgleich: The medical dropper carries Ziad's clinic inventory mark, and the glove print matches his medical gloves."
+                        name: "Ermittlungsspur: Übereinstimmung mit dem Inventar des Arztes",
+                        desc: "Die medizinische Pipette trägt Ziads Klinik-Inventarmarkierung, und der Handschuhabdruck passt zu seinen medizinischen Handschuhen."
                     }
                 ],
                 suspects: [
@@ -17534,7 +17534,7 @@ const TRANSLATIONS = {
                                 a: "Nein, nicht bewusst."
                             },
                             {
-                                q: "Dr. Ziad, die Beweise verbinden Sie nun mit the medical dropper and glove. Leugnen Sie Ihre Beteiligung weiterhin?",
+                                q: "Dr. Ziad, die Beweise verbinden Sie nun mit der medizinischen Pipette und dem Handschuh. Leugnen Sie Ihre Beteiligung weiterhin?",
                                 a: "Nein. Ich bestreite meine Beteiligung und habe diese Spur nicht benutzt, um das Verbrechen zu begehen."
                             }
                         ]
@@ -17632,8 +17632,8 @@ const TRANSLATIONS = {
                         desc: "Zeigt den Verkauf ähnlicher Artikel an einen Händler."
                     },
                     {
-                        name: "Ermittlungsspur Curator Trace Match",
-                        desc: "Forensischer Abgleich: The blue ink mark matches Rami's inventory pen, and the sales receipt was found in his locked office file."
+                        name: "Ermittlungsspur: Übereinstimmung der Kuratorenspuren",
+                        desc: "Der blaue Tintenfleck passt zu Ramis Inventarstift, und der Verkaufsbeleg wurde in seiner verschlossenen Büroakte gefunden."
                     }
                 ],
                 suspects: [
@@ -17655,7 +17655,7 @@ const TRANSLATIONS = {
                                 a: "Gestohlen, ich weiß nicht von wem."
                             },
                             {
-                                q: "Rami der Kurator, die Beweise verbinden Sie nun mit the curator trace and sales record. Leugnen Sie Ihre Beteiligung weiterhin?",
+                                q: "Rami der Kurator, die Beweise verbinden Sie nun mit der Kuratorenspur und dem Verkaufsnachweis. Leugnen Sie Ihre Beteiligung weiterhin?",
                                 a: "Nein. Ich bestreite meine Beteiligung und habe diese Spur nicht benutzt, um das Verbrechen zu begehen."
                             }
                         ]
@@ -17753,8 +17753,8 @@ const TRANSLATIONS = {
                         desc: "Vom Neffen, der Geld fordert."
                     },
                     {
-                        name: "Ermittlungsspur Nephew Entry Trace",
-                        desc: "Forensischer Abgleich: The spare-key hiding spot was known to Nabil, and the muddy footprint matches his work boot."
+                        name: "Ermittlungsspur: Zutrittsspur des Neffen",
+                        desc: "Nabil kannte das Versteck des Ersatzschlüssels, und der schlammige Fußabdruck passt zu seinem Arbeitsstiefel."
                     }
                 ],
                 suspects: [
@@ -17776,7 +17776,7 @@ const TRANSLATIONS = {
                                 a: "Auf dem Stadtmarkt."
                             },
                             {
-                                q: "Nabil der Neffe, die Beweise verbinden Sie nun mit the spare key and footprint. Leugnen Sie Ihre Beteiligung weiterhin?",
+                                q: "Nabil der Neffe, die Beweise verbinden Sie nun mit dem Ersatzschlüssel und dem Fußabdruck. Leugnen Sie Ihre Beteiligung weiterhin?",
                                 a: "Nein. Ich bestreite meine Beteiligung und habe diese Spur nicht benutzt, um das Verbrechen zu begehen."
                             }
                         ]
@@ -17874,8 +17874,8 @@ const TRANSLATIONS = {
                         desc: "Protokolliert den Eintritt eines mysteriösen Reporters."
                     },
                     {
-                        name: "Ermittlungsspur Reporter Credential Trace",
-                        desc: "Forensischer Abgleich: The forged invitation and briefcase swap are linked to Daniel's registered event credentials, and the handkerchief monogram matches his initials."
+                        name: "Ermittlungsspur: Spur der Reporter-Akkreditierung",
+                        desc: "Die gefälschte Einladung und der Aktentaschentausch sind mit Daniels registrierten Veranstaltungsausweisen verknüpft, und das Monogramm auf dem Taschentuch entspricht seinen Initialen."
                     }
                 ],
                 suspects: [
@@ -17935,7 +17935,7 @@ const TRANSLATIONS = {
                                 a: "Ich suche die Wahrheit."
                             },
                             {
-                                q: "Daniel der Reporter, die Beweise verbinden Sie nun mit the briefcase-swap trace. Leugnen Sie Ihre Beteiligung weiterhin?",
+                                q: "Daniel der Reporter, die Beweise verbinden Sie nun mit der Spur des Aktentaschentauschs. Leugnen Sie Ihre Beteiligung weiterhin?",
                                 a: "Nein. Ich bestreite meine Beteiligung und habe diese Spur nicht benutzt, um das Verbrechen zu begehen."
                             }
                         ]
@@ -17995,8 +17995,8 @@ const TRANSLATIONS = {
                         desc: "Wurde für Präzisionszielerfassung auf große Distanz verwendet."
                     },
                     {
-                        name: "Ermittlungsspur Payment and Contract Record",
-                        desc: "Forensischer Abgleich: The recovered payment record links Ziad to the contract executed by Jehad, matching Jehad's statement about his payer."
+                        name: "Ermittlungsspur: Zahlungs- und Vertragsprotokoll",
+                        desc: "Der sichergestellte Zahlungsbeleg verbindet Ziad mit dem von Jehad ausgeführten Vertrag und stimmt mit Jehads Aussage über seinen Auftraggeber überein."
                     }
                 ],
                 suspects: [
@@ -18018,7 +18018,7 @@ const TRANSLATIONS = {
                                 a: "Im Finanzturm."
                             },
                             {
-                                q: "Ziad der Rivalisierende, die Beweise verbinden Sie nun mit the payment and contract record. Leugnen Sie Ihre Beteiligung weiterhin?",
+                                q: "Ziad der Rivalisierende, die Beweise verbinden Sie nun mit dem Zahlungs- und Vertragsnachweis. Leugnen Sie Ihre Beteiligung weiterhin?",
                                 a: "Nein. Ich bestreite meine Beteiligung und habe diese Spur nicht benutzt, um das Verbrechen zu begehen."
                             }
                         ]
@@ -18645,8 +18645,8 @@ const TRANSLATIONS = {
                         desc: "مقال لاذع كتبه الضحية يهاجم كاتباً مبتدئاً."
                     },
                     {
-                        name: "دليل التحقيق Fingerprint Match",
-                        desc: "المقارنة الجنائية: Forensic comparison links the partial fingerprint on the napkin to Samer's recorded fingerprint."
+                        name: "دليل التحقيق: تطابق البصمة",
+                        desc: "تربط المقارنة الجنائية البصمة الجزئية الموجودة على المنديل ببصمة سامر المسجّلة."
                     }
                 ],
                 suspects: [
@@ -18687,7 +18687,7 @@ const TRANSLATIONS = {
                                 a: "أمام مسرح الحفل."
                             },
                             {
-                                q: "سامر الكاتب المنافس، الأدلة تربطك الآن بـfingerprint on the napkin. هل ما زلت تنكر تورطك؟",
+                                q: "سامر الكاتب المنافس، الأدلة تربطك الآن ببصمة الإصبع على المنديل. هل ما زلت تنكر تورطك؟",
                                 a: "لا. أنكر تورطي وأؤكد أنني لم أستخدم هذا الدليل لارتكاب الجريمة."
                             }
                         ]
@@ -18766,8 +18766,8 @@ const TRANSLATIONS = {
                         desc: "تشير إلى محاولات ابتزاز من شريكه التجاري."
                     },
                     {
-                        name: "دليل التحقيق Maintenance Tool Match",
-                        desc: "المقارنة الجنائية: Fibers from the fishing line and metal shim match tools issued to Khaled's maintenance kit."
+                        name: "دليل التحقيق: تطابق أدوات الصيانة",
+                        desc: "تتطابق ألياف خيط الصيد والشريحة المعدنية مع الأدوات الموجودة في عدّة صيانة خالد."
                     }
                 ],
                 suspects: [
@@ -18827,7 +18827,7 @@ const TRANSLATIONS = {
                                 a: "طلب هدوءاً تاماً."
                             },
                             {
-                                q: "خالد الصيانة، الأدلة تربطك الآن بـthe lock-trick tools. هل ما زلت تنكر تورطك؟",
+                                q: "خالد الصيانة، الأدلة تربطك الآن بأدوات خدعة القفل. هل ما زلت تنكر تورطك؟",
                                 a: "لا. أنكر تورطي وأؤكد أنني لم أستخدم هذا الدليل لارتكاب الجريمة."
                             }
                         ]
@@ -18887,8 +18887,8 @@ const TRANSLATIONS = {
                         desc: "عُطّل لمدة 10 دقائق بالضبط."
                     },
                     {
-                        name: "دليل التحقيق Painter's Trace Match",
-                        desc: "المقارنة الجنائية: Paint residue on the brush matches Fouad's custom oil-paint mixture, and the wall print matches his fingerprint."
+                        name: "دليل التحقيق: تطابق آثار الرسام",
+                        desc: "تتطابق بقايا الطلاء على الفرشاة مع خلطة الألوان الزيتية الخاصة بفؤاد، وتتطابق بصمة الجدار مع بصمة إصبعه."
                     }
                 ],
                 suspects: [
@@ -18910,7 +18910,7 @@ const TRANSLATIONS = {
                                 a: "في استوديوي الخاص."
                             },
                             {
-                                q: "فؤاد الرسام، الأدلة تربطك الآن بـthe painting materials and wall print. هل ما زلت تنكر تورطك؟",
+                                q: "فؤاد الرسام، الأدلة تربطك الآن بأدوات الرسم وبصمة الجدار. هل ما زلت تنكر تورطك؟",
                                 a: "لا. أنكر تورطي وأؤكد أنني لم أستخدم هذا الدليل لارتكاب الجريمة."
                             }
                         ]
@@ -19008,8 +19008,8 @@ const TRANSLATIONS = {
                         desc: "دخول واحد باستخدام بطاقة صالحة."
                     },
                     {
-                        name: "دليل التحقيق Keycard Identity Record",
-                        desc: "المقارنة الجنائية: The access log identifies Hani's laboratory keycard as the only valid card used for the entry."
+                        name: "دليل التحقيق: سجل هوية بطاقة الدخول",
+                        desc: "يُظهر سجل الدخول أن بطاقة مختبر هاني هي البطاقة الصالحة الوحيدة التي استُخدمت للدخول."
                     }
                 ],
                 suspects: [
@@ -19069,7 +19069,7 @@ const TRANSLATIONS = {
                                 a: "بالمنزل مع عائلتي."
                             },
                             {
-                                q: "هاني المساعد الأول، الأدلة تربطك الآن بـthe laboratory keycard. هل ما زلت تنكر تورطك؟",
+                                q: "هاني المساعد الأول، الأدلة تربطك الآن ببطاقة دخول المختبر. هل ما زلت تنكر تورطك؟",
                                 a: "لا. أنكر تورطي وأؤكد أنني لم أستخدم هذا الدليل لارتكاب الجريمة."
                             }
                         ]
@@ -19129,8 +19129,8 @@ const TRANSLATIONS = {
                         desc: "يُظهر تحركاً مريباً بين العربات."
                     },
                     {
-                        name: "دليل التحقيق Invisible Ink Match",
-                        desc: "المقارنة الجنائية: The invisible-ink traces match the security ink used on Salim's forged ticket."
+                        name: "دليل التحقيق: تطابق الحبر الخفي",
+                        desc: "تتطابق آثار الحبر الخفي مع حبر الأمان المستخدم في تذكرة سالم المزوّرة."
                     }
                 ],
                 suspects: [
@@ -19171,7 +19171,7 @@ const TRANSLATIONS = {
                                 a: "لم أره في حياتي."
                             },
                             {
-                                q: "سليم الغامض، الأدلة تربطك الآن بـthe forged ticket and invisible ink. هل ما زلت تنكر تورطك؟",
+                                q: "سليم الغامض، الأدلة تربطك الآن بالتذكرة المزوّرة والحبر الخفي. هل ما زلت تنكر تورطك؟",
                                 a: "لا. أنكر تورطي وأؤكد أنني لم أستخدم هذا الدليل لارتكاب الجريمة."
                             }
                         ]
@@ -19250,8 +19250,8 @@ const TRANSLATIONS = {
                         desc: "تعود لمحاسب الشركة."
                     },
                     {
-                        name: "دليل التحقيق Vault Access Match",
-                        desc: "المقارنة الجنائية: The backup keycard log records Ziad's access, and the keypad print matches his fingerprint."
+                        name: "دليل التحقيق: تطابق الدخول إلى الخزنة",
+                        desc: "يسجّل سجل البطاقة الاحتياطية دخول زياد، وتتطابق بصمة لوحة الأرقام مع بصمة إصبعه."
                     }
                 ],
                 suspects: [
@@ -19311,7 +19311,7 @@ const TRANSLATIONS = {
                                 a: "في فرع البنك."
                             },
                             {
-                                q: "زياد المحاسب، الأدلة تربطك الآن بـthe vault keycard and keypad. هل ما زلت تنكر تورطك؟",
+                                q: "زياد المحاسب، الأدلة تربطك الآن ببطاقة الخزنة ولوحة الأرقام. هل ما زلت تنكر تورطك؟",
                                 a: "لا. أنكر تورطي وأؤكد أنني لم أستخدم هذا الدليل لارتكاب الجريمة."
                             }
                         ]
@@ -19371,8 +19371,8 @@ const TRANSLATIONS = {
                         desc: "أدوات حادة مفقودة منه."
                     },
                     {
-                        name: "دليل التحقيق Watch and Footprint Match",
-                        desc: "المقارنة الجنائية: The wristwatch serial matches Hamza's registered watch, and the footprints follow his known route toward the coastal road."
+                        name: "دليل التحقيق: تطابق الساعة وآثار الأقدام",
+                        desc: "يتطابق الرقم التسلسلي للساعة مع ساعة حمزة المسجّلة، وتتبع آثار الأقدام طريقه المعتاد نحو الطريق الساحلي."
                     }
                 ],
                 suspects: [
@@ -19394,7 +19394,7 @@ const TRANSLATIONS = {
                                 a: "في فراشي."
                             },
                             {
-                                q: "حمزة الشاب، الأدلة تربطك الآن بـthe watch and coastal footprints. هل ما زلت تنكر تورطك؟",
+                                q: "حمزة الشاب، الأدلة تربطك الآن بالساعة وآثار الأقدام الساحلية. هل ما زلت تنكر تورطك؟",
                                 a: "لا. أنكر تورطي وأؤكد أنني لم أستخدم هذا الدليل لارتكاب الجريمة."
                             }
                         ]
@@ -19492,8 +19492,8 @@ const TRANSLATIONS = {
                         desc: "يسجل زيارة ليلية لمصمم الديكور."
                     },
                     {
-                        name: "دليل التحقيق Decorator Access Trace",
-                        desc: "المقارنة الجنائية: The bypass tool serial and glove print match Maher's registered workshop kit."
+                        name: "دليل التحقيق: أثر دخول مصمم الديكور",
+                        desc: "يتطابق الرقم التسلسلي لأداة التجاوز وبصمة القفاز مع عدّة ورشة ماهر المسجّلة."
                     }
                 ],
                 suspects: [
@@ -19534,7 +19534,7 @@ const TRANSLATIONS = {
                                 a: "لا أعرف شيئاً."
                             },
                             {
-                                q: "ماهر المصمم، الأدلة تربطك الآن بـthe alarm-bypass tools. هل ما زلت تنكر تورطك؟",
+                                q: "ماهر المصمم، الأدلة تربطك الآن بأدوات تعطيل الإنذار. هل ما زلت تنكر تورطك؟",
                                 a: "لا. أنكر تورطي وأؤكد أنني لم أستخدم هذا الدليل لارتكاب الجريمة."
                             }
                         ]
@@ -19613,8 +19613,8 @@ const TRANSLATIONS = {
                         desc: "مُلقى في سلة المهملات."
                     },
                     {
-                        name: "دليل التحقيق Backstage Shoe and Script Match",
-                        desc: "المقارنة الجنائية: The wooden shoe print matches Bassem's stage shoes, and the script notes carry his handwriting."
+                        name: "دليل التحقيق: تطابق حذاء الكواليس والنص",
+                        desc: "يتطابق أثر الحذاء الخشبي مع حذاء باسم المسرحي، وتحمل ملاحظات النص خط يده."
                     }
                 ],
                 suspects: [
@@ -19693,7 +19693,7 @@ const TRANSLATIONS = {
                                 a: "في الغرفة وحدي."
                             },
                             {
-                                q: "باسم الممثل البديل، الأدلة تربطك الآن بـthe backstage shoe print and script. هل ما زلت تنكر تورطك؟",
+                                q: "باسم الممثل البديل، الأدلة تربطك الآن بأثر حذاء الكواليس والنص. هل ما زلت تنكر تورطك؟",
                                 a: "لا. أنكر تورطي وأؤكد أنني لم أستخدم هذا الدليل لارتكاب الجريمة."
                             }
                         ]
@@ -19734,8 +19734,8 @@ const TRANSLATIONS = {
                         desc: "يُظهر توقف مكابح متعمد لمدة دقيقة."
                     },
                     {
-                        name: "دليل التحقيق Maintenance Link",
-                        desc: "المقارنة الجنائية: The work-glove fibers and hydraulic-jack inventory match Essam's maintenance kit."
+                        name: "دليل التحقيق: رابط الصيانة",
+                        desc: "تتطابق ألياف قفاز العمل وجرد الرافعة الهيدروليكية مع عدّة صيانة عصام."
                     },
                     {
                         name: "تسجيل لاسلكي للتنسيق",
@@ -19761,7 +19761,7 @@ const TRANSLATIONS = {
                                 a: "طاقم التحكم."
                             },
                             {
-                                q: "سامح سائق القطار، الأدلة تربطك الآن بـthe brake-stop radio record. هل ما زلت تنكر تورطك؟",
+                                q: "سامح سائق القطار، الأدلة تربطك الآن بسجل لاسلكي إيقاف الفرامل. هل ما زلت تنكر تورطك؟",
                                 a: "لا. أنكر تورطي وأؤكد أنني لم أستخدم هذا الدليل لارتكاب الجريمة."
                             }
                         ]
@@ -19859,8 +19859,8 @@ const TRANSLATIONS = {
                         desc: "يفصّل خلافاً حول تقاسم الاكتشافات."
                     },
                     {
-                        name: "دليل التحقيق Smuggler Trace Match",
-                        desc: "المقارنة الجنائية: The flashlight serial and footprint pattern match Maher's equipment and boots."
+                        name: "دليل التحقيق: تطابق آثار المهرّب",
+                        desc: "يتطابق الرقم التسلسلي للمصباح ونمط آثار الأقدام مع معدات ماهر وحذائه."
                     }
                 ],
                 suspects: [
@@ -19920,7 +19920,7 @@ const TRANSLATIONS = {
                                 a: "اتهام باطل."
                             },
                             {
-                                q: "ماهر المهرّب، الأدلة تربطك الآن بـthe excavation traces. هل ما زلت تنكر تورطك؟",
+                                q: "ماهر المهرّب، الأدلة تربطك الآن بآثار الحفر. هل ما زلت تنكر تورطك؟",
                                 a: "لا. أنكر تورطي وأؤكد أنني لم أستخدم هذا الدليل لارتكاب الجريمة."
                             }
                         ]
@@ -19980,8 +19980,8 @@ const TRANSLATIONS = {
                         desc: "تحوّل المسار عمداً نحو الجبال."
                     },
                     {
-                        name: "دليل التحقيق Co-Pilot Access Record",
-                        desc: "المقارنة الجنائية: The flight-plan terminal log shows Samer's authenticated sign-off was used to alter the route, and the fuel access record carries his badge."
+                        name: "دليل التحقيق: سجل دخول مساعد الطيار",
+                        desc: "يُظهر سجل محطة خطة الطيران أن توقيع سامر المصادَق عليه استُخدم لتغيير المسار، ويحمل سجل الوصول إلى الوقود شارته."
                     }
                 ],
                 suspects: [
@@ -20022,7 +20022,7 @@ const TRANSLATIONS = {
                                 a: "عنصر من عدة الطوارئ."
                             },
                             {
-                                q: "سامر مساعد الطيار، الأدلة تربطك الآن بـthe flight-plan and fuel records. هل ما زلت تنكر تورطك؟",
+                                q: "سامر مساعد الطيار، الأدلة تربطك الآن بسجلات خطة الطيران والوقود. هل ما زلت تنكر تورطك؟",
                                 a: "لا. أنكر تورطي وأؤكد أنني لم أستخدم هذا الدليل لارتكاب الجريمة."
                             }
                         ]
@@ -20101,8 +20101,8 @@ const TRANSLATIONS = {
                         desc: "يُظهر شخصاً يرتدي معطف طبيب."
                     },
                     {
-                        name: "دليل التحقيق Doctor Inventory Match",
-                        desc: "المقارنة الجنائية: The medical dropper carries Ziad's clinic inventory mark, and the glove print matches his medical gloves."
+                        name: "دليل التحقيق: تطابق جرد الطبيب",
+                        desc: "تحمل القطّارة الطبية علامة جرد عيادة زياد، وتتطابق بصمة القفاز مع قفازاته الطبية."
                     }
                 ],
                 suspects: [
@@ -20124,7 +20124,7 @@ const TRANSLATIONS = {
                                 a: "لا، لست على علم."
                             },
                             {
-                                q: "الدكتور زياد، الأدلة تربطك الآن بـthe medical dropper and glove. هل ما زلت تنكر تورطك؟",
+                                q: "الدكتور زياد، الأدلة تربطك الآن بالقطّارة الطبية والقفاز. هل ما زلت تنكر تورطك؟",
                                 a: "لا. أنكر تورطي وأؤكد أنني لم أستخدم هذا الدليل لارتكاب الجريمة."
                             }
                         ]
@@ -20222,8 +20222,8 @@ const TRANSLATIONS = {
                         desc: "يُظهر بيع قطع مماثلة لتاجر."
                     },
                     {
-                        name: "دليل التحقيق Curator Trace Match",
-                        desc: "المقارنة الجنائية: The blue ink mark matches Rami's inventory pen, and the sales receipt was found in his locked office file."
+                        name: "دليل التحقيق: تطابق آثار أمين المتحف",
+                        desc: "تتطابق علامة الحبر الأزرق مع قلم الجرد الخاص برامي، وقد عُثر على إيصال البيع في ملف مكتبه المقفل."
                     }
                 ],
                 suspects: [
@@ -20245,7 +20245,7 @@ const TRANSLATIONS = {
                                 a: "سُرقت، لا أعرف من فعلها."
                             },
                             {
-                                q: "رامي أمين المتحف، الأدلة تربطك الآن بـthe curator trace and sales record. هل ما زلت تنكر تورطك؟",
+                                q: "رامي أمين المتحف، الأدلة تربطك الآن بأثر أمين المتحف وسجل البيع. هل ما زلت تنكر تورطك؟",
                                 a: "لا. أنكر تورطي وأؤكد أنني لم أستخدم هذا الدليل لارتكاب الجريمة."
                             }
                         ]
@@ -20343,8 +20343,8 @@ const TRANSLATIONS = {
                         desc: "من ابن الأخ يطالب بالمال."
                     },
                     {
-                        name: "دليل التحقيق Nephew Entry Trace",
-                        desc: "المقارنة الجنائية: The spare-key hiding spot was known to Nabil, and the muddy footprint matches his work boot."
+                        name: "دليل التحقيق: أثر دخول ابن الأخ",
+                        desc: "كان مكان إخفاء المفتاح الاحتياطي معروفًا لنبيل، ويتطابق أثر القدم الموحل مع حذاء عمله."
                     }
                 ],
                 suspects: [
@@ -20366,7 +20366,7 @@ const TRANSLATIONS = {
                                 a: "في سوق البلدة."
                             },
                             {
-                                q: "نبيل ابن الأخ، الأدلة تربطك الآن بـthe spare key and footprint. هل ما زلت تنكر تورطك؟",
+                                q: "نبيل ابن الأخ، الأدلة تربطك الآن بالمفتاح الاحتياطي وأثر القدم. هل ما زلت تنكر تورطك؟",
                                 a: "لا. أنكر تورطي وأؤكد أنني لم أستخدم هذا الدليل لارتكاب الجريمة."
                             }
                         ]
@@ -20464,8 +20464,8 @@ const TRANSLATIONS = {
                         desc: "يسجّل دخول مراسل غامض."
                     },
                     {
-                        name: "دليل التحقيق Reporter Credential Trace",
-                        desc: "المقارنة الجنائية: The forged invitation and briefcase swap are linked to Daniel's registered event credentials, and the handkerchief monogram matches his initials."
+                        name: "دليل التحقيق: أثر اعتماد المراسل",
+                        desc: "ترتبط الدعوة المزوّرة وتبديل الحقيبة بوثائق اعتماد دانيال المسجّلة للحدث، ويتطابق الحرف المزخرف على المنديل مع أحرف اسمه الأولى."
                     }
                 ],
                 suspects: [
@@ -20525,7 +20525,7 @@ const TRANSLATIONS = {
                                 a: "أبحث عن الحقيقة."
                             },
                             {
-                                q: "دانيال المراسل، الأدلة تربطك الآن بـthe briefcase-swap trace. هل ما زلت تنكر تورطك؟",
+                                q: "دانيال المراسل، الأدلة تربطك الآن بأثر تبديل الحقيبة. هل ما زلت تنكر تورطك؟",
                                 a: "لا. أنكر تورطي وأؤكد أنني لم أستخدم هذا الدليل لارتكاب الجريمة."
                             }
                         ]
@@ -20585,8 +20585,8 @@ const TRANSLATIONS = {
                         desc: "استُخدم لتحديد الهدف بدقة بعيدة المدى."
                     },
                     {
-                        name: "دليل التحقيق Payment and Contract Record",
-                        desc: "المقارنة الجنائية: The recovered payment record links Ziad to the contract executed by Jehad, matching Jehad's statement about his payer."
+                        name: "دليل التحقيق: سجل الدفع والعقد",
+                        desc: "يربط سجل الدفع المُستعاد زيادًا بالعقد الذي نفّذه جهاد، بما يطابق إفادة جهاد عن الجهة التي دفعت له."
                     }
                 ],
                 suspects: [
@@ -20608,7 +20608,7 @@ const TRANSLATIONS = {
                                 a: "في برج المال والأعمال."
                             },
                             {
-                                q: "زياد المنافس، الأدلة تربطك الآن بـthe payment and contract record. هل ما زلت تنكر تورطك؟",
+                                q: "زياد المنافس، الأدلة تربطك الآن بسجل الدفع والعقد. هل ما زلت تنكر تورطك؟",
                                 a: "لا. أنكر تورطي وأؤكد أنني لم أستخدم هذا الدليل لارتكاب الجريمة."
                             }
                         ]

@@ -1106,10 +1106,11 @@ import {
             && !evList.querySelector('[data-evidence-id="E_MANOR_ACCESS_LOG"]')) {
             const div = document.createElement('div');
             div.className = 'pick';
-            div.innerHTML = '<b>📋 Study Access Log</b>';
+            const accessLogName = txx('caseZeroAccessLogName');
+            div.innerHTML = `<b>📋 ${escapeHtml(accessLogName)}</b>`;
             div.dataset.action = 'openEvidence';
-            div.dataset.evName = 'Study Access Log';
-            div.dataset.evDesc = 'The badge that opened the study door during the incident window belongs to Yahya Alami.';
+            div.dataset.evName = accessLogName;
+            div.dataset.evDesc = txx('caseZeroAccessLogDesc');
             div.dataset.evidenceId = 'E_MANOR_ACCESS_LOG';
             evList.appendChild(div);
         }
@@ -1197,7 +1198,7 @@ import {
             : null;
         const presentationQuestions = investigationRuntime
             ? isCaseZeroInvestigation()
-                ? getCaseZeroPresentationQuestions(susIndex, sus)
+                ? getCaseZeroPresentationQuestions(susIndex, sus, txx)
                 : isCaseOneInvestigation()
                     ? getCaseOnePresentationQuestions(susIndex, sus)
                     : getInvestigationPresentationQuestions(investigationRuntime.getModel(), susIndex, sus)
@@ -2409,6 +2410,17 @@ import {
             investigationDedCase18: "Evidence and statement chain established: the trace links Daniel Reporter to the case while Daniel Reporter denies using or handling it.",
             investigationObjCase19: "Ziad Rival gave a statement that conflicts with the investigation trace.",
             investigationDedCase19: "Evidence and statement chain established: the trace links Ziad Rival to the case while Ziad Rival denies using or handling it.",
+            notesSaved: "Notes saved ✅",
+            roomInvalidCodeFormat: "Invalid room code format. Use CASE-XXX (e.g. CASE-99).",
+            cloudProgressLoadFailed: "⚠️ Cloud progress unavailable — using local data.",
+            caseZeroAccessLogName: "Study Access Log",
+            caseZeroAccessLogDesc: "The badge that opened the study door during the incident window belongs to Yahya Alami.",
+            caseZeroFatimaSightingQ: "Did you see anyone near the study that night?",
+            caseZeroFatimaSightingA: "I saw Yahya heading toward the study a little before I went to bed.",
+            caseZeroYahyaConfrontQ: "You said you were on the balcony. The access log shows your badge opened the study door. How do you explain that?",
+            caseZeroYahyaConfrontA: "I... I must have gone to the study earlier. The log does not prove I was there when Karim died.",
+            investigationObjYahyaBalcony: "Yahya claimed to be on the balcony, but the access log shows his badge opened the study door during the same window — his alibi doesn't hold.",
+            investigationDedYahyaResponsibility: "Weapon, timing, presence, contact, a collapsed alibi, and a financial motive — together they point to Yahya Alami.",
             investigationObjMaherKeyDenial: "Maher's statement conflicts with the access register.",
             investigationDedAccessTraceChain: "Access and trace chain established: the register places the administrative master key under Maher's checkout at 10:04, while Maher denies taking it."
         ,
@@ -2440,7 +2452,7 @@ import {
             storyDesc: "كاين خيط سردي خفي تحت هاد الـ20 قضية. حل قضايا أكثر باش تكتشفو.",
             accessTitle: "⚙️ الوصولية والراحة", accessFontSize: "حجم النص", accessContrast: "وضع التباين العالي",
             accessCB: "وضع صديق لعمى الألوان (كيزيد رموز/أشكال فوق تاغات الصعوبة)",
-            accessTTS: "تفعيل أزرار القراءة الصوتية (Text-to-Speech)",
+            accessTTS: "تفعيل أزرار القراءة الصوتية",
             accessEnergy: "وضع المحاولات اليومية المحدودة (تحدي اختياري)", accessEnergyLimit: "الحد اليومي للقضايا:",
             accessReminderLabel: "التذكير اليومي",
             accessReminderDesc: "خد إشعار من المتصفح مرة فالنهار (ماداما التبويب مفتوح) يذكرك تكمل التحقيق.",
@@ -2497,6 +2509,17 @@ import {
             investigationDedCase18: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط دانيال المراسل بالقضية بينما ينكر دانيال المراسل استخدامه أو التعامل معه.",
             investigationObjCase19: "تصريح زياد المنافس يتعارض مع دليل التحقيق.",
             investigationDedCase19: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط زياد المنافس بالقضية بينما ينكر زياد المنافس استخدامه أو التعامل معه.",
+            notesSaved: "تم حفظ الملاحظات ✅",
+            roomInvalidCodeFormat: "صيغة رمز الغرفة غير صحيحة. استخدم الصيغة CASE-XXX (مثلاً CASE-99).",
+            cloudProgressLoadFailed: "⚠️ التقدم السحابي غير متاح — سيتم استخدام البيانات المحلية.",
+            caseZeroAccessLogName: "سجل الدخول إلى المكتب",
+            caseZeroAccessLogDesc: "البطاقة التي فتحت باب المكتب خلال وقت الحادثة تعود إلى يحيى العلمي.",
+            caseZeroFatimaSightingQ: "هل رأيتِ أحدًا بالقرب من المكتب في تلك الليلة؟",
+            caseZeroFatimaSightingA: "رأيتُ يحيى يتجه نحو المكتب قبل أن أنام بقليل.",
+            caseZeroYahyaConfrontQ: "قلتَ إنك كنت على الشرفة، لكن سجل الدخول يُظهر أن بطاقتك فتحت باب المكتب. كيف تفسّر ذلك؟",
+            caseZeroYahyaConfrontA: "أنا... لا بد أنني ذهبت إلى المكتب في وقت سابق. السجل لا يثبت أنني كنت هناك عندما مات كريم.",
+            investigationObjYahyaBalcony: "ادّعى يحيى أنه كان على الشرفة، لكن سجل الدخول يُظهر أن بطاقته فتحت باب المكتب في الفترة نفسها — فلا يصمد عذره.",
+            investigationDedYahyaResponsibility: "السلاح والتوقيت والحضور والاتصال المباشر وعذر غياب منهار ودافع مالي — كلها معًا تشير إلى يحيى العلمي.",
             investigationObjMaherKeyDenial: "تتعارض إفادة ماهر مع سجل الدخول.",
             investigationDedAccessTraceChain: "تم إثبات سلسلة الوصول والأثر: يُظهر السجل أن المفتاح الرئيسي الإداري كان مسجَّلاً باسم ماهر في الساعة 10:04، بينما ينكر ماهر أنه أخذه."
         ,
@@ -2528,7 +2551,7 @@ import {
             storyDesc: "كاين خيط سردي خفي تحت هاد الـ20 قضية. حل قضايا أكثر باش تكتشفو.",
             accessTitle: "⚙️ الوصولية والراحة", accessFontSize: "حجم النص", accessContrast: "وضع التباين العالي",
             accessCB: "وضع صديق لعمى الألوان (كيزيد رموز/أشكال فوق تاغات الصعوبة)",
-            accessTTS: "تفعيل أزرار القراءة الصوتية (Text-to-Speech)",
+            accessTTS: "تفعيل أزرار القراءة الصوتية",
             accessEnergy: "وضع المحاولات اليومية المحدودة (تحدي اختياري)", accessEnergyLimit: "الحد اليومي للقضايا:",
             accessReminderLabel: "التذكير اليومي",
             accessReminderDesc: "خد إشعار من المتصفح مرة فالنهار (ماداما التبويب مفتوح) يذكرك تكمل التحقيق.",
@@ -2586,6 +2609,17 @@ import {
             investigationDedCase18: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط دانيال الصحفي بالقضية بينما دانيال الصحفي كينكر بلي استعملو ولا لمسُه.",
             investigationObjCase19: "تصريح زياد المنافس كيتعارض مع دليل التحقيق.",
             investigationDedCase19: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط زياد المنافس بالقضية بينما زياد المنافس كينكر بلي استعملو ولا لمسُه.",
+            notesSaved: "تم حفظ الملاحظات ✅",
+            roomInvalidCodeFormat: "صيغة كود الغرفة ماشي صحيحة. استعمل CASE-XXX (مثلا CASE-99).",
+            cloudProgressLoadFailed: "⚠️ التقدم فالسحابة ماشي متاح — غادي نستعملو البيانات المحلية.",
+            caseZeroAccessLogName: "سجل الدخول للمكتب",
+            caseZeroAccessLogDesc: "الكارط اللي حلات باب المكتب فوقت الحادثة تابعة ليحيى العلمي.",
+            caseZeroFatimaSightingQ: "واش شفتي شي حد قريب من المكتب فداك الليل؟",
+            caseZeroFatimaSightingA: "شفت يحيى كيمشي نحو المكتب شوية قبل ما نمشي ننعس.",
+            caseZeroYahyaConfrontQ: "گلتي بلي كنتي فالبلكون، ولكن سجل الدخول كيبين بلي الكارط ديالك حلات باب المكتب. كيفاش كتفسر هادشي؟",
+            caseZeroYahyaConfrontA: "أنا... أكيد مشيت للمكتب قبل شوية. السجل ما كيثبتش بلي كنت تما ملي مات كريم.",
+            investigationObjYahyaBalcony: "يحيى قال بلي كان فالبلكون، ولكن سجل الدخول كيبين بلي الكارط ديالو حلات باب المكتب فنفس الوقت — الأليبي ديالو ما كيثبتش.",
+            investigationDedYahyaResponsibility: "السلاح والوقت والحضور والاحتكاك وأليبي طاح ودافع مالي — كلشي مجموع كيشير ليحيى العلمي.",
             investigationObjMaherKeyDenial: "الشهادة ديال ماهر كتناقض مع سجل الدخول.",
             investigationDedAccessTraceChain: "تبثات سلسلة الوصول والأثر: السجل كيبين بلي المفتاح الرئيسي ديال الإدارة كان مسجل فسم ماهر فـ 10:04، وماهر كينكر بلي خدا."
         ,
@@ -2698,6 +2732,17 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
             investigationDedCase18: "Chaîne de preuves et de déclaration établie : l’indice relie Daniel le Reporter à l’affaire tandis que Daniel le Reporter nie l’avoir utilisé ou manipulé.",
             investigationObjCase19: "La déclaration de Ziad le Rival contredit l’indice d’enquête.",
             investigationDedCase19: "Chaîne de preuves et de déclaration établie : l’indice relie Ziad le Rival à l’affaire tandis que Ziad le Rival nie l’avoir utilisé ou manipulé.",
+            notesSaved: "Notes enregistrées ✅",
+            roomInvalidCodeFormat: "Format de code de salle invalide. Utilisez CASE-XXX (ex. CASE-99).",
+            cloudProgressLoadFailed: "⚠️ Progression cloud indisponible — utilisation des données locales.",
+            caseZeroAccessLogName: "Registre d’accès du bureau",
+            caseZeroAccessLogDesc: "Le badge qui a ouvert la porte du bureau pendant la plage horaire de l’incident appartient à Yahya Alami.",
+            caseZeroFatimaSightingQ: "Avez-vous vu quelqu’un près du bureau cette nuit-là ?",
+            caseZeroFatimaSightingA: "J’ai vu Yahya se diriger vers le bureau peu avant que j’aille me coucher.",
+            caseZeroYahyaConfrontQ: "Vous avez dit être sur le balcon. Le registre d’accès montre que votre badge a ouvert la porte du bureau. Comment l’expliquez-vous ?",
+            caseZeroYahyaConfrontA: "Je... j’ai dû aller au bureau plus tôt. Le registre ne prouve pas que j’y étais quand Karim est mort.",
+            investigationObjYahyaBalcony: "Yahya affirmait être sur le balcon, mais le registre d’accès montre que son badge a ouvert la porte du bureau pendant la même plage horaire — son alibi ne tient pas.",
+            investigationDedYahyaResponsibility: "L’arme, le moment, la présence, le contact, un alibi effondré et un mobile financier : tout cela désigne Yahya Alami.",
             investigationObjMaherKeyDenial: "La déclaration de Maher est en contradiction avec le registre d'accès.",
             investigationDedAccessTraceChain: "Chaîne d'accès et de traçage établie : le registre indique que la clé maîtresse administrative a été enregistrée au nom de Maher à 10:04, alors que Maher nie l'avoir prise."
         ,
@@ -2786,6 +2831,17 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
             investigationDedCase18: "Cadena de pruebas y declaración establecida: el indicio relaciona a Daniel Reportero con el caso mientras Daniel Reportero niega haberlo usado o manipulado.",
             investigationObjCase19: "La declaración de Ziad Rival contradice el indicio de investigación.",
             investigationDedCase19: "Cadena de pruebas y declaración establecida: el indicio relaciona a Ziad Rival con el caso mientras Ziad Rival niega haberlo usado o manipulado.",
+            notesSaved: "Notas guardadas ✅",
+            roomInvalidCodeFormat: "Formato de código de sala no válido. Usa CASE-XXX (ej. CASE-99).",
+            cloudProgressLoadFailed: "⚠️ Progreso en la nube no disponible — se usan los datos locales.",
+            caseZeroAccessLogName: "Registro de acceso del estudio",
+            caseZeroAccessLogDesc: "La credencial que abrió la puerta del estudio durante el intervalo del incidente pertenece a Yahya Alami.",
+            caseZeroFatimaSightingQ: "¿Vio a alguien cerca del estudio esa noche?",
+            caseZeroFatimaSightingA: "Vi a Yahya dirigirse hacia el estudio poco antes de irme a dormir.",
+            caseZeroYahyaConfrontQ: "Dijo que estaba en el balcón. El registro de acceso muestra que su credencial abrió la puerta del estudio. ¿Cómo lo explica?",
+            caseZeroYahyaConfrontA: "Yo... debí de ir al estudio antes. El registro no prueba que yo estuviera allí cuando murió Karim.",
+            investigationObjYahyaBalcony: "Yahya afirmó estar en el balcón, pero el registro de acceso muestra que su credencial abrió la puerta del estudio en ese mismo intervalo: su coartada no se sostiene.",
+            investigationDedYahyaResponsibility: "Arma, momento, presencia, contacto, una coartada hundida y un móvil económico: todo apunta a Yahya Alami.",
             investigationObjMaherKeyDenial: "La declaración de Maher contradice el registro de acceso.",
             investigationDedAccessTraceChain: "Cadena de acceso y rastro establecida: el registro sitúa la llave maestra administrativa bajo el registro de salida de Maher a las 10:04, mientras que Maher niega haberla tomado."
         ,
@@ -2874,6 +2930,17 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
             investigationDedCase18: "Catena di prove e dichiarazione stabilita: l’indizio collega Daniel Giornalista al caso mentre Daniel Giornalista nega di averlo usato o maneggiato.",
             investigationObjCase19: "La dichiarazione di Ziad Rivale contraddice l’indizio investigativo.",
             investigationDedCase19: "Catena di prove e dichiarazione stabilita: l’indizio collega Ziad Rivale al caso mentre Ziad Rivale nega di averlo usato o maneggiato.",
+            notesSaved: "Appunti salvati ✅",
+            roomInvalidCodeFormat: "Formato del codice stanza non valido. Usa CASE-XXX (es. CASE-99).",
+            cloudProgressLoadFailed: "⚠️ Progressi cloud non disponibili — uso i dati locali.",
+            caseZeroAccessLogName: "Registro degli accessi allo studio",
+            caseZeroAccessLogDesc: "Il badge che ha aperto la porta dello studio durante l’intervallo dell’incidente appartiene a Yahya Alami.",
+            caseZeroFatimaSightingQ: "Ha visto qualcuno vicino allo studio quella notte?",
+            caseZeroFatimaSightingA: "Ho visto Yahya dirigersi verso lo studio poco prima di andare a dormire.",
+            caseZeroYahyaConfrontQ: "Ha detto di essere sul balcone. Il registro degli accessi mostra che il suo badge ha aperto la porta dello studio. Come lo spiega?",
+            caseZeroYahyaConfrontA: "Io... devo essere andato nello studio prima. Il registro non prova che io fossi lì quando Karim è morto.",
+            investigationObjYahyaBalcony: "Yahya sosteneva di essere sul balcone, ma il registro degli accessi mostra che il suo badge ha aperto la porta dello studio nello stesso intervallo: il suo alibi non regge.",
+            investigationDedYahyaResponsibility: "Arma, orario, presenza, contatto, un alibi crollato e un movente economico: tutto indica Yahya Alami.",
             investigationObjMaherKeyDenial: "La dichiarazione di Maher è in contraddizione con il registro degli accessi.",
             investigationDedAccessTraceChain: "Catena di accesso e traccia stabilita: il registro colloca la chiave maestra amministrativa sotto il prelievo di Maher alle 10:04, mentre Maher nega di averla presa."
         ,
@@ -2962,6 +3029,17 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
             investigationDedCase18: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Daniel der Reporter mit dem Fall, während Daniel der Reporter bestreitet, sie benutzt oder berührt zu haben.",
             investigationObjCase19: "Die Aussage von Ziad der Rivalisierende widerspricht der Ermittlungsspur.",
             investigationDedCase19: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Ziad der Rivalisierende mit dem Fall, während Ziad der Rivalisierende bestreitet, sie benutzt oder berührt zu haben.",
+            notesSaved: "Notizen gespeichert ✅",
+            roomInvalidCodeFormat: "Ungültiges Raumcode-Format. Verwende CASE-XXX (z. B. CASE-99).",
+            cloudProgressLoadFailed: "⚠️ Cloud-Fortschritt nicht verfügbar — lokale Daten werden verwendet.",
+            caseZeroAccessLogName: "Zugangsprotokoll des Arbeitszimmers",
+            caseZeroAccessLogDesc: "Der Ausweis, der während des Tatzeitfensters die Tür des Arbeitszimmers öffnete, gehört Yahya Alami.",
+            caseZeroFatimaSightingQ: "Haben Sie in jener Nacht jemanden in der Nähe des Arbeitszimmers gesehen?",
+            caseZeroFatimaSightingA: "Ich habe Yahya kurz bevor ich zu Bett ging in Richtung Arbeitszimmer gehen sehen.",
+            caseZeroYahyaConfrontQ: "Sie sagten, Sie seien auf dem Balkon gewesen. Das Zugangsprotokoll zeigt, dass Ihr Ausweis die Tür des Arbeitszimmers geöffnet hat. Wie erklären Sie das?",
+            caseZeroYahyaConfrontA: "Ich... ich muss vorher im Arbeitszimmer gewesen sein. Das Protokoll beweist nicht, dass ich dort war, als Karim starb.",
+            investigationObjYahyaBalcony: "Yahya behauptete, auf dem Balkon gewesen zu sein, doch das Zugangsprotokoll zeigt, dass sein Ausweis im selben Zeitfenster die Tür des Arbeitszimmers öffnete — sein Alibi hält nicht.",
+            investigationDedYahyaResponsibility: "Waffe, Zeitpunkt, Anwesenheit, Kontakt, ein zusammengebrochenes Alibi und ein finanzielles Motiv — alles zusammen weist auf Yahya Alami.",
             investigationObjMaherKeyDenial: "Mahers Aussage widerspricht dem Zugangsregister.",
             investigationDedAccessTraceChain: "Zugangs- und Spurenkette festgestellt: Das Register verzeichnet den administrativen Hauptschlüssel unter Mahers Ausgabe um 10:04 Uhr, während Maher bestreitet, ihn genommen zu haben."
         ,
@@ -3050,6 +3128,17 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
             investigationDedCase18: "Cadeia de prova e declaração estabelecida: a pista liga Daniel Repórter ao caso enquanto Daniel Repórter nega tê-la usado ou manuseado.",
             investigationObjCase19: "A declaração de Ziad Rival contradiz a pista da investigação.",
             investigationDedCase19: "Cadeia de prova e declaração estabelecida: a pista liga Ziad Rival ao caso enquanto Ziad Rival nega tê-la usado ou manuseado.",
+            notesSaved: "Notas guardadas ✅",
+            roomInvalidCodeFormat: "Formato de código de sala inválido. Use CASE-XXX (ex. CASE-99).",
+            cloudProgressLoadFailed: "⚠️ Progresso na nuvem indisponível — a usar os dados locais.",
+            caseZeroAccessLogName: "Registo de acessos do escritório",
+            caseZeroAccessLogDesc: "O crachá que abriu a porta do escritório durante o intervalo do incidente pertence a Yahya Alami.",
+            caseZeroFatimaSightingQ: "Viu alguém perto do escritório naquela noite?",
+            caseZeroFatimaSightingA: "Vi o Yahya a dirigir-se para o escritório pouco antes de eu ir dormir.",
+            caseZeroYahyaConfrontQ: "Disse que estava na varanda. O registo de acessos mostra que o seu crachá abriu a porta do escritório. Como explica isso?",
+            caseZeroYahyaConfrontA: "Eu... devo ter ido ao escritório mais cedo. O registo não prova que eu estava lá quando o Karim morreu.",
+            investigationObjYahyaBalcony: "O Yahya afirmou estar na varanda, mas o registo de acessos mostra que o seu crachá abriu a porta do escritório no mesmo intervalo — o seu álibi não se sustenta.",
+            investigationDedYahyaResponsibility: "Arma, momento, presença, contacto, um álibi desfeito e um motivo financeiro — tudo aponta para Yahya Alami.",
             investigationObjMaherKeyDenial: "A declaração de Maher entra em conflito com o registro de acesso.",
             investigationDedAccessTraceChain: "Cadeia de acesso e rastro estabelecida: o registro coloca a chave mestra administrativa sob a retirada de Maher às 10:04, enquanto Maher nega tê-la pegado."
         ,

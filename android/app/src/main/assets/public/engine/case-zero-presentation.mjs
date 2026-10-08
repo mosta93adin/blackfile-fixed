@@ -21,7 +21,17 @@ const CASE_ZERO_EVIDENCE_IDS = Object.freeze([
   'E_MANOR_ACCESS_LOG'
 ]);
 
-export function getCaseZeroPresentationQuestions(suspectIndex, translatedSuspect) {
+// `localize` is optional: a (key) => string function (app.js passes txx). The two extra Case 0
+// questions are not part of the translated suspect tables, so their text lives in the i18n
+// dictionaries; the authored English below is only the last-resort fallback.
+function localizedOrFallback(localize, key, fallback) {
+  if (typeof localize !== 'function') return fallback;
+  const value = localize(key);
+  if (!value || (value.startsWith('[') && value.endsWith(']'))) return fallback;
+  return value;
+}
+
+export function getCaseZeroPresentationQuestions(suspectIndex, translatedSuspect, localize) {
   const questionIds = CASE_ZERO_QUESTION_IDS[suspectIndex];
   if (!questionIds || !translatedSuspect || !Array.isArray(translatedSuspect.qs)) {
     throw new Error(`Unknown Case 0 presentation suspect index: ${suspectIndex}`);
@@ -32,15 +42,15 @@ export function getCaseZeroPresentationQuestions(suspectIndex, translatedSuspect
     if (questionId === 'Q_FATIMA_SIGHTING') {
       return {
         id: questionId,
-        questionText: 'Did you see anyone near the study that night?',
-        responseText: 'I saw Yahya heading toward the study a little before I went to bed.'
+        questionText: localizedOrFallback(localize, 'caseZeroFatimaSightingQ', 'Did you see anyone near the study that night?'),
+        responseText: localizedOrFallback(localize, 'caseZeroFatimaSightingA', 'I saw Yahya heading toward the study a little before I went to bed.')
       };
     }
     if (questionId === 'Q_YAHYA_BALCONY_CONFRONT') {
       return {
         id: questionId,
-        questionText: 'You said you were on the balcony. The access log shows your badge opened the study door. How do you explain that?',
-        responseText: 'I... I must have gone to the study earlier. The log does not prove I was there when Karim died.'
+        questionText: localizedOrFallback(localize, 'caseZeroYahyaConfrontQ', 'You said you were on the balcony. The access log shows your badge opened the study door. How do you explain that?'),
+        responseText: localizedOrFallback(localize, 'caseZeroYahyaConfrontA', 'I... I must have gone to the study earlier. The log does not prove I was there when Karim died.')
       };
     }
     return null;
