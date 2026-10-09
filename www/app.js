@@ -911,11 +911,14 @@ import {
             card.style.animationDelay = (list.children.length * 0.05) + 's';
             if (!unlocked) { card.classList.add('locked'); }
             card.innerHTML = `
-                <span class="tag">${escapeHtml(c.tag)}</span>
-                <span class="diff-tag ${diffClass}" data-diff="${c.difficulty}">${escapeHtml(diffText)}</span>
-                ${solved ? '<span style="float:right; font-size:14px;">✅</span>' : ''}
-                <h4 style="margin:8px 0 6px 0; color:var(--gold);">${idx + 1}. ${escapeHtml(c.title)} ${unlocked ? '' : '🔒'}</h4>
-                <p style="font-size:12.5px; color:var(--paper-dim); margin:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${unlocked ? escapeHtml(c.brief) : '🔒'}</p>
+                <img class="case-art-thumb" src="assets/investigation/cases/case-${String(idx + 1).padStart(2, '0')}.svg" alt="" loading="lazy" decoding="async">
+                <div class="case-card-copy">
+                  <span class="tag">${escapeHtml(c.tag)}</span>
+                  <span class="diff-tag ${diffClass}" data-diff="${c.difficulty}">${escapeHtml(diffText)}</span>
+                  ${solved ? '<span style="float:right; font-size:14px;">✅</span>' : ''}
+                  <h4 style="margin:8px 0 6px 0; color:var(--gold);">${idx + 1}. ${escapeHtml(c.title)} ${unlocked ? '' : '🔒'}</h4>
+                  <p style="font-size:12.5px; color:var(--paper-dim); margin:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${unlocked ? escapeHtml(c.brief) : '🔒'}</p>
+                </div>
             `;
             if (unlocked) { card.dataset.action = 'openBrief'; card.dataset.caseIdx = idx; }
             list.appendChild(card);
@@ -972,7 +975,12 @@ import {
         document.getElementById('brief-victim').textContent = c.victim;
         document.getElementById('brief-banner-icon').textContent = getCaseIcon(c.tag);
         const bannerEl = document.getElementById('brief-visual-banner');
-        if (bannerEl) bannerEl.className = 'visual-banner ' + getCaseBannerClass(c.tag);
+        if (bannerEl) {
+            bannerEl.className = 'visual-banner ' + getCaseBannerClass(c.tag) + ' case-art-banner';
+            bannerEl.style.backgroundImage = `linear-gradient(90deg, rgba(5,9,16,.24), rgba(5,9,16,.72)), url("assets/investigation/cases/case-${String(idx + 1).padStart(2, '0')}.svg")`;
+            bannerEl.style.backgroundSize = 'cover';
+            bannerEl.style.backgroundPosition = 'center';
+        }
         const timedToggle = document.getElementById('brief-timed-toggle');
         if (timedToggle) timedToggle.checked = false;
         const ttsBtn = document.getElementById('brief-tts-btn');
@@ -1109,8 +1117,8 @@ import {
             if (isCaseZeroInvestigation() && evidenceId === 'E_MANOR_ACCESS_LOG'
                 && !investigationRuntime?.getState().discoveredEvidenceIds?.has('E_MANOR_ACCESS_LOG')) return;
             const div = document.createElement('div');
-            div.className = 'pick';
-            div.innerHTML = `<b>${getEvidenceIcon(ev.name)} ${escapeHtml(ev.name)}</b>`;
+            div.className = 'pick evidence-pick';
+            div.innerHTML = `<img class="investigation-item-art" src="assets/investigation/evidence/case-${String(currentCaseIndex + 1).padStart(2, '0')}-evidence-${String(i + 1).padStart(2, '0')}.svg" alt="" loading="lazy" decoding="async"><b>${getEvidenceIcon(ev.name)} ${escapeHtml(ev.name)}</b>`;
             div.dataset.action = 'openEvidence';
             div.dataset.evName = ev.name;
             div.dataset.evDesc = ev.desc;
@@ -1169,8 +1177,8 @@ import {
         susList.innerHTML = '';
         c.suspects.forEach((sus, i) => {
             const div = document.createElement('div');
-            div.className = 'pick';
-            div.innerHTML = `<b>${getSuspectIcon(sus.role)} ${escapeHtml(sus.name)}</b> <span style="font-size:11px; color:var(--paper-dim);">(${escapeHtml(sus.role)})</span>`;
+            div.className = 'pick suspect-pick';
+            div.innerHTML = `<img class="investigation-item-art suspect-art" src="assets/investigation/suspects/case-${String(currentCaseIndex + 1).padStart(2, '0')}-suspect-${String(i + 1).padStart(2, '0')}.svg" alt="" loading="lazy" decoding="async"><div><b>${getSuspectIcon(sus.role)} ${escapeHtml(sus.name)}</b> <span style="font-size:11px; color:var(--paper-dim);">(${escapeHtml(sus.role)})</span></div>`;
             div.dataset.action = 'openSuspect'; div.dataset.suspectIdx = i;
             susList.appendChild(div);
         });
