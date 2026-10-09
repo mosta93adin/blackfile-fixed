@@ -886,20 +886,3 @@ html.platform-electron textarea {
   user-select: text;
   -webkit-user-select: text;
 }
-
-
-/* Case-specific investigation artwork and optional ambient soundtrack */
-.case-art-thumb { display:block; width:100%; height:92px; object-fit:cover; border-radius:8px; margin:0 0 10px; border:1px solid rgba(142,177,211,.28); background:#080d16; }
-.case-card-copy { min-width:0; }
-.case-art-banner { background-repeat:no-repeat; background-color:#090f19; }
-.evidence-pick, .suspect-pick { display:flex; align-items:center; gap:10px; overflow:hidden; }
-.investigation-item-art { flex:0 0 64px; width:64px; height:54px; object-fit:cover; border-radius:6px; border:1px solid rgba(142,177,211,.28); background:#080d16; }
-.suspect-art { height:64px; width:54px; flex-basis:54px; }
-.mystery-audio-dock { position:fixed; z-index:999; left:12px; right:12px; bottom:10px; max-width:720px; margin:0 auto; display:flex; align-items:center; gap:10px; padding:9px 12px; border:1px solid rgba(126,169,205,.4); border-radius:12px; background:rgba(5,10,18,.94); box-shadow:0 8px 28px rgba(0,0,0,.42); backdrop-filter:blur(12px); color:var(--paper,#f2f2f2); }
-.mystery-audio-dock button { min-width:40px; min-height:36px; border-radius:8px; border:1px solid rgba(145,177,208,.35); background:#111e2c; color:inherit; cursor:pointer; }
-.mystery-audio-meta { flex:1; min-width:0; }
-.mystery-audio-title { font-size:12px; font-weight:700; color:var(--gold,#d8b66b); }
-.mystery-audio-sub { font-size:11px; opacity:.72; }
-.mystery-audio-dock input[type=range] { width:76px; accent-color:var(--gold,#d8b66b); }
-body { padding-bottom:68px; }
-@media(max-width:480px) { .case-art-thumb { height:74px; } .mystery-audio-dock { left:6px; right:6px; bottom:6px; gap:7px; padding:7px; } .mystery-audio-dock input[type=range] { width:58px; } .investigation-item-art { flex-basis:50px; width:50px; height:46px; } .suspect-art { flex-basis:44px; width:44px; height:54px; } }

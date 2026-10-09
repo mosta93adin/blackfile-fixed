@@ -594,30 +594,6 @@
         <button class="btn-sm" data-action="sendChatMessage" id="txt-chat-send">Send</button>
     </div>
     <audio id="mp-remote-audio" autoplay playsinline></audio>
-
-<!-- Optional original mystery ambience. Playback starts only after the player presses Play. -->
-<div class="mystery-audio-dock" id="mystery-audio-dock" role="region" aria-label="Game music controls">
-  <button type="button" id="mystery-audio-toggle" aria-label="Play game music" title="Play / pause music">▶</button>
-  <div class="mystery-audio-meta"><div class="mystery-audio-title" id="mystery-audio-status">Mystery Ambience</div><div class="mystery-audio-sub">Original investigation soundtrack</div></div>
-  <label for="mystery-audio-volume" style="font-size:11px;opacity:.8">Vol.</label><input id="mystery-audio-volume" type="range" min="0" max="1" step="0.05" value="0.35" aria-label="Music volume">
-  <audio id="mystery-audio" src="assets/investigation/audio/mystery-ambience.wav" loop preload="none"></audio>
-</div>
-<script>
-(function(){
-  const audio=document.getElementById('mystery-audio');
-  const toggle=document.getElementById('mystery-audio-toggle');
-  const volume=document.getElementById('mystery-audio-volume');
-  const status=document.getElementById('mystery-audio-status');
-  if(!audio||!toggle||!volume)return;
-  audio.volume=Number(volume.value);
-  toggle.addEventListener('click',async()=>{
-    if(audio.paused){try{await audio.play();toggle.textContent='Ⅱ';toggle.setAttribute('aria-label','Pause game music');status.textContent='Mystery Ambience · Playing';}catch(e){status.textContent='Tap Play to start music';}}
-    else{audio.pause();toggle.textContent='▶';toggle.setAttribute('aria-label','Play game music');status.textContent='Mystery Ambience · Paused';}
-  });
-  volume.addEventListener('input',()=>{audio.volume=Number(volume.value);});
-  audio.addEventListener('ended',()=>{toggle.textContent='▶';});
-})();
-</script>
 </div>
 
 <div id="modal-leaderboard" class="modal-bg">
