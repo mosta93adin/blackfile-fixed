@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout Code
@@ -136,15 +136,32 @@ jobs:
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease bundleRelease
-      - name: Verify APK Signature (CN=Othmane ettoumi)
+      - name: Verify APK Signature (release certificate)
+        env:
+          # Optional extra pin: set the repository variable RELEASE_CERT_SHA256
+          # (Settings > Secrets and variables > Actions > Variables) to the SHA-256
+          # fingerprint printed below to also lock the exact certificate.
+          EXPECTED_CERT_SHA256: ${{ vars.RELEASE_CERT_SHA256 }}
         run: |
           CERT_INFO=$(keytool -printcert -jarfile android/app/build/outputs/apk/release/app-release.apk 2>&1)
           echo "$CERT_INFO"
-          if ! echo "$CERT_INFO" | grep -q "CN=Othmane ettoumi"; then
-            echo "ERROR: APK signature Owner is not CN=Othmane ettoumi. Release build rejected."
+          OWNER=$(echo "$CERT_INFO" | grep -m1 '^Owner:' || true)
+          # The release keystore identity is "CN=Othmane, OU=Black file, O=Black file".
+          if ! echo "$OWNER" | grep -q "CN=Othmane," || ! echo "$OWNER" | grep -q "OU=Black file"; then
+            echo "ERROR: APK signature owner is not the Black file release certificate (CN=Othmane, OU=Black file). Release build rejected."
+            echo "Found: $OWNER"
             exit 1
           fi
-          echo "APK signature verified: CN=Othmane ettoumi"
+          ACTUAL=$(echo "$CERT_INFO" | grep -m1 'SHA256:' | sed 's/.*SHA256: *//' | tr -d '[:space:]' | tr 'a-f' 'A-F')
+          echo "Release certificate SHA-256: $ACTUAL"
+          if [ -n "${EXPECTED_CERT_SHA256:-}" ]; then
+            EXPECTED=$(echo "$EXPECTED_CERT_SHA256" | tr -d '[:space:]' | tr 'a-f' 'A-F')
+            if [ "$ACTUAL" != "$EXPECTED" ]; then
+              echo "ERROR: certificate fingerprint mismatch. Expected $EXPECTED"
+              exit 1
+            fi
+          fi
+          echo "APK signature verified: $OWNER"
       - name: Verify AAB Exists
         run: |
           if [ ! -s "android/app/build/outputs/bundle/release/app-release.aab" ]; then

@@ -52,6 +52,9 @@ try {
   await authContext.close();
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForSelector('#scr-menu.active', { state: 'attached', timeout: 10000 });
+  // The menu markup exists before the module graph finishes booting, so wait
+  // for the game UI itself before asserting that the login lamp is hidden.
+  await page.locator('.app').waitFor({ state: 'visible', timeout: 30000 });
   if (await page.locator('#lamp-wrapper').isVisible()) {
     throw new Error('Offline mode was not persisted across reload.');
   }
@@ -81,6 +84,9 @@ try {
   await page.locator('#modal-evidence [data-action="closeModal_modal-evidence"]').click();
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForSelector('#scr-menu.active', { state: 'attached', timeout: 10000 });
+  // The menu markup exists before the module graph finishes booting, so wait
+  // for the game UI itself before asserting that the login lamp is hidden.
+  await page.locator('.app').waitFor({ state: 'visible', timeout: 30000 });
   await page.locator('#case-list .card[data-action="openBrief"][data-case-idx="0"]').click();
   await page.locator('#txt-start-inv').click();
   await page.waitForSelector('#scr-investigation.active', { timeout: 10000 });
@@ -162,6 +168,26 @@ try {
   await deduction.waitFor({ state: 'visible', timeout: 5000 });
   if (await deduction.isDisabled()) throw new Error('Case 0 responsibility deduction is visible but disabled.');
   await deduction.click();
+
+  // The accusation gate only unlocks once every evidence item has been found
+  // and every interrogation question has been asked, so finish them all first.
+  for (let pass = 0; pass < 3; pass++) {
+    for (let suspectIdx = 0; suspectIdx < 4; suspectIdx++) {
+      await page.locator('#suspects-list .pick').nth(suspectIdx).click();
+      await page.waitForSelector('#modal-suspect.active');
+      for (let guard = 0; guard < 12; guard++) {
+        const nextQuestion = page.locator('#modal-sus-questions .q-btn:not(.asked)').first();
+        if (!(await nextQuestion.count())) break;
+        await nextQuestion.click();
+      }
+      await page.locator('#modal-suspect [data-action="closeModal"]').click();
+      await page.waitForSelector('#modal-suspect.active', { state: 'hidden' });
+    }
+  }
+  await page.waitForFunction(() => {
+    const button = document.getElementById('txt-accuse-btn');
+    return button && !button.disabled;
+  }, null, { timeout: 5000 });
 
   await page.locator('#txt-accuse-btn').click();
   await page.waitForSelector('#modal-accuse.active');

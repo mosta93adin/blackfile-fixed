@@ -1,5 +1,5 @@
 import { auth as firebaseAuth, db, initializeAuthPersistence, loginWithGoogle as loginWithGoogleRedirect, loginOrSignupWithEmail, resetPassword, onAuthStateChanged } from './firebase.js';
-import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDocs, serverTimestamp, arrayUnion, getDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { doc, setDoc, deleteDoc, collection, query, where, orderBy, limit, getDocs, serverTimestamp, arrayUnion, getDoc, runTransaction } from './firebase-sdk.js';
 import { generateInviteLink, verifyInviteToken } from './invite.js';
 import { createCaseRuntime } from './engine/case-dispatch.mjs';
 import {
@@ -27,6 +27,20 @@ import {
     getInvestigationActionIds,
     getInvestigationActionTextKeys
 } from './engine/investigation-presentation.mjs';
+
+// The module graph can finish evaluating AFTER DOMContentLoaded/load have already
+// fired (the Firebase SDK is loaded dynamically with a timeout), so run the
+// callback in a microtask when those events are already in the past. The
+// microtask runs only after the rest of this module body has been evaluated,
+// so later top-level const/let declarations are already initialised.
+function bfOnDomReady(fn) {
+  if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', fn, { once: true });
+  else Promise.resolve().then(fn);
+}
+function bfOnWindowLoad(fn) {
+  if (document.readyState === 'complete') Promise.resolve().then(fn);
+  else window.addEventListener('load', fn, { once: true });
+}
 
 // --- [Auto-verify invite link on page load] ---
 (function() {
@@ -391,8 +405,14 @@ import {
 
     // دالة أساسية ناقصة كانت سبب توقف كل نظام التنقل بين الشاشات (case click ما كان خدام والو)
     function show(screenId, fromHistoryNav) {
+        // Never leave the app with no active screen (that is the dark/blank page):
+        // an unknown screen id falls back to the main menu.
+        let target = document.getElementById(screenId);
+        if (!target || !target.classList.contains('screen')) {
+            screenId = 'scr-menu';
+            target = document.getElementById(screenId);
+        }
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        const target = document.getElementById(screenId);
         if (target) target.classList.add('active');
         if (screenId === 'scr-investigation') {
             // تمت إزالة الصوت المحيطي (ambient drone) نهائياً بطلب المستخدم — كان مزعجاً
@@ -410,6 +430,19 @@ import {
                     history.pushState({ screenId }, '');
                 }
             } catch (e) { /* ignore */ }
+        }
+    }
+
+    function backToArchive() {
+        try {
+            show('scr-menu');
+            renderMenu(activeFilter || 'all');
+        } catch (err) {
+            console.error('[BACK]', err);
+        } finally {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('scr-menu')?.classList.add('active');
+            window.scrollTo(0, 0);
         }
     }
 
@@ -614,10 +647,10 @@ import {
                     directory: 'Cache'
                 });
                 await Share.share({
-                    title: 'The Black File - Progress Export',
-                    text: 'My detective progress export',
+                    title: txx('exportShareTitle'),
+                    text: txx('exportShareText'),
                     url: fileUri.uri,
-                    dialogTitle: 'Save or share your progress'
+                    dialogTitle: txx('exportShareDialog')
                 });
                 playClickSound();
                 return;
@@ -634,7 +667,7 @@ import {
             URL.revokeObjectURL(url);
             playClickSound();
         } catch (e) {
-            alert((typeof txx === 'function' && txx('importInvalidFileText')) || 'Export failed.');
+            alert(txx('exportFailedText'));
         }
     }
 
@@ -816,6 +849,58 @@ import {
     }
 
     // دالة أساسية ناقصة كانت سبب اختفاء بطاقات القضايا بالكامل (ReferenceError)
+    // ---- Image system -------------------------------------------------------
+    // Real artwork lives in assets/investigation/{cases,suspects,evidence}/ and is
+    // optional: the first extension that loads wins; if none exists the image slot
+    // stays hidden and the UI looks exactly as it did before.
+    //   cases/case-NN.(webp|jpg|png)                      cover, 16:9
+    //   suspects/case-NN-suspect-MM.(webp|jpg|png)        portrait, 3:4
+    //   evidence/case-NN-evidence-MM.(webp|jpg|png)       square, 1:1
+    // NN = case number (01-20, the card number), MM = position in the case lists.
+    const BF_IMG_DIR = 'assets/investigation';
+    const BF_IMG_EXTS = ['webp', 'jpg', 'png'];
+    const bfImgCache = Object.create(null); // base path -> resolved src | '' (missing)
+    function bfImgBase(kind, caseIdx, n) {
+        const nn = String(caseIdx + 1).padStart(2, '0');
+        if (kind === 'cover') return `${BF_IMG_DIR}/cases/case-${nn}`;
+        const mm = String(n).padStart(2, '0');
+        return `${BF_IMG_DIR}/${kind === 'suspect' ? 'suspects' : 'evidence'}/case-${nn}-${kind}-${mm}`;
+    }
+    // Fills `slot` (a container element) with the artwork for the given item and
+    // un-hides it only once an image has really loaded. Safe to call repeatedly.
+    function bfFillImage(slot, kind, caseIdx, n, altText, onResult) {
+        if (!slot) return;
+        slot.replaceChildren();
+        slot.hidden = true;
+        slot.classList.remove('bf-has-img');
+        const base = bfImgBase(kind, caseIdx, n);
+        if (bfImgCache[base] === '') { if (onResult) onResult(false); return; }
+        const img = new Image();
+        img.alt = altText || '';
+        img.decoding = 'async';
+        const show = () => {
+            bfImgCache[base] = img.getAttribute('src');
+            slot.appendChild(img);
+            slot.hidden = false;
+            slot.classList.add('bf-has-img');
+            if (onResult) onResult(true);
+        };
+        let tried = 0;
+        const next = () => {
+            if (tried >= BF_IMG_EXTS.length) { bfImgCache[base] = ''; if (onResult) onResult(false); return; }
+            img.src = `${base}.${BF_IMG_EXTS[tried++]}`;
+        };
+        img.onload = show;
+        img.onerror = next;
+        if (bfImgCache[base]) img.src = bfImgCache[base]; else next();
+    }
+    function bfMakeSlot(cls) {
+        const d = document.createElement('div');
+        d.className = cls;
+        d.hidden = true;
+        return d;
+    }
+
     function escapeHtml(str) {
         if (str === null || str === undefined) return '';
         return String(str)
@@ -898,6 +983,9 @@ import {
                 <h4 style="margin:8px 0 6px 0; color:var(--gold);">${idx + 1}. ${escapeHtml(c.title)} ${unlocked ? '' : '🔒'}</h4>
                 <p style="font-size:12.5px; color:var(--paper-dim); margin:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${unlocked ? escapeHtml(c.brief) : '🔒'}</p>
             `;
+            const coverSlot = bfMakeSlot('bf-card-cover');
+            card.insertBefore(coverSlot, card.firstChild);
+            bfFillImage(coverSlot, 'cover', idx, 0, c.title);
             if (unlocked) { card.dataset.action = 'openBrief'; card.dataset.caseIdx = idx; }
             list.appendChild(card);
         });
@@ -954,6 +1042,14 @@ import {
         document.getElementById('brief-banner-icon').textContent = getCaseIcon(c.tag);
         const bannerEl = document.getElementById('brief-visual-banner');
         if (bannerEl) bannerEl.className = 'visual-banner ' + getCaseBannerClass(c.tag);
+        // Real cover art replaces the emoji banner once it has loaded.
+        const coverEl = document.getElementById('brief-cover');
+        if (bannerEl) bannerEl.style.display = '';
+        if (coverEl) {
+            bfFillImage(coverEl, 'cover', idx, 0, c.title, (ok) => {
+                if (bannerEl && currentCaseIndex === idx) bannerEl.style.display = ok ? 'none' : '';
+            });
+        }
         const timedToggle = document.getElementById('brief-timed-toggle');
         if (timedToggle) timedToggle.checked = false;
         const ttsBtn = document.getElementById('brief-tts-btn');
@@ -999,7 +1095,27 @@ import {
         return localized || getCaseOneDeductionText(deductionId);
     }
 
+    function updateAccuseGate() {
+        const btn = document.getElementById('txt-accuse-btn');
+        if (!btn) return;
+        const note = document.getElementById('accuse-progress');
+        if (!investigationRuntime) {
+            btn.disabled = false; btn.style.opacity = '';
+            if (note) note.textContent = '';
+            return;
+        }
+        const p = investigationRuntime.getAccusationProgress();
+        btn.disabled = !p.complete;
+        btn.style.opacity = p.complete ? '' : '0.5';
+        if (note) {
+            note.textContent = p.complete ? '' : txx('accuseProgress')
+                .replace('{e}', p.evidenceFound).replace('{eTotal}', p.evidenceTotal)
+                .replace('{q}', p.questionsAsked).replace('{qTotal}', p.questionTotal);
+        }
+    }
+
     function renderInvestigationActions() {
+        updateAccuseGate();
         const actions = document.getElementById('investigation-actions');
         if (!actions) return;
         actions.replaceChildren();
@@ -1075,7 +1191,12 @@ import {
             div.dataset.action = 'openEvidence';
             div.dataset.evName = ev.name;
             div.dataset.evDesc = ev.desc;
+            div.dataset.evImgIdx = i;
             if (evidenceId) div.dataset.evidenceId = evidenceId;
+            const evThumb = bfMakeSlot('bf-thumb');
+            div.insertBefore(evThumb, div.firstChild);
+            bfFillImage(evThumb, 'evidence', currentCaseIndex, i + 1, ev.name);
+            div.classList.add('bf-pick');
             evList.appendChild(div);
         });
 
@@ -1087,11 +1208,17 @@ import {
             && !evList.querySelector('[data-evidence-id="E_MANOR_ACCESS_LOG"]')) {
             const div = document.createElement('div');
             div.className = 'pick';
-            div.innerHTML = '<b>📋 Study Access Log</b>';
+            const accessLogName = txx('caseZeroAccessLogName');
+            div.innerHTML = `<b>📋 ${escapeHtml(accessLogName)}</b>`;
             div.dataset.action = 'openEvidence';
-            div.dataset.evName = 'Study Access Log';
-            div.dataset.evDesc = 'The badge that opened the study door during the incident window belongs to Yahya Alami.';
+            div.dataset.evName = accessLogName;
+            div.dataset.evDesc = txx('caseZeroAccessLogDesc');
             div.dataset.evidenceId = 'E_MANOR_ACCESS_LOG';
+            div.dataset.evImgIdx = c.evidence.length; // case-01-evidence-06
+            const logThumb = bfMakeSlot('bf-thumb');
+            div.insertBefore(logThumb, div.firstChild);
+            bfFillImage(logThumb, 'evidence', currentCaseIndex, c.evidence.length + 1, accessLogName);
+            div.classList.add('bf-pick');
             evList.appendChild(div);
         }
     }
@@ -1132,6 +1259,10 @@ import {
             div.className = 'pick';
             div.innerHTML = `<b>${getSuspectIcon(sus.role)} ${escapeHtml(sus.name)}</b> <span style="font-size:11px; color:var(--paper-dim);">(${escapeHtml(sus.role)})</span>`;
             div.dataset.action = 'openSuspect'; div.dataset.suspectIdx = i;
+            const susThumb = bfMakeSlot('bf-thumb bf-thumb-round');
+            div.insertBefore(susThumb, div.firstChild);
+            bfFillImage(susThumb, 'suspect', currentCaseIndex, i + 1, sus.name);
+            div.classList.add('bf-pick');
             susList.appendChild(div);
         });
 
@@ -1140,7 +1271,7 @@ import {
         hideLoader();
     }
 
-    function openEvidenceModal(name, desc, evidenceId) {
+    function openEvidenceModal(name, desc, evidenceId, evImgIdx) {
         if (investigationRuntime) {
             if (evidenceId) {
                 investigationRuntime.discoverEvidence(evidenceId);
@@ -1151,6 +1282,12 @@ import {
         }
         document.getElementById('modal-ev-name').textContent = name;
         document.getElementById('modal-ev-desc').textContent = desc;
+        const evImgSlot = document.getElementById('modal-ev-img');
+        if (evImgSlot) {
+            const n = parseInt(evImgIdx, 10);
+            if (Number.isFinite(n)) bfFillImage(evImgSlot, 'evidence', currentCaseIndex, n + 1, name);
+            else { evImgSlot.replaceChildren(); evImgSlot.hidden = true; }
+        }
         document.getElementById('modal-evidence').classList.add('active');
         playEvidenceSound();
     }
@@ -1162,6 +1299,7 @@ import {
         document.getElementById('modal-sus-name').textContent = sus.name;
         document.getElementById('modal-sus-role').textContent = sus.role;
         document.getElementById('modal-sus-alibi').textContent = sus.alibi;
+        bfFillImage(document.getElementById('modal-sus-img'), 'suspect', currentCaseIndex, susIndex + 1, sus.name);
 
         const qDiv = document.getElementById('modal-sus-questions');
         qDiv.innerHTML = '';
@@ -1178,7 +1316,7 @@ import {
             : null;
         const presentationQuestions = investigationRuntime
             ? isCaseZeroInvestigation()
-                ? getCaseZeroPresentationQuestions(susIndex, sus)
+                ? getCaseZeroPresentationQuestions(susIndex, sus, txx)
                 : isCaseOneInvestigation()
                     ? getCaseOnePresentationQuestions(susIndex, sus)
                     : getInvestigationPresentationQuestions(investigationRuntime.getModel(), susIndex, sus)
@@ -1221,6 +1359,7 @@ import {
     }
 
     function openAccusationModal() {
+        if (investigationRuntime && !investigationRuntime.getAccusationProgress().complete) return;
         const data = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
         const c = data.cases[currentCaseIndex];
         const list = document.getElementById('accuse-suspects-list');
@@ -1235,6 +1374,10 @@ import {
             div.dataset.action = 'selectAccusedSuspect';
             div.dataset.susName = sus.name;
             div.dataset.suspectIdx = idx;
+            const accThumb = bfMakeSlot('bf-thumb bf-thumb-round');
+            div.insertBefore(accThumb, div.firstChild);
+            bfFillImage(accThumb, 'suspect', currentCaseIndex, idx + 1, sus.name);
+            div.classList.add('bf-pick');
             list.appendChild(div);
         });
 
@@ -1285,12 +1428,10 @@ import {
             }
             playSuccessSound();
         } else {
-            resIcon.textContent = outcome === 'PREMATURE' ? '🔎' : '❌';
+            resIcon.textContent = '❌';
             resTitle.textContent = data.resultWrongTitle;
             resTitle.style.color = 'var(--blood)';
-            const detail = outcome === 'PREMATURE'
-                ? txx('investigationPrematureAccusation')
-                : data.resultWrongDesc;
+            const detail = data.resultWrongDesc;
             resDesc.innerHTML = `${escapeHtml(detail)}<br><br><b>${escapeHtml(data.caseExplanationLabel)}</b><br>${escapeHtml(c.explain)}`;
             userProfile.streakCurrent = 0;
             playFailSound();
@@ -1333,7 +1474,7 @@ import {
         }
         if (investigationRuntime) {
             const suspectId = getInvestigationSuspectId(selectedSuspectIndex);
-            const result = investigationRuntime.applyAccusation(suspectId);
+            const result = investigationRuntime.applyFinalAccusation(suspectId);
             closeModal('modal-accuse');
             await finalizeInvestigationAccusation(result.result.outcome);
             return;
@@ -1986,10 +2127,13 @@ import {
     async function registerRoom(code, isPublic) {
         const uid = firebaseAuth.currentUser?.uid;
         if (!uid) return;
+        const hostName = String(userProfile.name || 'Detective').trim().slice(0, 50) || 'Detective';
         try {
             await setDoc(doc(db, 'rooms', code), {
                 isPublic,
                 hostUid: uid,
+                hostName,
+                status: 'waiting',
                 createdAt: serverTimestamp()
             });
             mpHostedRoomCode = code;
@@ -2202,7 +2346,7 @@ import {
     }
 
     let isDragging = false, widgetStartX = 0, widgetStartY = 0, widgetLeft = 0, widgetTop = 0;
-        window.addEventListener('DOMContentLoaded', () => {
+        bfOnDomReady(() => {
         // إصلاح: كان body-tag بلا dir attribute عند أول تحميل، فكانت
         // selectors ديال CSS (body[dir="ltr"]/[dir="rtl"]) ما كتخدمش
         // حتى تبدل اللغة — هادشي كان سبب تداخل settings/profile.
@@ -2291,6 +2435,8 @@ import {
     // ---- small text dictionary for the new UI (falls back to English) ----
     const EXTRA_TRANGS = {
         en: {
+            accuseProgress: "🔎 Evidence {e}/{eTotal} • Interrogation {q}/{qTotal} — complete both to accuse",
+            timedChallengeLabel: "⏱ Timed Challenge (10 min)", raceInProgress: "Race in progress...", settingsLabel: "Settings", closeLabel: "Close", exportProgressTitle: "Export Progress", importProgressTitle: "Import Progress", exportFailedText: "Export failed. Please try again.", exportShareTitle: "The Black File - Progress Export", exportShareText: "My detective progress export", exportShareDialog: "Save or share your progress", inviteLibNotLoaded: "⚠️ The invite feature hasn't loaded yet.", inviteLoginRequired: "❌ You must sign in first to generate an invite link.", inviteUniqueFailed: "❌ Failed to generate a unique code after 10 attempts.", inviteCopied: "✅ One-time invite link generated:\n{link}\nCopied automatically.", inviteCopyManual: "✅ Invite link:\n{link}\n(Could not copy automatically — please copy it manually)", inviteCopyPrompt: "Copy the invite link:", inviteInvalid: "Invalid or expired link", inviteUsed: "This link has already been used. Ask your friend for a new one.", inviteWelcome: "🎉 The invite link is valid! Welcome to The Black File.",
             appTitle: "The Black File",
             listen: "Listen", energyExhausted: "You've used all your investigations for today. Come back tomorrow, detective!",
             statsTitle: "📊 Detailed Detective Statistics", statCasesSolved: "Cases Solved", statAvgHints: "Avg. Hints Used", statFastest: "Fastest Solve", statAccuracy: "Overall Accuracy",
@@ -2374,11 +2520,24 @@ import {
             investigationDedCase18: "Evidence and statement chain established: the trace links Daniel Reporter to the case while Daniel Reporter denies using or handling it.",
             investigationObjCase19: "Ziad Rival gave a statement that conflicts with the investigation trace.",
             investigationDedCase19: "Evidence and statement chain established: the trace links Ziad Rival to the case while Ziad Rival denies using or handling it.",
+            notesSaved: "Notes saved ✅",
+            roomInvalidCodeFormat: "Invalid room code format. Use CASE-XXX (e.g. CASE-99).",
+            cloudProgressLoadFailed: "⚠️ Cloud progress unavailable — using local data.",
+            caseZeroAccessLogName: "Study Access Log",
+            caseZeroAccessLogDesc: "The badge that opened the study door during the incident window belongs to Yahya Alami.",
+            caseZeroFatimaSightingQ: "Did you see anyone near the study that night?",
+            caseZeroFatimaSightingA: "I saw Yahya heading toward the study a little before I went to bed.",
+            caseZeroYahyaConfrontQ: "You said you were on the balcony. The access log shows your badge opened the study door. How do you explain that?",
+            caseZeroYahyaConfrontA: "I... I must have gone to the study earlier. The log does not prove I was there when Karim died.",
+            investigationObjYahyaBalcony: "Yahya claimed to be on the balcony, but the access log shows his badge opened the study door during the same window — his alibi doesn't hold.",
+            investigationDedYahyaResponsibility: "Weapon, timing, presence, contact, a collapsed alibi, and a financial motive — together they point to Yahya Alami.",
             investigationObjMaherKeyDenial: "Maher's statement conflicts with the access register.",
             investigationDedAccessTraceChain: "Access and trace chain established: the register places the administrative master key under Maher's checkout at 10:04, while Maher denies taking it."
         ,
         inviteFriendBtn: "👤 Invite Friend"},
         ar: {
+            accuseProgress: "🔎 الأدلة {e}/{eTotal} • الاستجواب {q}/{qTotal} — أكمل الاثنين لتوجيه الاتهام",
+            timedChallengeLabel: "⏱ تحدٍّ بالوقت (10 دقائق)", raceInProgress: "السباق جارٍ...", settingsLabel: "الإعدادات", closeLabel: "إغلاق", exportProgressTitle: "تصدير التقدم", importProgressTitle: "استيراد التقدم", exportFailedText: "فشل التصدير. حاول مرة أخرى.", exportShareTitle: "الملف الأسود - تصدير التقدم", exportShareText: "تصدير تقدمي كمحقق", exportShareDialog: "احفظ تقدمك أو شاركه", inviteLibNotLoaded: "⚠️ ميزة الدعوة لم تُحمَّل بعد.", inviteLoginRequired: "❌ يجب تسجيل الدخول أولاً لتوليد رابط دعوة.", inviteUniqueFailed: "❌ فشل توليد رمز فريد بعد 10 محاولات.", inviteCopied: "✅ تم توليد رابط دعوة لمرة واحدة:\n{link}\nتم نسخه تلقائياً.", inviteCopyManual: "✅ رابط الدعوة:\n{link}\n(لم يتم النسخ تلقائياً، انسخه يدوياً)", inviteCopyPrompt: "انسخ رابط الدعوة:", inviteInvalid: "رابط غير صالح أو منتهي", inviteUsed: "هذا الرابط استُخدم من قبل، اطلب رابطاً جديداً من صاحبك.", inviteWelcome: "🎉 رابط الدعوة صالح! مرحباً بك في الملف الأسود.",
             appTitle: "الملف الأسود",
             listen: "استمع", energyExhausted: "استعملتي كل محاولاتك ديال اليوم. ارجع غدا يا محقق!",
             statsTitle: "📊 إحصائيات المحقق المفصّلة", statCasesSolved: "القضايا المحلولة", statAvgHints: "متوسط التلميحات", statFastest: "أسرع حل", statAccuracy: "الدقة الإجمالية",
@@ -2405,7 +2564,7 @@ import {
             storyDesc: "كاين خيط سردي خفي تحت هاد الـ20 قضية. حل قضايا أكثر باش تكتشفو.",
             accessTitle: "⚙️ الوصولية والراحة", accessFontSize: "حجم النص", accessContrast: "وضع التباين العالي",
             accessCB: "وضع صديق لعمى الألوان (كيزيد رموز/أشكال فوق تاغات الصعوبة)",
-            accessTTS: "تفعيل أزرار القراءة الصوتية (Text-to-Speech)",
+            accessTTS: "تفعيل أزرار القراءة الصوتية",
             accessEnergy: "وضع المحاولات اليومية المحدودة (تحدي اختياري)", accessEnergyLimit: "الحد اليومي للقضايا:",
             accessReminderLabel: "التذكير اليومي",
             accessReminderDesc: "خد إشعار من المتصفح مرة فالنهار (ماداما التبويب مفتوح) يذكرك تكمل التحقيق.",
@@ -2462,11 +2621,24 @@ import {
             investigationDedCase18: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط دانيال المراسل بالقضية بينما ينكر دانيال المراسل استخدامه أو التعامل معه.",
             investigationObjCase19: "تصريح زياد المنافس يتعارض مع دليل التحقيق.",
             investigationDedCase19: "تم إثبات سلسلة الدليل والتصريح: الدليل يربط زياد المنافس بالقضية بينما ينكر زياد المنافس استخدامه أو التعامل معه.",
+            notesSaved: "تم حفظ الملاحظات ✅",
+            roomInvalidCodeFormat: "صيغة رمز الغرفة غير صحيحة. استخدم الصيغة CASE-XXX (مثلاً CASE-99).",
+            cloudProgressLoadFailed: "⚠️ التقدم السحابي غير متاح — سيتم استخدام البيانات المحلية.",
+            caseZeroAccessLogName: "سجل الدخول إلى المكتب",
+            caseZeroAccessLogDesc: "البطاقة التي فتحت باب المكتب خلال وقت الحادثة تعود إلى يحيى العلمي.",
+            caseZeroFatimaSightingQ: "هل رأيتِ أحدًا بالقرب من المكتب في تلك الليلة؟",
+            caseZeroFatimaSightingA: "رأيتُ يحيى يتجه نحو المكتب قبل أن أنام بقليل.",
+            caseZeroYahyaConfrontQ: "قلتَ إنك كنت على الشرفة، لكن سجل الدخول يُظهر أن بطاقتك فتحت باب المكتب. كيف تفسّر ذلك؟",
+            caseZeroYahyaConfrontA: "أنا... لا بد أنني ذهبت إلى المكتب في وقت سابق. السجل لا يثبت أنني كنت هناك عندما مات كريم.",
+            investigationObjYahyaBalcony: "ادّعى يحيى أنه كان على الشرفة، لكن سجل الدخول يُظهر أن بطاقته فتحت باب المكتب في الفترة نفسها — فلا يصمد عذره.",
+            investigationDedYahyaResponsibility: "السلاح والتوقيت والحضور والاتصال المباشر وعذر غياب منهار ودافع مالي — كلها معًا تشير إلى يحيى العلمي.",
             investigationObjMaherKeyDenial: "تتعارض إفادة ماهر مع سجل الدخول.",
             investigationDedAccessTraceChain: "تم إثبات سلسلة الوصول والأثر: يُظهر السجل أن المفتاح الرئيسي الإداري كان مسجَّلاً باسم ماهر في الساعة 10:04، بينما ينكر ماهر أنه أخذه."
         ,
         inviteFriendBtn: "👤 دعوة صديق"},
         ary: {
+            accuseProgress: "🔎 الأدلة {e}/{eTotal} • الاستجواب {q}/{qTotal} — كمّل جوج باش تقدر تتهم",
+            timedChallengeLabel: "⏱ تحدي بالوقت (10 دقايق)", raceInProgress: "السباق شاعل...", settingsLabel: "الإعدادات", closeLabel: "سد", exportProgressTitle: "تصدير التقدم", importProgressTitle: "استيراد التقدم", exportFailedText: "فشل التصدير. عاود جرب.", exportShareTitle: "الملف الأسود - تصدير التقدم", exportShareText: "تصدير التقدم ديالي فالتحقيق", exportShareDialog: "حفظ التقدم ديالك ولا شاركو", inviteLibNotLoaded: "⚠️ ميزة الدعوة مازال ما تحملاتش.", inviteLoginRequired: "❌ خاصك تسجل الدخول الأول باش تولد رابط الدعوة.", inviteUniqueFailed: "❌ ما قدرناش نولدو رمز فريد من بعد 10 محاولات.", inviteCopied: "✅ تولد رابط دعوة لمرة وحدة:\n{link}\nتنسخ بوحدو.", inviteCopyManual: "✅ رابط الدعوة:\n{link}\n(ما تنسخش بوحدو، نسخو بيديك)", inviteCopyPrompt: "انسخ رابط الدعوة:", inviteInvalid: "رابط ماشي صالح ولا سالات صلاحيتو", inviteUsed: "هاد الرابط تستعمل من قبل، طلب من صاحبك رابط جديد.", inviteWelcome: "🎉 رابط الدعوة صالح! مرحبا بيك فالملف الأسود.",
             appTitle: "الملف الأسود",
             listen: "استمع", energyExhausted: "استعملتي كل محاولاتك ديال اليوم. ارجع غدا يا محقق!",
             statsTitle: "📊 إحصائيات المحقق المفصّلة", statCasesSolved: "القضايا المحلولة", statAvgHints: "متوسط التلميحات", statFastest: "أسرع حل", statAccuracy: "الدقة الإجمالية",
@@ -2493,7 +2665,7 @@ import {
             storyDesc: "كاين خيط سردي خفي تحت هاد الـ20 قضية. حل قضايا أكثر باش تكتشفو.",
             accessTitle: "⚙️ الوصولية والراحة", accessFontSize: "حجم النص", accessContrast: "وضع التباين العالي",
             accessCB: "وضع صديق لعمى الألوان (كيزيد رموز/أشكال فوق تاغات الصعوبة)",
-            accessTTS: "تفعيل أزرار القراءة الصوتية (Text-to-Speech)",
+            accessTTS: "تفعيل أزرار القراءة الصوتية",
             accessEnergy: "وضع المحاولات اليومية المحدودة (تحدي اختياري)", accessEnergyLimit: "الحد اليومي للقضايا:",
             accessReminderLabel: "التذكير اليومي",
             accessReminderDesc: "خد إشعار من المتصفح مرة فالنهار (ماداما التبويب مفتوح) يذكرك تكمل التحقيق.",
@@ -2551,6 +2723,17 @@ import {
             investigationDedCase18: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط دانيال الصحفي بالقضية بينما دانيال الصحفي كينكر بلي استعملو ولا لمسُه.",
             investigationObjCase19: "تصريح زياد المنافس كيتعارض مع دليل التحقيق.",
             investigationDedCase19: "تثبتات سلسلة الدليل والتصريح: الدليل كيربط زياد المنافس بالقضية بينما زياد المنافس كينكر بلي استعملو ولا لمسُه.",
+            notesSaved: "تم حفظ الملاحظات ✅",
+            roomInvalidCodeFormat: "صيغة كود الغرفة ماشي صحيحة. استعمل CASE-XXX (مثلا CASE-99).",
+            cloudProgressLoadFailed: "⚠️ التقدم فالسحابة ماشي متاح — غادي نستعملو البيانات المحلية.",
+            caseZeroAccessLogName: "سجل الدخول للمكتب",
+            caseZeroAccessLogDesc: "الكارط اللي حلات باب المكتب فوقت الحادثة تابعة ليحيى العلمي.",
+            caseZeroFatimaSightingQ: "واش شفتي شي حد قريب من المكتب فداك الليل؟",
+            caseZeroFatimaSightingA: "شفت يحيى كيمشي نحو المكتب شوية قبل ما نمشي ننعس.",
+            caseZeroYahyaConfrontQ: "گلتي بلي كنتي فالبلكون، ولكن سجل الدخول كيبين بلي الكارط ديالك حلات باب المكتب. كيفاش كتفسر هادشي؟",
+            caseZeroYahyaConfrontA: "أنا... أكيد مشيت للمكتب قبل شوية. السجل ما كيثبتش بلي كنت تما ملي مات كريم.",
+            investigationObjYahyaBalcony: "يحيى قال بلي كان فالبلكون، ولكن سجل الدخول كيبين بلي الكارط ديالو حلات باب المكتب فنفس الوقت — الأليبي ديالو ما كيثبتش.",
+            investigationDedYahyaResponsibility: "السلاح والوقت والحضور والاحتكاك وأليبي طاح ودافع مالي — كلشي مجموع كيشير ليحيى العلمي.",
             investigationObjMaherKeyDenial: "الشهادة ديال ماهر كتناقض مع سجل الدخول.",
             investigationDedAccessTraceChain: "تبثات سلسلة الوصول والأثر: السجل كيبين بلي المفتاح الرئيسي ديال الإدارة كان مسجل فسم ماهر فـ 10:04، وماهر كينكر بلي خدا."
         ,
@@ -2578,10 +2761,10 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
         loginResetFailedFallback: "ما قدرناش نصيفطو إيميل إعادة التعيين. عاود المحاولة.",
         loginConnectingGoogleFallback: "جاري الاتصال بـ Google...",
         loginGoogleFailedFallback: "ما قدرناش نسجلو الدخول عبر Google.",
-        inviteFriendBtn: "دعوة صاحب",
-,
         inviteFriendBtn: "👤 عيط لصاحب"},
         fr: {
+            accuseProgress: "🔎 Preuves {e}/{eTotal} • Interrogatoire {q}/{qTotal} — terminez les deux pour accuser",
+            timedChallengeLabel: "⏱ Défi chronométré (10 min)", raceInProgress: "Course en cours...", settingsLabel: "Paramètres", closeLabel: "Fermer", exportProgressTitle: "Exporter la progression", importProgressTitle: "Importer la progression", exportFailedText: "Échec de l'exportation. Veuillez réessayer.", exportShareTitle: "Le Dossier Noir - Export de la progression", exportShareText: "Export de ma progression de détective", exportShareDialog: "Enregistrez ou partagez votre progression", inviteLibNotLoaded: "⚠️ La fonction d'invitation n'est pas encore chargée.", inviteLoginRequired: "❌ Vous devez d'abord vous connecter pour générer un lien d'invitation.", inviteUniqueFailed: "❌ Impossible de générer un code unique après 10 tentatives.", inviteCopied: "✅ Lien d'invitation à usage unique généré :\n{link}\nCopié automatiquement.", inviteCopyManual: "✅ Lien d'invitation :\n{link}\n(Copie automatique impossible — copiez-le manuellement)", inviteCopyPrompt: "Copiez le lien d'invitation :", inviteInvalid: "Lien invalide ou expiré", inviteUsed: "Ce lien a déjà été utilisé. Demandez-en un nouveau à votre ami.", inviteWelcome: "🎉 Le lien d'invitation est valide ! Bienvenue dans Le Dossier Noir.",
             appTitle: "Le Dossier Noir",
             listen: "Écouter", energyExhausted: "Vous avez utilisé toutes vos enquêtes du jour. Revenez demain, détective !",
             statsTitle: "📊 Statistiques Détaillées du Détective", statCasesSolved: "Affaires Résolues", statAvgHints: "Indices Utilisés (moy.)", statFastest: "Résolution la Plus Rapide", statAccuracy: "Précision Globale",
@@ -2665,11 +2848,24 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
             investigationDedCase18: "Chaîne de preuves et de déclaration établie : l’indice relie Daniel le Reporter à l’affaire tandis que Daniel le Reporter nie l’avoir utilisé ou manipulé.",
             investigationObjCase19: "La déclaration de Ziad le Rival contredit l’indice d’enquête.",
             investigationDedCase19: "Chaîne de preuves et de déclaration établie : l’indice relie Ziad le Rival à l’affaire tandis que Ziad le Rival nie l’avoir utilisé ou manipulé.",
+            notesSaved: "Notes enregistrées ✅",
+            roomInvalidCodeFormat: "Format de code de salle invalide. Utilisez CASE-XXX (ex. CASE-99).",
+            cloudProgressLoadFailed: "⚠️ Progression cloud indisponible — utilisation des données locales.",
+            caseZeroAccessLogName: "Registre d’accès du bureau",
+            caseZeroAccessLogDesc: "Le badge qui a ouvert la porte du bureau pendant la plage horaire de l’incident appartient à Yahya Alami.",
+            caseZeroFatimaSightingQ: "Avez-vous vu quelqu’un près du bureau cette nuit-là ?",
+            caseZeroFatimaSightingA: "J’ai vu Yahya se diriger vers le bureau peu avant que j’aille me coucher.",
+            caseZeroYahyaConfrontQ: "Vous avez dit être sur le balcon. Le registre d’accès montre que votre badge a ouvert la porte du bureau. Comment l’expliquez-vous ?",
+            caseZeroYahyaConfrontA: "Je... j’ai dû aller au bureau plus tôt. Le registre ne prouve pas que j’y étais quand Karim est mort.",
+            investigationObjYahyaBalcony: "Yahya affirmait être sur le balcon, mais le registre d’accès montre que son badge a ouvert la porte du bureau pendant la même plage horaire — son alibi ne tient pas.",
+            investigationDedYahyaResponsibility: "L’arme, le moment, la présence, le contact, un alibi effondré et un mobile financier : tout cela désigne Yahya Alami.",
             investigationObjMaherKeyDenial: "La déclaration de Maher est en contradiction avec le registre d'accès.",
             investigationDedAccessTraceChain: "Chaîne d'accès et de traçage établie : le registre indique que la clé maîtresse administrative a été enregistrée au nom de Maher à 10:04, alors que Maher nie l'avoir prise."
         ,
         inviteFriendBtn: "👤 Inviter un ami"},
         es: {
+            accuseProgress: "🔎 Pruebas {e}/{eTotal} • Interrogatorio {q}/{qTotal}: completa ambos para acusar",
+            timedChallengeLabel: "⏱ Desafío cronometrado (10 min)", raceInProgress: "Carrera en curso...", settingsLabel: "Ajustes", closeLabel: "Cerrar", exportProgressTitle: "Exportar progreso", importProgressTitle: "Importar progreso", exportFailedText: "Error al exportar. Inténtalo de nuevo.", exportShareTitle: "El Expediente Negro - Exportación de progreso", exportShareText: "Exportación de mi progreso como detective", exportShareDialog: "Guarda o comparte tu progreso", inviteLibNotLoaded: "⚠️ La función de invitación aún no se ha cargado.", inviteLoginRequired: "❌ Debes iniciar sesión primero para generar un enlace de invitación.", inviteUniqueFailed: "❌ No se pudo generar un código único tras 10 intentos.", inviteCopied: "✅ Enlace de invitación de un solo uso generado:\n{link}\nCopiado automáticamente.", inviteCopyManual: "✅ Enlace de invitación:\n{link}\n(No se pudo copiar automáticamente; cópialo manualmente)", inviteCopyPrompt: "Copia el enlace de invitación:", inviteInvalid: "Enlace no válido o caducado", inviteUsed: "Este enlace ya se usó. Pide uno nuevo a tu amigo.", inviteWelcome: "🎉 ¡El enlace de invitación es válido! Bienvenido a El Expediente Negro.",
             appTitle: "El Archivo Negro",
             listen: "Escuchar", energyExhausted: "Has usado todas tus investigaciones de hoy. ¡Vuelve mañana, detective!",
             statsTitle: "📊 Estadísticas Detalladas del Detective", statCasesSolved: "Casos Resueltos", statAvgHints: "Pistas Usadas (prom.)", statFastest: "Resolución Más Rápida", statAccuracy: "Precisión General",
@@ -2751,13 +2947,26 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
             investigationDedCase17: "Cadena de pruebas y declaración establecida: el indicio relaciona a Nabil Sobrino con el caso mientras Nabil Sobrino niega haberlo usado o manipulado.",
             investigationObjCase18: "La declaración de Daniel Reportero contradice el indicio de investigación.",
             investigationDedCase18: "Cadena de pruebas y declaración establecida: el indicio relaciona a Daniel Reportero con el caso mientras Daniel Reportero niega haberlo usado o manipulado.",
-            investigationObjCase19: "La declaración de Ziad Rival contradice el indicio de investigación.",
-            investigationDedCase19: "Cadena de pruebas y declaración establecida: el indicio relaciona a Ziad Rival con el caso mientras Ziad Rival niega haberlo usado o manipulado.",
+            investigationObjCase19: "La declaración de Ziad el Rival contradice el indicio de investigación.",
+            investigationDedCase19: "Cadena de pruebas y declaración establecida: el indicio relaciona a Ziad el Rival con el caso mientras Ziad el Rival niega haberlo usado o manipulado.",
+            notesSaved: "Notas guardadas ✅",
+            roomInvalidCodeFormat: "Formato de código de sala no válido. Usa CASE-XXX (ej. CASE-99).",
+            cloudProgressLoadFailed: "⚠️ Progreso en la nube no disponible — se usan los datos locales.",
+            caseZeroAccessLogName: "Registro de acceso del estudio",
+            caseZeroAccessLogDesc: "La credencial que abrió la puerta del estudio durante el intervalo del incidente pertenece a Yahya Alami.",
+            caseZeroFatimaSightingQ: "¿Vio a alguien cerca del estudio esa noche?",
+            caseZeroFatimaSightingA: "Vi a Yahya dirigirse hacia el estudio poco antes de irme a dormir.",
+            caseZeroYahyaConfrontQ: "Dijo que estaba en el balcón. El registro de acceso muestra que su credencial abrió la puerta del estudio. ¿Cómo lo explica?",
+            caseZeroYahyaConfrontA: "Yo... debí de ir al estudio antes. El registro no prueba que yo estuviera allí cuando murió Karim.",
+            investigationObjYahyaBalcony: "Yahya afirmó estar en el balcón, pero el registro de acceso muestra que su credencial abrió la puerta del estudio en ese mismo intervalo: su coartada no se sostiene.",
+            investigationDedYahyaResponsibility: "Arma, momento, presencia, contacto, una coartada hundida y un móvil económico: todo apunta a Yahya Alami.",
             investigationObjMaherKeyDenial: "La declaración de Maher contradice el registro de acceso.",
             investigationDedAccessTraceChain: "Cadena de acceso y rastro establecida: el registro sitúa la llave maestra administrativa bajo el registro de salida de Maher a las 10:04, mientras que Maher niega haberla tomado."
         ,
         inviteFriendBtn: "👤 Invitar a un amigo"},
         it: {
+            accuseProgress: "🔎 Prove {e}/{eTotal} • Interrogatorio {q}/{qTotal} — completa entrambi per accusare",
+            timedChallengeLabel: "⏱ Sfida a tempo (10 min)", raceInProgress: "Gara in corso...", settingsLabel: "Impostazioni", closeLabel: "Chiudi", exportProgressTitle: "Esporta progressi", importProgressTitle: "Importa progressi", exportFailedText: "Esportazione non riuscita. Riprova.", exportShareTitle: "Il Fascicolo Nero - Esportazione dei progressi", exportShareText: "Esportazione dei miei progressi da detective", exportShareDialog: "Salva o condividi i tuoi progressi", inviteLibNotLoaded: "⚠️ La funzione di invito non è ancora stata caricata.", inviteLoginRequired: "❌ Devi prima accedere per generare un link d'invito.", inviteUniqueFailed: "❌ Impossibile generare un codice univoco dopo 10 tentativi.", inviteCopied: "✅ Link d'invito monouso generato:\n{link}\nCopiato automaticamente.", inviteCopyManual: "✅ Link d'invito:\n{link}\n(Copia automatica non riuscita — copialo manualmente)", inviteCopyPrompt: "Copia il link d'invito:", inviteInvalid: "Link non valido o scaduto", inviteUsed: "Questo link è già stato usato. Chiedine uno nuovo al tuo amico.", inviteWelcome: "🎉 Il link d'invito è valido! Benvenuto in Il Fascicolo Nero.",
             appTitle: "Il File Nero",
             listen: "Ascolta", energyExhausted: "Hai usato tutte le tue indagini di oggi. Torna domani, detective!",
             statsTitle: "📊 Statistiche Dettagliate del Detective", statCasesSolved: "Casi Risolti", statAvgHints: "Indizi Usati (media)", statFastest: "Risoluzione Più Veloce", statAccuracy: "Precisione Complessiva",
@@ -2841,11 +3050,24 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
             investigationDedCase18: "Catena di prove e dichiarazione stabilita: l’indizio collega Daniel Giornalista al caso mentre Daniel Giornalista nega di averlo usato o maneggiato.",
             investigationObjCase19: "La dichiarazione di Ziad Rivale contraddice l’indizio investigativo.",
             investigationDedCase19: "Catena di prove e dichiarazione stabilita: l’indizio collega Ziad Rivale al caso mentre Ziad Rivale nega di averlo usato o maneggiato.",
+            notesSaved: "Appunti salvati ✅",
+            roomInvalidCodeFormat: "Formato del codice stanza non valido. Usa CASE-XXX (es. CASE-99).",
+            cloudProgressLoadFailed: "⚠️ Progressi cloud non disponibili — uso i dati locali.",
+            caseZeroAccessLogName: "Registro degli accessi allo studio",
+            caseZeroAccessLogDesc: "Il badge che ha aperto la porta dello studio durante l’intervallo dell’incidente appartiene a Yahya Alami.",
+            caseZeroFatimaSightingQ: "Ha visto qualcuno vicino allo studio quella notte?",
+            caseZeroFatimaSightingA: "Ho visto Yahya dirigersi verso lo studio poco prima di andare a dormire.",
+            caseZeroYahyaConfrontQ: "Ha detto di essere sul balcone. Il registro degli accessi mostra che il suo badge ha aperto la porta dello studio. Come lo spiega?",
+            caseZeroYahyaConfrontA: "Io... devo essere andato nello studio prima. Il registro non prova che io fossi lì quando Karim è morto.",
+            investigationObjYahyaBalcony: "Yahya sosteneva di essere sul balcone, ma il registro degli accessi mostra che il suo badge ha aperto la porta dello studio nello stesso intervallo: il suo alibi non regge.",
+            investigationDedYahyaResponsibility: "Arma, orario, presenza, contatto, un alibi crollato e un movente economico: tutto indica Yahya Alami.",
             investigationObjMaherKeyDenial: "La dichiarazione di Maher è in contraddizione con il registro degli accessi.",
             investigationDedAccessTraceChain: "Catena di accesso e traccia stabilita: il registro colloca la chiave maestra amministrativa sotto il prelievo di Maher alle 10:04, mentre Maher nega di averla presa."
         ,
         inviteFriendBtn: "👤 Invita un amico"},
         de: {
+            accuseProgress: "🔎 Beweise {e}/{eTotal} • Verhör {q}/{qTotal} — schließe beides ab, um anzuklagen",
+            timedChallengeLabel: "⏱ Zeitchallenge (10 Min.)", raceInProgress: "Rennen läuft...", settingsLabel: "Einstellungen", closeLabel: "Schließen", exportProgressTitle: "Fortschritt exportieren", importProgressTitle: "Fortschritt importieren", exportFailedText: "Export fehlgeschlagen. Bitte versuche es erneut.", exportShareTitle: "Die Schwarze Akte - Fortschrittsexport", exportShareText: "Export meines Detektiv-Fortschritts", exportShareDialog: "Speichere oder teile deinen Fortschritt", inviteLibNotLoaded: "⚠️ Die Einladungsfunktion ist noch nicht geladen.", inviteLoginRequired: "❌ Du musst dich zuerst anmelden, um einen Einladungslink zu erstellen.", inviteUniqueFailed: "❌ Nach 10 Versuchen konnte kein eindeutiger Code erzeugt werden.", inviteCopied: "✅ Einmaliger Einladungslink erstellt:\n{link}\nAutomatisch kopiert.", inviteCopyManual: "✅ Einladungslink:\n{link}\n(Automatisches Kopieren nicht möglich — bitte manuell kopieren)", inviteCopyPrompt: "Einladungslink kopieren:", inviteInvalid: "Ungültiger oder abgelaufener Link", inviteUsed: "Dieser Link wurde bereits verwendet. Bitte deinen Freund um einen neuen.", inviteWelcome: "🎉 Der Einladungslink ist gültig! Willkommen bei Die Schwarze Akte.",
             appTitle: "Die Schwarze Akte",
             listen: "Anhören", energyExhausted: "Du hast alle heutigen Ermittlungen aufgebraucht. Komm morgen wieder, Detektiv!",
             statsTitle: "📊 Detaillierte Detektiv-Statistiken", statCasesSolved: "Gelöste Fälle", statAvgHints: "Ø Genutzte Hinweise", statFastest: "Schnellste Lösung", statAccuracy: "Gesamtgenauigkeit",
@@ -2929,11 +3151,24 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
             investigationDedCase18: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Daniel der Reporter mit dem Fall, während Daniel der Reporter bestreitet, sie benutzt oder berührt zu haben.",
             investigationObjCase19: "Die Aussage von Ziad der Rivalisierende widerspricht der Ermittlungsspur.",
             investigationDedCase19: "Beweis- und Aussagekette festgestellt: Die Spur verbindet Ziad der Rivalisierende mit dem Fall, während Ziad der Rivalisierende bestreitet, sie benutzt oder berührt zu haben.",
+            notesSaved: "Notizen gespeichert ✅",
+            roomInvalidCodeFormat: "Ungültiges Raumcode-Format. Verwende CASE-XXX (z. B. CASE-99).",
+            cloudProgressLoadFailed: "⚠️ Cloud-Fortschritt nicht verfügbar — lokale Daten werden verwendet.",
+            caseZeroAccessLogName: "Zugangsprotokoll des Arbeitszimmers",
+            caseZeroAccessLogDesc: "Der Ausweis, der während des Tatzeitfensters die Tür des Arbeitszimmers öffnete, gehört Yahya Alami.",
+            caseZeroFatimaSightingQ: "Haben Sie in jener Nacht jemanden in der Nähe des Arbeitszimmers gesehen?",
+            caseZeroFatimaSightingA: "Ich habe Yahya kurz bevor ich zu Bett ging in Richtung Arbeitszimmer gehen sehen.",
+            caseZeroYahyaConfrontQ: "Sie sagten, Sie seien auf dem Balkon gewesen. Das Zugangsprotokoll zeigt, dass Ihr Ausweis die Tür des Arbeitszimmers geöffnet hat. Wie erklären Sie das?",
+            caseZeroYahyaConfrontA: "Ich... ich muss vorher im Arbeitszimmer gewesen sein. Das Protokoll beweist nicht, dass ich dort war, als Karim starb.",
+            investigationObjYahyaBalcony: "Yahya behauptete, auf dem Balkon gewesen zu sein, doch das Zugangsprotokoll zeigt, dass sein Ausweis im selben Zeitfenster die Tür des Arbeitszimmers öffnete — sein Alibi hält nicht.",
+            investigationDedYahyaResponsibility: "Waffe, Zeitpunkt, Anwesenheit, Kontakt, ein zusammengebrochenes Alibi und ein finanzielles Motiv — alles zusammen weist auf Yahya Alami.",
             investigationObjMaherKeyDenial: "Mahers Aussage widerspricht dem Zugangsregister.",
             investigationDedAccessTraceChain: "Zugangs- und Spurenkette festgestellt: Das Register verzeichnet den administrativen Hauptschlüssel unter Mahers Ausgabe um 10:04 Uhr, während Maher bestreitet, ihn genommen zu haben."
         ,
         inviteFriendBtn: "👤 Freund einladen"},
         pt: {
+            accuseProgress: "🔎 Provas {e}/{eTotal} • Interrogatório {q}/{qTotal} — conclua ambos para acusar",
+            timedChallengeLabel: "⏱ Desafio cronometrado (10 min)", raceInProgress: "Corrida em curso...", settingsLabel: "Definições", closeLabel: "Fechar", exportProgressTitle: "Exportar progresso", importProgressTitle: "Importar progresso", exportFailedText: "Falha na exportação. Tente novamente.", exportShareTitle: "O Ficheiro Negro - Exportação de progresso", exportShareText: "Exportação do meu progresso de detetive", exportShareDialog: "Guarde ou partilhe o seu progresso", inviteLibNotLoaded: "⚠️ A funcionalidade de convite ainda não foi carregada.", inviteLoginRequired: "❌ Tem de iniciar sessão primeiro para gerar uma ligação de convite.", inviteUniqueFailed: "❌ Não foi possível gerar um código único após 10 tentativas.", inviteCopied: "✅ Ligação de convite de utilização única gerada:\n{link}\nCopiada automaticamente.", inviteCopyManual: "✅ Ligação de convite:\n{link}\n(Não foi possível copiar automaticamente — copie manualmente)", inviteCopyPrompt: "Copie a ligação de convite:", inviteInvalid: "Ligação inválida ou expirada", inviteUsed: "Esta ligação já foi utilizada. Peça uma nova ao seu amigo.", inviteWelcome: "🎉 A ligação de convite é válida! Bem-vindo a O Ficheiro Negro.",
             appTitle: "O Arquivo Negro",
             listen: "Ouvir", energyExhausted: "Já usaste todas as tuas investigações de hoje. Volta amanhã, detetive!",
             statsTitle: "📊 Estatísticas Detalhadas do Detetive", statCasesSolved: "Casos Resolvidos", statAvgHints: "Dicas Usadas (média)", statFastest: "Resolução Mais Rápida", statAccuracy: "Precisão Geral",
@@ -3015,8 +3250,19 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
             investigationDedCase17: "Cadeia de prova e declaração estabelecida: a pista liga Nabil Sobrinho ao caso enquanto Nabil Sobrinho nega tê-la usado ou manuseado.",
             investigationObjCase18: "A declaração de Daniel Repórter contradiz a pista da investigação.",
             investigationDedCase18: "Cadeia de prova e declaração estabelecida: a pista liga Daniel Repórter ao caso enquanto Daniel Repórter nega tê-la usado ou manuseado.",
-            investigationObjCase19: "A declaração de Ziad Rival contradiz a pista da investigação.",
-            investigationDedCase19: "Cadeia de prova e declaração estabelecida: a pista liga Ziad Rival ao caso enquanto Ziad Rival nega tê-la usado ou manuseado.",
+            investigationObjCase19: "A declaração de Ziad o Rival contradiz a pista da investigação.",
+            investigationDedCase19: "Cadeia de prova e declaração estabelecida: a pista liga Ziad o Rival ao caso enquanto Ziad o Rival nega tê-la usado ou manuseado.",
+            notesSaved: "Notas guardadas ✅",
+            roomInvalidCodeFormat: "Formato de código de sala inválido. Use CASE-XXX (ex. CASE-99).",
+            cloudProgressLoadFailed: "⚠️ Progresso na nuvem indisponível — a usar os dados locais.",
+            caseZeroAccessLogName: "Registo de acessos do escritório",
+            caseZeroAccessLogDesc: "O crachá que abriu a porta do escritório durante o intervalo do incidente pertence a Yahya Alami.",
+            caseZeroFatimaSightingQ: "Viu alguém perto do escritório naquela noite?",
+            caseZeroFatimaSightingA: "Vi o Yahya a dirigir-se para o escritório pouco antes de eu ir dormir.",
+            caseZeroYahyaConfrontQ: "Disse que estava na varanda. O registo de acessos mostra que o seu crachá abriu a porta do escritório. Como explica isso?",
+            caseZeroYahyaConfrontA: "Eu... devo ter ido ao escritório mais cedo. O registo não prova que eu estava lá quando o Karim morreu.",
+            investigationObjYahyaBalcony: "O Yahya afirmou estar na varanda, mas o registo de acessos mostra que o seu crachá abriu a porta do escritório no mesmo intervalo — o seu álibi não se sustenta.",
+            investigationDedYahyaResponsibility: "Arma, momento, presença, contacto, um álibi desfeito e um motivo financeiro — tudo aponta para Yahya Alami.",
             investigationObjMaherKeyDenial: "A declaração de Maher entra em conflito com o registro de acesso.",
             investigationDedAccessTraceChain: "Cadeia de acesso e rastro estabelecida: o registro coloca a chave mestra administrativa sob a retirada de Maher às 10:04, enquanto Maher nega tê-la pegado."
         ,
@@ -3150,10 +3396,18 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
     function txx(key) {
         const dict = EXTRA_TRANGS[currentLang] || EXTRA_TRANGS.en;
         if (dict[key] !== undefined) return dict[key];
+        // Keys that live only in TRANSLATIONS (e.g. investigationHint*, investigationDedCase2)
+        // must still be resolved in the active language before falling back to English.
+        const mainDict = (typeof TRANSLATIONS !== 'undefined' && (TRANSLATIONS[currentLang] || TRANSLATIONS.en)) || {};
+        if (typeof mainDict[key] === 'string') return mainDict[key];
         if (EXTRA_TRANGS.en[key] !== undefined) return EXTRA_TRANGS.en[key];
+        if (typeof TRANSLATIONS !== 'undefined' && TRANSLATIONS.en && typeof TRANSLATIONS.en[key] === 'string') return TRANSLATIONS.en[key];
         // Fallback: return key name wrapped in brackets so missing translations are visible
         return '[' + key + ']';
     }
+
+    // Expose the translator so non-bundled modules (invite.js) can localise their messages.
+    window.__txx = txx;
 
     function todayStr() {
         const d = new Date();
@@ -3713,6 +3967,18 @@ mpBrowsePublicBtn: "🔎 قلّب على الغرف العمومية",
         const setText = (id, key) => { const el = document.getElementById(id); if (el) el.textContent = txx(key); };
         const setPlainText = (id, key) => { const el = document.getElementById(id); if (el) el.textContent = txx(key).replace(/^[^\w\s]+\s*/u, ''); };
         setPlainText('txt-stats-btn', 'statsBtnLabel');
+        // Static HTML strings that previously stayed in English in every language
+        setText('txt-timed-label', 'timedChallengeLabel');
+        const raceBarEl = document.getElementById('race-bar');
+        const raceBarTextEl = document.getElementById('race-bar-text');
+        if (raceBarTextEl && !(raceBarEl && raceBarEl.classList.contains('active'))) raceBarTextEl.textContent = '🏁 ' + txx('raceInProgress');
+        [['settings-fab', 'settingsLabel'], ['settings-close-btn', 'closeLabel'], ['btn-export-progress', 'exportProgressTitle'], ['btn-import-progress', 'importProgressTitle']].forEach(([id, key]) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.setAttribute('aria-label', txx(key));
+            el.setAttribute('title', txx(key));
+        });
+        if (document.title !== undefined) document.title = (TRANSLATIONS[currentLang] || TRANSLATIONS.en).appTitle;
         setPlainText('txt-story-btn', 'storyBtnLabel');
         setText('txt-showcase-label', 'showcaseLabel');
         setText('txt-invite-friend', 'inviteFriendBtn');
@@ -3816,7 +4082,7 @@ function applyLoginScreenTexts() {
 // ---- Service worker registration ----
 // تسجيل الـ Service Worker ليعمل التطبيق دون اتصال بعد أول فتح
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
+        bfOnWindowLoad(() => {
             navigator.serviceWorker.register('sw.js').catch(() => { /* ignore in file:// preview */ });
         });
     }
@@ -3828,6 +4094,7 @@ const stringLine = document.getElementById('string-line');
 let isOn = wrapper?.classList.contains('on') ?? false;
 let dragging = false;
 let moved = false;
+let activePointerId = null;
 let startX = 0, startY = 0;
 let offsetX = 0, offsetY = 0;
 const constraints = { top: 0, bottom: 60, left: -50, right: 50 };
@@ -3859,45 +4126,59 @@ function resetHandlePosition() {
   }, 250);
 }
 
+function getLampScale() {
+  const lamp = handle?.parentElement;
+  if (!lamp || !lamp.offsetWidth) return 1;
+  const scale = lamp.getBoundingClientRect().width / lamp.offsetWidth;
+  return Number.isFinite(scale) && scale > 0 ? scale : 1;
+}
+
 if (handle && wrapper) {
   function onPointerDown(e) {
+    if (dragging) return;
     dragging = true;
     moved = false;
+    activePointerId = e.pointerId;
     handle.style.cursor = 'grabbing';
-    const point = e.touches ? e.touches[0] : e;
-    startX = point.clientX;
-    startY = point.clientY;
     e.preventDefault();
+    handle.setPointerCapture(e.pointerId);
+    startX = e.clientX;
+    startY = e.clientY;
   }
 
   function onPointerMove(e) {
-    if (!dragging) return;
-    const point = e.touches ? e.touches[0] : e;
-    let dx = clamp(point.clientX - startX, constraints.left, constraints.right);
-    let dy = clamp(point.clientY - startY, constraints.top, constraints.bottom);
+    if (!dragging || e.pointerId !== activePointerId) return;
+    const scale = getLampScale();
+    let dx = clamp((e.clientX - startX) / scale, constraints.left, constraints.right);
+    let dy = clamp((e.clientY - startY) / scale, constraints.top, constraints.bottom);
     offsetX = dx;
     offsetY = dy;
     moved = moved || Math.abs(dx) > 1 || Math.abs(dy) > 1;
     updateHandlePosition(dx, dy);
   }
 
-  function onPointerUp() {
-    if (!dragging) return;
+  function onPointerUp(e) {
+    if (!dragging || e.pointerId !== activePointerId) return;
     dragging = false;
+    activePointerId = null;
     handle.style.cursor = 'grab';
     const distance = Math.sqrt(offsetX ** 2 + offsetY ** 2);
-    if (distance > 3 || !moved) {
-      toggleLampState();
-    }
+    if (moved && distance > 3) toggleLampState();
     resetHandlePosition();
   }
 
-  handle.addEventListener('mousedown', onPointerDown);
-  window.addEventListener('mousemove', onPointerMove);
-  window.addEventListener('mouseup', onPointerUp);
-  handle.addEventListener('touchstart', onPointerDown, { passive: false });
-  window.addEventListener('touchmove', onPointerMove, { passive: false });
-  window.addEventListener('touchend', onPointerUp);
+  function onPointerCancel(e) {
+    if (!dragging || e.pointerId !== activePointerId) return;
+    dragging = false;
+    activePointerId = null;
+    handle.style.cursor = 'grab';
+    resetHandlePosition();
+  }
+
+  handle.addEventListener('pointerdown', onPointerDown);
+  handle.addEventListener('pointermove', onPointerMove);
+  handle.addEventListener('pointerup', onPointerUp);
+  handle.addEventListener('pointercancel', onPointerCancel);
 }
 
 // --- إظهار وإخفاء كلمات المرور ---
@@ -4285,11 +4566,18 @@ document.addEventListener('click', (e) => {
     directActions[action]();
     return;
   }
+
+  if (action === 'show_scr-menu') {
+    backToArchive();
+    return;
+  }
   
   // Actions with arguments (action_arg format)
   if (action.startsWith('show_')) {
-    const screen = action.replace('show_', 'scr-');
-    show(screen);
+    // data-action="show_scr-brief" already carries the "scr-" prefix; the old replace()
+    // turned it into "scr-scr-brief" (no such screen) which blanked the page.
+    const screenName = action.slice('show_'.length);
+    show(screenName.startsWith('scr-') ? screenName : 'scr-' + screenName);
     return;
   }
   
@@ -4331,7 +4619,7 @@ if (action === 'inviteFriend') {
   if (typeof generateInviteLink === 'function') {
     generateInviteLink();
   } else {
-    showToast("⚠️ مكتبة الدعوة غير محملة بعد.");
+    showToast(txx('inviteLibNotLoaded'));
   }
   return;
 }
@@ -4369,7 +4657,7 @@ if (action === 'inviteFriend') {
     return;
   }
   if (action === 'openEvidence') {
-    openEvidenceModal(target.dataset.evName, target.dataset.evDesc, target.dataset.evidenceId);
+    openEvidenceModal(target.dataset.evName, target.dataset.evDesc, target.dataset.evidenceId, target.dataset.evImgIdx);
     return;
   }
   if (action === 'openSuspect') {
