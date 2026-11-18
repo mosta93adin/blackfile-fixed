@@ -1,28 +1,43 @@
-const CACHE_NAME = 'black-file-cache-v9'; // bumped: fix module scripts failing when served from SW cache (opaque no-cors copies of cross-origin Firebase modules broke ES module imports: net::ERR_FAILED)
+const CACHE_NAME = 'black-file-cache-v11'; // v11: app shell now includes engine modules + invite.js (offline PWA), only successful responses are cached
 const APP_SHELL = [
   './index.html',
   './styles.css',
   './translations.js',
   './app.js',
   './firebase.js',
+  './firebase-sdk.js',
   './firebase-config.js',
+  './invite.js',
   './peerjs.min.js',
   './manifest.json',
   './assets/icon-192.png',
   './assets/icon-512.png',
   './assets/icon-512-maskable.png',
-  './assets/apple-touch-icon.png'
+  './assets/apple-touch-icon.png',
+  './engine/accusation-engine.mjs',
+  './engine/case-dispatch.mjs',
+  './engine/case-loader.mjs',
+  './engine/case-one-presentation.mjs',
+  './engine/case-zero-presentation.mjs',
+  './engine/contradiction-engine.mjs',
+  './engine/deduction-engine.mjs',
+  './engine/evidence-engine.mjs',
+  './engine/hint-engine.mjs',
+  './engine/hypothesis-engine.mjs',
+  './engine/interrogation-engine.mjs',
+  './engine/investigation-model.mjs',
+  './engine/investigation-presentation.mjs',
+  './engine/investigation-runtime.mjs',
+  './engine/investigation-state.mjs'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
       await cache.addAll(APP_SHELL);
-      // NOTE: we intentionally do NOT cache the cross-origin Firebase modules
-      // (gstatic). They are consumed as ES module imports (CORS mode), and a
-      // no-cors cached copy is an opaque response that CANNOT be replayed for
-      // a module request — it fails with net::ERR_FAILED. The fetch handler
-      // below always goes to the network for cross-origin module scripts.
+      // NOTE: cross-origin Firebase modules (gstatic) are intentionally NOT cached:
+      // they are ES module imports (CORS mode) and an opaque no-cors copy cannot be
+      // replayed for a module request (net::ERR_FAILED).
     })
   );
   self.skipWaiting();
@@ -41,7 +56,6 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
 
-  // Resolve the request URL against the SW's own origin.
   let reqUrl;
   try {
     reqUrl = new URL(req.url);
@@ -49,10 +63,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cross-origin requests (Firebase CDN / PeerJS / avatar images):
-  //  - ES module scripts (destination 'script') MUST get a live network
-  //    response with real CORS headers — never a cached opaque copy.
-  //  - Other cross-origin assets (images) stay network-first with cache fallback.
+  // Cross-origin: scripts always go live (see note above); other assets network-first.
   if (reqUrl.origin !== self.location.origin) {
     if (req.destination === 'script') {
       event.respondWith(fetch(req));
@@ -62,17 +73,20 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Same-origin resources: cache-first with stale-while-revalidate.
+  // Same-origin: cache-first with stale-while-revalidate.
+  // Only successful (2xx) responses are stored, so a missing optional image
+  // (404) is never cached and shows up as soon as it exists.
   event.respondWith(
     caches.match(req).then((cached) => {
       const fetchPromise = fetch(req)
         .then((networkRes) => {
-          // Refresh the cache in the background
-          const copy = networkRes.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
+          if (networkRes && networkRes.ok) {
+            const copy = networkRes.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
+          }
           return networkRes;
         })
-        .catch(() => cached); // offline: fall back to cache
+        .catch(() => cached);
       return cached || fetchPromise;
     })
   );
